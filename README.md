@@ -4,7 +4,7 @@
 
 - Replace instances of `project_name` with your project's title
 - Create a bucket for web storage (for things like image uploads)
-    - - Create an API key for read/write on that bucket and circulate amongst the cohort to be placed in the `.env` files.
+  - - Create an API key for read/write on that bucket and circulate amongst the cohort to be placed in the `.env` files.
 
 ## Getting Started
 
