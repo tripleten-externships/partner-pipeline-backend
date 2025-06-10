@@ -6,8 +6,11 @@ type User {
   name: String
   email: String
   password: PasswordState
+  role: String
   isAdmin: Boolean
   createdAt: DateTime
+  project: String
+  isActive: Boolean
   lastLoginDate: DateTime
 }
 
@@ -29,8 +32,11 @@ input UserWhereInput {
   id: IDFilter
   name: StringFilter
   email: StringFilter
+  role: StringFilter
   isAdmin: BooleanFilter
   createdAt: DateTimeNullableFilter
+  project: StringFilter
+  isActive: BooleanFilter
   lastLoginDate: DateTimeNullableFilter
 }
 
@@ -93,8 +99,11 @@ input UserOrderByInput {
   id: OrderDirection
   name: OrderDirection
   email: OrderDirection
+  role: OrderDirection
   isAdmin: OrderDirection
   createdAt: OrderDirection
+  project: OrderDirection
+  isActive: OrderDirection
   lastLoginDate: OrderDirection
 }
 
@@ -107,8 +116,11 @@ input UserUpdateInput {
   name: String
   email: String
   password: String
+  role: String
   isAdmin: Boolean
   createdAt: DateTime
+  project: String
+  isActive: Boolean
   lastLoginDate: DateTime
 }
 
@@ -121,8 +133,11 @@ input UserCreateInput {
   name: String
   email: String
   password: String
+  role: String
   isAdmin: Boolean
   createdAt: DateTime
+  project: String
+  isActive: Boolean
   lastLoginDate: DateTime
 }
 

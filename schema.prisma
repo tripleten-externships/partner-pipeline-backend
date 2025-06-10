@@ -16,7 +16,10 @@ model User {
   name          String    @default("")
   email         String    @unique @default("")
   password      String
+  role          String    @default("Student")
   isAdmin       Boolean   @default(true)
   createdAt     DateTime? @default(now())
+  project       String    @default("")
+  isActive      Boolean   @default(false)
   lastLoginDate DateTime? @default(now())
 }
