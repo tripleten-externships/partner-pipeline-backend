@@ -9,7 +9,6 @@ type User {
   role: String
   isAdmin: Boolean
   createdAt: DateTime
-  project: String
   isActive: Boolean
   lastLoginDate: DateTime
 }
@@ -32,10 +31,9 @@ input UserWhereInput {
   id: IDFilter
   name: StringFilter
   email: StringFilter
-  role: StringFilter
+  role: StringNullableFilter
   isAdmin: BooleanFilter
   createdAt: DateTimeNullableFilter
-  project: StringFilter
   isActive: BooleanFilter
   lastLoginDate: DateTimeNullableFilter
 }
@@ -79,6 +77,20 @@ input NestedStringFilter {
   not: NestedStringFilter
 }
 
+input StringNullableFilter {
+  equals: String
+  in: [String!]
+  notIn: [String!]
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  contains: String
+  startsWith: String
+  endsWith: String
+  not: StringNullableFilter
+}
+
 input BooleanFilter {
   equals: Boolean
   not: BooleanFilter
@@ -102,7 +114,6 @@ input UserOrderByInput {
   role: OrderDirection
   isAdmin: OrderDirection
   createdAt: OrderDirection
-  project: OrderDirection
   isActive: OrderDirection
   lastLoginDate: OrderDirection
 }
@@ -119,7 +130,6 @@ input UserUpdateInput {
   role: String
   isAdmin: Boolean
   createdAt: DateTime
-  project: String
   isActive: Boolean
   lastLoginDate: DateTime
 }
@@ -136,9 +146,69 @@ input UserCreateInput {
   role: String
   isAdmin: Boolean
   createdAt: DateTime
-  project: String
   isActive: Boolean
   lastLoginDate: DateTime
+}
+
+type UserLog {
+  id: ID!
+  user: User
+  operation: String
+  before: JSON
+  after: JSON
+  timestamp: DateTime
+}
+
+input UserLogWhereUniqueInput {
+  id: ID
+}
+
+input UserLogWhereInput {
+  AND: [UserLogWhereInput!]
+  OR: [UserLogWhereInput!]
+  NOT: [UserLogWhereInput!]
+  id: IDFilter
+  user: UserWhereInput
+  operation: StringFilter
+  timestamp: DateTimeNullableFilter
+}
+
+input UserLogOrderByInput {
+  id: OrderDirection
+  operation: OrderDirection
+  timestamp: OrderDirection
+}
+
+input UserLogUpdateInput {
+  user: UserRelateToOneForUpdateInput
+  operation: String
+  before: JSON
+  after: JSON
+  timestamp: DateTime
+}
+
+input UserRelateToOneForUpdateInput {
+  create: UserCreateInput
+  connect: UserWhereUniqueInput
+  disconnect: Boolean
+}
+
+input UserLogUpdateArgs {
+  where: UserLogWhereUniqueInput!
+  data: UserLogUpdateInput!
+}
+
+input UserLogCreateInput {
+  user: UserRelateToOneForCreateInput
+  operation: String
+  before: JSON
+  after: JSON
+  timestamp: DateTime
+}
+
+input UserRelateToOneForCreateInput {
+  create: UserCreateInput
+  connect: UserWhereUniqueInput
 }
 
 """
@@ -153,6 +223,12 @@ type Mutation {
   updateUsers(data: [UserUpdateArgs!]!): [User]
   deleteUser(where: UserWhereUniqueInput!): User
   deleteUsers(where: [UserWhereUniqueInput!]!): [User]
+  createUserLog(data: UserLogCreateInput!): UserLog
+  createUserLogs(data: [UserLogCreateInput!]!): [UserLog]
+  updateUserLog(where: UserLogWhereUniqueInput!, data: UserLogUpdateInput!): UserLog
+  updateUserLogs(data: [UserLogUpdateArgs!]!): [UserLog]
+  deleteUserLog(where: UserLogWhereUniqueInput!): UserLog
+  deleteUserLogs(where: [UserLogWhereUniqueInput!]!): [UserLog]
   endSession: Boolean!
   authenticateUserWithPassword(email: String!, password: String!): UserAuthenticationWithPasswordResult
   createInitialUser(data: CreateInitialUserInput!): UserAuthenticationWithPasswordSuccess!
@@ -179,6 +255,9 @@ type Query {
   users(where: UserWhereInput! = {}, orderBy: [UserOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: UserWhereUniqueInput): [User!]
   user(where: UserWhereUniqueInput!): User
   usersCount(where: UserWhereInput! = {}): Int
+  userLogs(where: UserLogWhereInput! = {}, orderBy: [UserLogOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: UserLogWhereUniqueInput): [UserLog!]
+  userLog(where: UserLogWhereUniqueInput!): UserLog
+  userLogsCount(where: UserLogWhereInput! = {}): Int
   keystone: KeystoneMeta!
   authenticatedItem: AuthenticatedItem
 }
