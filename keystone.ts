@@ -1,9 +1,13 @@
 import dotenv from "dotenv";
 import { config } from "@keystone-6/core";
+// import express from "express";
+import passport from "./config/passport";
+import authRoutes from "./routes/authRoutes";
+import session from "express-session";
 
 dotenv.config();
 
-import { withAuth, session } from "./auth";
+import { withAuth } from "./auth";
 import * as Models from "./models";
 
 export default withAuth(
@@ -13,6 +17,18 @@ export default withAuth(
       cors: {
         origin: "*",
         methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+      },
+     extendExpressApp: (app, _context) => {
+        app.use(
+          session({ 
+            secret: "your-session-secret", 
+            resave: false, 
+            saveUninitialized: false 
+          })
+        );
+        app.use(passport.initialize());
+        app.use(passport.session());
+        app.use(authRoutes);
       },
     },
     db: {
@@ -55,3 +71,4 @@ export default withAuth(
     session,
   })
 );
+
