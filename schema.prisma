@@ -12,14 +12,26 @@ generator client {
 }
 
 model User {
-  id            String    @id @default(uuid())
-  name          String    @default("")
-  email         String    @unique @default("")
-  password      String
-  role          String    @default("Student")
-  isAdmin       Boolean   @default(true)
-  createdAt     DateTime? @default(now())
-  project       String    @default("")
-  isActive      Boolean   @default(false)
-  lastLoginDate DateTime? @default(now())
+  id                String    @id @default(uuid())
+  name              String    @default("")
+  email             String    @unique @default("")
+  password          String
+  role              String?   @default("Student")
+  isAdmin           Boolean   @default(true)
+  createdAt         DateTime? @default(now())
+  isActive          Boolean   @default(false)
+  lastLoginDate     DateTime? @default(now())
+  from_UserLog_user UserLog[] @relation("UserLog_user")
+}
+
+model UserLog {
+  id        String    @id @default(uuid())
+  user      User?     @relation("UserLog_user", fields: [userId], references: [id])
+  userId    String?   @map("user")
+  operation String    @default("")
+  before    Json?
+  after     Json?
+  timestamp DateTime? @default(now())
+
+  @@index([userId])
 }
