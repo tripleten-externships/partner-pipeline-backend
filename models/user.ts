@@ -3,23 +3,30 @@ import type { ListConfig } from "@keystone-6/core";
 import type { Lists } from ".keystone/types";
 import { checkbox, text, password, timestamp, select } from "@keystone-6/core/fields";
 import { UserRoleValues } from "../utils/values";
+import { permissions, isSignedIn } from "../utils/access";
 
 export const User: ListConfig<Lists.User.TypeInfo<any>, any> = list({
   access: {
     operation: {
-      query: () => true,
-      create: () => true,
-      update: ({ session }) => !!session,
-      delete: ({ session }) => !!session,
+      query: ({ session }) => isSignedIn({ session }),
+      create: ({ session }) => permissions.isAdminLike({ session }), 
+      update: ({ session }) =>
+        permissions.isAdminLike({ session }) || permissions.isStudent({ session }),
+      delete: ({ session }) => permissions.isAdminLike({ session }),
     },
     filter: {
-      query: ({ session }) => ({
-        id: { equals: session.data.id },
-      }),
+      query: ({ session }) => {
+        if (permissions.isAdminLike({ session })) return true;
+        if (permissions.isStudent({ session })) {
+          return { id: { equals: session?.data?.id } };
+        }
+        return false;
+      },
     },
     item: {
-      update: ({ session, item }) => item.id === session.data.id,
-      delete: ({ session, item }) => item.id === session.data.id,
+      update: ({ session, item }) =>
+        permissions.isAdminLike({ session }) || item.id === session?.data?.id,
+      delete: ({ session }) => permissions.isAdminLike({ session }),
     },
   },
   fields: {
@@ -41,7 +48,7 @@ export const User: ListConfig<Lists.User.TypeInfo<any>, any> = list({
       defaultValue: "Student",
       validation: { isRequired: true },
     }),
-    isAdmin: checkbox({ defaultValue: true }),
+    isAdmin: checkbox({ defaultValue: true }), 
     createdAt: timestamp({
       defaultValue: { kind: "now" },
     }),
@@ -52,3 +59,4 @@ export const User: ListConfig<Lists.User.TypeInfo<any>, any> = list({
     }),
   },
 });
+
