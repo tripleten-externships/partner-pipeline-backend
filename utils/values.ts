@@ -1,8 +1,7 @@
 export const UserRoleValues = [
-  "Partner",
-  "Mentor",
+  "External Partner",
+  "Project Mentor",
   "Lead Mentor",
-  "Designer",
-  "Coordinator",
   "Student",
+  //possible 5th element
 ] as const;
