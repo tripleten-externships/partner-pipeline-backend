@@ -9,7 +9,7 @@ export const User: ListConfig<Lists.User.TypeInfo<any>, any> = list({
   access: {
     operation: {
       query: ({ session }) => isSignedIn({ session }),
-      create: ({ session }) => permissions.isAdminLike({ session }), 
+      create: ({ session }) => permissions.isAdminLike({ session }),
       update: ({ session }) =>
         permissions.isAdminLike({ session }) || permissions.isStudent({ session }),
       delete: ({ session }) => permissions.isAdminLike({ session }),
@@ -48,7 +48,7 @@ export const User: ListConfig<Lists.User.TypeInfo<any>, any> = list({
       defaultValue: "Student",
       validation: { isRequired: true },
     }),
-    isAdmin: checkbox({ defaultValue: true }), 
+    isAdmin: checkbox({ defaultValue: true }),
     createdAt: timestamp({
       defaultValue: { kind: "now" },
     }),
@@ -59,4 +59,3 @@ export const User: ListConfig<Lists.User.TypeInfo<any>, any> = list({
     }),
   },
 });
-
