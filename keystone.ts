@@ -7,7 +7,7 @@ import { keystoneSession } from "./config/keystoneSession";
 import { withAuth } from "./auth";
 import * as Models from "./models";
 import authRoutes from "./routes/authRoutes";
-import { setupPassport, passport } from "./config/passport"; 
+import { setupPassport, passport } from "./config/passport";
 
 export default withAuth(
   config({
