@@ -1,5 +1,4 @@
 // access.ts
-
 type Session = {
   data: {
     role?: string;

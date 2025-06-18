@@ -11,8 +11,8 @@ import {
   json,
 } from "@keystone-6/core/fields";
 import { UserRoleValues } from "../utils/values";
-import { sendUserUpdateEmail } from './email';
 import { permissions, isSignedIn } from "../utils/access";
+import { sendUserUpdateEmail } from './email';
 
 export const User: ListConfig<Lists.User.TypeInfo<any>, any> = list({
   access: {
