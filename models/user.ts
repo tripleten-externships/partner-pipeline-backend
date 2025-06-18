@@ -79,6 +79,7 @@ export const User: ListConfig<Lists.User.TypeInfo<any>, any> = list({
             timestamp: new Date().toISOString(),
           },
         });
+
         await sendUserChangeEmail(operation, item, originalItem);
       }
     },
