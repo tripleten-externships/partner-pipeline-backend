@@ -13,6 +13,7 @@ import {
 import { UserRoleValues } from "../utils/values";
 import { permissions, isSignedIn } from "../utils/access";
 import { sendUserUpdateEmail } from './email';
+import { userAfterOperation } from '../hooks/userHooks';
 
 export const User: ListConfig<Lists.User.TypeInfo<any>, any> = list({
   access: {
@@ -55,7 +56,7 @@ export const User: ListConfig<Lists.User.TypeInfo<any>, any> = list({
     role: select({
       options: UserRoleValues.map((value) => ({ label: value, value })),
       defaultValue: "Student",
-      // validation: { isRequired: true },
+      //  validation: { isRequired: true },
     }),
     isAdmin: checkbox({ defaultValue: true }),
     createdAt: timestamp({
@@ -68,30 +69,8 @@ export const User: ListConfig<Lists.User.TypeInfo<any>, any> = list({
     }),
   },
   hooks: {
-    async afterOperation({ operation, item, originalItem, context }) {
-      if (["create", "update", "delete"].includes(operation)) {
-        try {
-          await context.db.UserLog.createOne({
-            data: {
-              user: { connect: { id: item?.id || originalItem?.id } },
-              operation,
-              before: originalItem ? JSON.stringify(originalItem) : null,
-              after: item ? JSON.stringify(item) : null,
-              timestamp: new Date().toISOString(),
-            },
-          });
-
-          await sendUserUpdateEmail(
-            item?.email || originalItem?.email || 'admin@yourdomain.com',
-            `Your Account Was ${operation[0].toUpperCase() + operation.slice(1)}`,
-            `<p>Hi ${item?.name || originalItem?.name || 'User'}, your account was ${operation}d.</p>`
-          );
-        } catch (error) {
-          console.error(`Failed in afterOperation (${operation}):`, error);
-        }
-      }
-    },
-  },
+  afterOperation: userAfterOperation
+},
 });
 
 export const UserLog: ListConfig<Lists.UserLog.TypeInfo<any>, any> = list({
