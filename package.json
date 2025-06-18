@@ -20,6 +20,7 @@
     "@keystone-6/fields-document": "^7.0.0",
     "@prisma/debug": "^5.3.1",
     "@prisma/generator-helper": "^5.3.1",
+    "all": "^0.0.0",
     "dotenv": "^16.3.1",
     "fs-extra": "^11.2.0",
     "keystone": "^4.2.1",
