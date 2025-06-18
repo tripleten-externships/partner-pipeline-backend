@@ -7,7 +7,7 @@ import { keystoneSession } from "./config/keystoneSession";
 import { withAuth } from "./auth";
 import * as Models from "./models";
 import authRoutes from "./routes/authRoutes";
-import { setupPassport, passport } from "./config/passport"; // ✅ Updated
+import { setupPassport, passport } from "./config/passport"; 
 
 export default withAuth(
   config({
@@ -19,15 +19,15 @@ export default withAuth(
         credentials: true,
       },
       extendExpressApp: (app, _context) => {
-        setupPassport(); // ✅ Initialize passport strategies at runtime only
+        setupPassport();
 
         app.use(
-  expressSession({
-    secret: process.env.SESSION_SECRET!,
-    resave: false,
-    saveUninitialized: false,
-  })
-);
+          expressSession({
+            secret: process.env.SESSION_SECRET!,
+            resave: false,
+            saveUninitialized: false,
+          })
+        );
 
         app.use(passport.initialize());
         app.use(passport.session());

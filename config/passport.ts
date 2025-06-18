@@ -26,8 +26,8 @@ export function setupPassport() {
   });
 
   passport.deserializeUser((obj: any, done) => {
-  done(null, obj);
-});
+    done(null, obj);
+  });
 }
 
 export { passport };

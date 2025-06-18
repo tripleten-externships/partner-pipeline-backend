@@ -4,12 +4,16 @@ import { passport } from "../config/passport";
 const router = Router();
 
 // Redirect user to Google for authentication
-router.get("/auth/google", passport.authenticate("google", {
-  scope: ["profile", "email"],
-}));
+router.get(
+  "/auth/google",
+  passport.authenticate("google", {
+    scope: ["profile", "email"],
+  })
+);
 
 // Google OAuth callback
-router.get("/auth/google/callback",
+router.get(
+  "/auth/google/callback",
   passport.authenticate("google", {
     failureRedirect: "/login",
     session: true,

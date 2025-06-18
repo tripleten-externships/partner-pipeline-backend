@@ -1,4 +1,4 @@
-import 'dotenv/config';
+import "dotenv/config";
 
 export const env = {
   googleClientId: process.env.GOOGLE_CLIENT_ID!,
