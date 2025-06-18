@@ -55,7 +55,7 @@ export const User: ListConfig<Lists.User.TypeInfo<any>, any> = list({
     role: select({
       options: UserRoleValues.map((value) => ({ label: value, value })),
       defaultValue: "Student",
-      // validation: { isRequired: true },
+      //  validation: { isRequired: true },
     }),
     isAdmin: checkbox({ defaultValue: true }),
     createdAt: timestamp({
@@ -68,36 +68,38 @@ export const User: ListConfig<Lists.User.TypeInfo<any>, any> = list({
     }),
   },
   hooks: {
-    async afterOperation({ operation, item, originalItem, context }) {
+  async afterOperation({ operation, item, originalItem, context }) {
+    // 🔔 Send an email if the user was updated
+    if (operation === 'update') {
       try {
-        if (operation === 'update') {
-          await sendUserUpdateEmail(
-            item.email,
-            'Your Account Was Updated',
-            `<p>Hi ${item.name}, your account has been updated.</p>`
-          );
-        }
+        await sendUserUpdateEmail(
+          item.email,
+          'Your Account Was Updated',
+          `<p>Hi ${item.name}, your account has been updated.</p>`
+        );
       } catch (error) {
         console.error("Failed to send update email:", error);
       }
+    }
 
+    // 📝 Log create, update, or delete operations
+    if (["create", "update", "delete"].includes(operation)) {
       try {
-        if (["create", "update", "delete"].includes(operation)) {
-          await context.db.UserLog.createOne({
-            data: {
-              user: { connect: { id: item?.id || originalItem?.id } },
-              operation,
-              before: originalItem ? JSON.stringify(originalItem) : null,
-              after: item ? JSON.stringify(item) : null,
-              timestamp: new Date().toISOString(),
-            },
-          });
-        }
+        await context.db.UserLog.createOne({
+          data: {
+            user: { connect: { id: item?.id || originalItem?.id } },
+            operation,
+            before: originalItem ? JSON.stringify(originalItem) : null,
+            after: item ? JSON.stringify(item) : null,
+            timestamp: new Date().toISOString(),
+          },
+        });
       } catch (error) {
         console.error("Failed to log user operation:", error);
       }
-    },
-  },
+    }
+  }
+}
 });
 
 export const UserLog: ListConfig<Lists.UserLog.TypeInfo<any>, any> = list({
