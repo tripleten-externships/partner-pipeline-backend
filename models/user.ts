@@ -11,8 +11,8 @@ import {
   json,
 } from "@keystone-6/core/fields";
 import { UserRoleValues } from "../utils/values";
-import { sendUserUpdateEmail } from './email';
 import { permissions, isSignedIn } from "../utils/access";
+import { sendUserUpdateEmail } from './email';
 
 export const User: ListConfig<Lists.User.TypeInfo<any>, any> = list({
   access: {
@@ -67,24 +67,11 @@ export const User: ListConfig<Lists.User.TypeInfo<any>, any> = list({
       defaultValue: { kind: "now" },
     }),
   },
-  hooks: {
+hooks: {
   async afterOperation({ operation, item, originalItem, context }) {
-    // 🔔 Send an email if the user was updated
-    if (operation === 'update') {
-      try {
-        await sendUserUpdateEmail(
-          item.email,
-          'Your Account Was Updated',
-          `<p>Hi ${item.name}, your account has been updated.</p>`
-        );
-      } catch (error) {
-        console.error("Failed to send update email:", error);
-      }
-    }
-
-    // 📝 Log create, update, or delete operations
     if (["create", "update", "delete"].includes(operation)) {
       try {
+        // 📓 Log the operation
         await context.db.UserLog.createOne({
           data: {
             user: { connect: { id: item?.id || originalItem?.id } },
@@ -94,8 +81,16 @@ export const User: ListConfig<Lists.User.TypeInfo<any>, any> = list({
             timestamp: new Date().toISOString(),
           },
         });
+
+        // ✉️ Send notification email
+        await sendUserUpdateEmail(
+          item?.email || originalItem?.email || 'admin@yourdomain.com',
+          `Your Account Was ${operation[0].toUpperCase() + operation.slice(1)}`,
+          `<p>Hi ${item?.name || originalItem?.name || 'User'}, your account was ${operation}d.</p>`
+        );
+
       } catch (error) {
-        console.error("Failed to log user operation:", error);
+        console.error(`Failed in afterOperation (${operation}):`, error);
       }
     }
   }
