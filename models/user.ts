@@ -3,6 +3,7 @@ import type { ListConfig } from "@keystone-6/core";
 import type { Lists } from ".keystone/types";
 import { checkbox, text, password, timestamp, select } from "@keystone-6/core/fields";
 import { UserRoleValues } from "../utils/values";
+import { sendUserUpdateEmail } from './email';
 
 export const User: ListConfig<Lists.User.TypeInfo<any>, any> = list({
   access: {
@@ -50,5 +51,16 @@ export const User: ListConfig<Lists.User.TypeInfo<any>, any> = list({
     lastLoginDate: timestamp({
       defaultValue: { kind: "now" },
     }),
+  },
+    hooks: {
+    async afterOperation({ operation, item, originalItem }) {
+      if (operation === 'update') {
+        await sendUserUpdateEmail(
+          item.email,
+          'Your Account Was Updated',
+          `<p>Hi ${item.name}, your account has been updated.</p>`
+        );
+      }
+    },
   },
 });
