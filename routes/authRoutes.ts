@@ -1,15 +1,22 @@
-import express from "express";
-import passport from "../config/passport";
+import { Router } from "express";
+import { passport } from "../config/passport";
 
-const router = express.Router();
+const router = Router();
 
-router.get("/auth/google", passport.authenticate("google", { scope: ["profile", "email"] }));
+// Redirect user to Google for authentication
+router.get("/auth/google", passport.authenticate("google", {
+  scope: ["profile", "email"],
+}));
 
-router.get(
-  "/auth/google/callback",
-  passport.authenticate("google", { failureRedirect: "/" }),
+// Google OAuth callback
+router.get("/auth/google/callback",
+  passport.authenticate("google", {
+    failureRedirect: "/login",
+    session: true,
+  }),
   (req, res) => {
-    res.redirect("/admin");
+    // Success: redirect to dashboard or home
+    res.redirect("/");
   }
 );
 
