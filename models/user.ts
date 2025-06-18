@@ -11,8 +11,8 @@ import {
   json,
 } from "@keystone-6/core/fields";
 import { UserRoleValues } from "../utils/values";
-import { permissions, isSignedIn } from "../utils/access";
 import { sendUserUpdateEmail } from './email';
+import { permissions, isSignedIn } from "../utils/access";
 
 export const User: ListConfig<Lists.User.TypeInfo<any>, any> = list({
   access: {
@@ -55,11 +55,13 @@ export const User: ListConfig<Lists.User.TypeInfo<any>, any> = list({
     role: select({
       options: UserRoleValues.map((value) => ({ label: value, value })),
       defaultValue: "Student",
+      // validation: { isRequired: true },
     }),
     isAdmin: checkbox({ defaultValue: true }),
     createdAt: timestamp({
       defaultValue: { kind: "now" },
     }),
+    // project: text({ validation: { isRequired: true } }),
     isActive: checkbox({ defaultValue: false }),
     lastLoginDate: timestamp({
       defaultValue: { kind: "now" },
