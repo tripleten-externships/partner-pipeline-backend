@@ -1,3 +1,4 @@
+import { sendUserChangeEmail } from "../hooks/userNotification";
 import { list } from "@keystone-6/core";
 import type { ListConfig } from "@keystone-6/core";
 import type { Lists } from ".keystone/types";
@@ -12,8 +13,6 @@ import {
 } from "@keystone-6/core/fields";
 import { UserRoleValues } from "../utils/values";
 import { permissions, isSignedIn } from "../utils/access";
-import { sendUserUpdateEmail } from './email';
-import { userAfterOperation } from '../hooks/userHooks';
 
 export const User: ListConfig<Lists.User.TypeInfo<any>, any> = list({
   access: {
@@ -69,8 +68,21 @@ export const User: ListConfig<Lists.User.TypeInfo<any>, any> = list({
     }),
   },
   hooks: {
-  afterOperation: userAfterOperation
-},
+    async afterOperation({ operation, item, originalItem, context }) {
+      if (operation === "create" || operation === "update" || operation === "delete") {
+        await context.db.UserLog.createOne({
+          data: {
+            user: { connect: { id: item?.id || originalItem?.id } },
+            operation,
+            before: originalItem ? JSON.stringify(originalItem) : null,
+            after: item ? JSON.stringify(item) : null,
+            timestamp: new Date().toISOString(),
+          },
+        });
+        await sendUserChangeEmail(operation, item, originalItem);
+      }
+    },
+  },
 });
 
 export const UserLog: ListConfig<Lists.UserLog.TypeInfo<any>, any> = list({
