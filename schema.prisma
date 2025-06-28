@@ -35,3 +35,12 @@ model UserLog {
 
   @@index([userId])
 }
+
+model TestUpload {
+  id               String  @id @default(uuid())
+  upload_id        String?
+  upload_filesize  Int?
+  upload_width     Int?
+  upload_height    Int?
+  upload_extension String?
+}

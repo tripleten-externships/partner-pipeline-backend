@@ -4,7 +4,7 @@ import { config } from "@keystone-6/core";
 dotenv.config();
 
 import { withAuth, session } from "./auth";
-import * as Models from "./models";
+import { lists } from "./models";
 
 export default withAuth(
   config({
@@ -33,7 +33,7 @@ export default withAuth(
       s3_file_storage: {
         kind: "s3",
         type: "file",
-        bucketName: process.env.S3_BUCKET_NAME || "project_name-keystonejs",
+        bucketName: process.env.S3_BUCKET_NAME || "partner-pipeline-keystonejs",
         region: process.env.S3_REGION || "us-east-2",
         accessKeyId: process.env.S3_ACCESS_KEY_ID || "keystone",
         secretAccessKey: process.env.S3_SECRET_ACCESS_KEY || "keystone",
@@ -43,7 +43,7 @@ export default withAuth(
       s3_image_storage: {
         kind: "s3",
         type: "image",
-        bucketName: process.env.S3_BUCKET_NAME || "project_name-keystonejs",
+        bucketName: process.env.S3_BUCKET_NAME || "partner-pipeline-keystonejs",
         region: process.env.S3_REGION || "us-east-2",
         accessKeyId: process.env.S3_ACCESS_KEY_ID || "keystone",
         secretAccessKey: process.env.S3_SECRET_ACCESS_KEY || "keystone",
@@ -51,7 +51,7 @@ export default withAuth(
         forcePathStyle: true,
       },
     },
-    lists: Models,
+    lists,
     session,
   })
 );
