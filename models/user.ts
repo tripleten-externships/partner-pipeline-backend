@@ -1,3 +1,4 @@
+import { sendUserChangeEmail } from "../hooks/userNotification";
 import { list } from "@keystone-6/core";
 import type { ListConfig } from "@keystone-6/core";
 import type { Lists } from ".keystone/types";
@@ -54,13 +55,11 @@ export const User: ListConfig<Lists.User.TypeInfo<any>, any> = list({
     role: select({
       options: UserRoleValues.map((value) => ({ label: value, value })),
       defaultValue: "Student",
-      //  validation: { isRequired: true },
     }),
     isAdmin: checkbox({ defaultValue: true }),
     createdAt: timestamp({
       defaultValue: { kind: "now" },
     }),
-    // project: text({ validation: { isRequired: true } }),
     isActive: checkbox({ defaultValue: false }),
     lastLoginDate: timestamp({
       defaultValue: { kind: "now" },
@@ -78,6 +77,7 @@ export const User: ListConfig<Lists.User.TypeInfo<any>, any> = list({
             timestamp: new Date().toISOString(),
           },
         });
+        await sendUserChangeEmail(operation, item, originalItem);
       }
     },
   },
