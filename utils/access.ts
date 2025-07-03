@@ -3,6 +3,7 @@ type Session = {
   data: {
     role?: string;
     id: string;
+    project?: string;
   };
 };
 
@@ -16,4 +17,5 @@ export const permissions = {
     session?.data.role === "External Partner",
   isAdminLike: ({ session }: { session?: Session }) =>
     session?.data.role === "Lead Mentor" || session?.data.role === "Project Mentor",
+  isProjectMember: ({ session }: { session?: Session }) => session?.data.project === "",
 };

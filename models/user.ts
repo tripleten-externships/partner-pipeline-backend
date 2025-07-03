@@ -65,6 +65,7 @@ export const User: ListConfig<Lists.User.TypeInfo<any>, any> = list({
     lastLoginDate: timestamp({
       defaultValue: { kind: "now" },
     }),
+    project: relationship({ ref: "Project.members" }),
   },
   hooks: {
     async afterOperation({ operation, item, originalItem, context }) {
