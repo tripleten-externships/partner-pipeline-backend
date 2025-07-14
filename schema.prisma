@@ -11,6 +11,18 @@ generator client {
   provider = "prisma-client-js"
 }
 
+model Milestone {
+  id            String    @id @default(uuid())
+  projectId     String    @default("")
+  milestoneName String    @default("")
+  status        String    @default("not_started")
+  assignee      String    @default("")
+  createdAt     DateTime? @default(now())
+
+  @@index([projectId])
+  @@index([status])
+}
+
 model User {
   id                String    @id @default(uuid())
   name              String    @default("")
