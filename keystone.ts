@@ -1,5 +1,6 @@
 import dotenv from "dotenv";
 import { config } from "@keystone-6/core";
+import { lists } from "./models";
 
 dotenv.config();
 
@@ -51,7 +52,7 @@ export default withAuth(
         forcePathStyle: true,
       },
     },
-    lists: Models,
+    lists,
     session,
   })
 );

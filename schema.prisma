@@ -11,16 +11,6 @@ generator client {
   provider = "prisma-client-js"
 }
 
-model Project {
-  id         String    @id @default(uuid())
-  name       String    @default("")
-  createdAt  DateTime? @default(now())
-  project    String    @default("")
-  isActive   Boolean   @default(false)
-  lastUpdate DateTime? @default(now())
-  members    User[]    @relation("User_project")
-}
-
 model User {
   id                String    @id @default(uuid())
   name              String    @default("")
@@ -31,11 +21,11 @@ model User {
   createdAt         DateTime? @default(now())
   isActive          Boolean   @default(false)
   lastLoginDate     DateTime? @default(now())
-  project           Project?  @relation("User_project", fields: [projectId], references: [id])
-  projectId         String?   @map("project")
+  projects          Project?  @relation("User_projects", fields: [projectsId], references: [id])
+  projectsId        String?   @map("projects")
   from_UserLog_user UserLog[] @relation("UserLog_user")
 
-  @@index([projectId])
+  @@index([projectsId])
 }
 
 model UserLog {
@@ -48,4 +38,27 @@ model UserLog {
   timestamp DateTime? @default(now())
 
   @@index([userId])
+}
+
+model Project {
+  id                      String       @id @default(uuid())
+  name                    String       @default("")
+  createdAt               DateTime?    @default(now())
+  project                 String       @default("")
+  isActive                Boolean      @default(false)
+  lastUpdate              DateTime?    @default(now())
+  members                 User[]       @relation("User_projects")
+  from_ProjectLog_project ProjectLog[] @relation("ProjectLog_project")
+}
+
+model ProjectLog {
+  id        String    @id @default(uuid())
+  project   Project?  @relation("ProjectLog_project", fields: [projectId], references: [id])
+  projectId String?   @map("project")
+  operation String    @default("")
+  before    Json?
+  after     Json?
+  timestamp DateTime? @default(now())
+
+  @@index([projectId])
 }

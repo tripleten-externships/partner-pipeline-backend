@@ -15,7 +15,7 @@ export const permissions = {
   isLeadMentor: ({ session }: { session?: Session }) => session?.data.role === "Lead Mentor",
   isExternalPartner: ({ session }: { session?: Session }) =>
     session?.data.role === "External Partner",
-  isAdminLike: ({ session }: { session?: Session }) =>
-    session?.data.role === "Lead Mentor" || session?.data.role === "Project Mentor",
+isAdminLike: ({ session }: { session?: Session }) =>
+  ["Admin", "Lead Mentor", "Project Mentor"].includes(session?.data.role ?? ""),
   isProjectMember: ({ session }: { session?: Session }) => session?.data.project === "",
 };
