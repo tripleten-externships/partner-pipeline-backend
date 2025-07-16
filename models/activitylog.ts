@@ -4,13 +4,13 @@ import type { Lists } from ".keystone/types";
 import { relationship, text, timestamp } from "@keystone-6/core/fields";
 import { isSignedIn } from "../utils/access";
 
-export const ActivityLog: ListConfig<Lists.ActivityLog.TypeInfo, any> = list({
+export const ActivityLog: ListConfig<Lists.ActivityLog.TypeInfo<any>, any> = list({
   access: {
     operation: {
       query: isSignedIn,
       create: isSignedIn,
-      update: () => false,
-      delete: () => false,
+      update: isSignedIn,
+      delete: isSignedIn,
     },
   },
   fields: {
@@ -20,11 +20,11 @@ export const ActivityLog: ListConfig<Lists.ActivityLog.TypeInfo, any> = list({
     projectId: text({
       validation: { isRequired: true },
       isIndexed: true,
-    }),
+    }), // add relationship field when project model is created
     milestoneId: text({
       validation: { isRequired: true },
       isIndexed: true,
-    }),
+    }), // add relationship field when milestone model is created
     updatedBy: relationship({ ref: "User.activityLogs", many: false }),
   },
 });
