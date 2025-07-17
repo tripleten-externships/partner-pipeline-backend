@@ -11,6 +11,59 @@ generator client {
   provider = "prisma-client-js"
 }
 
+model User {
+  id                String        @id @default(uuid())
+  name              String        @default("")
+  email             String        @unique @default("")
+  password          String
+  role              String?       @default("Student")
+  isAdmin           Boolean       @default(true)
+  createdAt         DateTime?     @default(now())
+  isActive          Boolean       @default(false)
+  lastLoginDate     DateTime?     @default(now())
+  activityLogs      ActivityLog[] @relation("ActivityLog_updatedBy")
+  projects          Project?      @relation("User_projects", fields: [projectsId], references: [id])
+  projectsId        String?       @map("projects")
+  from_UserLog_user UserLog[]     @relation("UserLog_user")
+
+  @@index([projectsId])
+}
+
+model UserLog {
+  id        String    @id @default(uuid())
+  user      User?     @relation("UserLog_user", fields: [userId], references: [id])
+  userId    String?   @map("user")
+  operation String    @default("")
+  before    Json?
+  after     Json?
+  timestamp DateTime? @default(now())
+
+  @@index([userId])
+}
+
+model Project {
+  id                      String       @id @default(uuid())
+  name                    String       @default("")
+  createdAt               DateTime?    @default(now())
+  project                 String       @default("")
+  isActive                Boolean      @default(false)
+  lastUpdate              DateTime?    @default(now())
+  members                 User[]       @relation("User_projects")
+  from_ProjectLog_project ProjectLog[] @relation("ProjectLog_project")
+}
+
+model ProjectLog {
+  id        String    @id @default(uuid())
+  project   Project?  @relation("ProjectLog_project", fields: [projectId], references: [id])
+  projectId String?   @map("project")
+  operation String    @default("")
+  before    Json?
+  after     Json?
+  timestamp DateTime? @default(now())
+
+  @@index([projectId])
+}
+
 model ActivityLog {
   id          String    @id @default(uuid())
   oldStatus   String    @default("")
@@ -24,30 +77,4 @@ model ActivityLog {
   @@index([projectId])
   @@index([milestoneId])
   @@index([updatedById])
-}
-
-model User {
-  id                String        @id @default(uuid())
-  name              String        @default("")
-  email             String        @unique @default("")
-  password          String
-  role              String?       @default("Student")
-  isAdmin           Boolean       @default(true)
-  createdAt         DateTime?     @default(now())
-  isActive          Boolean       @default(false)
-  lastLoginDate     DateTime?     @default(now())
-  activityLogs      ActivityLog[] @relation("ActivityLog_updatedBy")
-  from_UserLog_user UserLog[]     @relation("UserLog_user")
-}
-
-model UserLog {
-  id        String    @id @default(uuid())
-  user      User?     @relation("UserLog_user", fields: [userId], references: [id])
-  userId    String?   @map("user")
-  operation String    @default("")
-  before    Json?
-  after     Json?
-  timestamp DateTime? @default(now())
-
-  @@index([userId])
 }
