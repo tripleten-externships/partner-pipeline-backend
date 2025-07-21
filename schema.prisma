@@ -21,7 +21,11 @@ model User {
   createdAt         DateTime? @default(now())
   isActive          Boolean   @default(false)
   lastLoginDate     DateTime? @default(now())
+  projects          Project?  @relation("User_projects", fields: [projectsId], references: [id])
+  projectsId        String?   @map("projects")
   from_UserLog_user UserLog[] @relation("UserLog_user")
+
+  @@index([projectsId])
 }
 
 model UserLog {
@@ -36,11 +40,25 @@ model UserLog {
   @@index([userId])
 }
 
-model TestUpload {
-  id               String  @id @default(uuid())
-  upload_id        String?
-  upload_filesize  Int?
-  upload_width     Int?
-  upload_height    Int?
-  upload_extension String?
+model Project {
+  id                      String       @id @default(uuid())
+  name                    String       @default("")
+  createdAt               DateTime?    @default(now())
+  project                 String       @default("")
+  isActive                Boolean      @default(false)
+  lastUpdate              DateTime?    @default(now())
+  members                 User[]       @relation("User_projects")
+  from_ProjectLog_project ProjectLog[] @relation("ProjectLog_project")
+}
+
+model ProjectLog {
+  id        String    @id @default(uuid())
+  project   Project?  @relation("ProjectLog_project", fields: [projectId], references: [id])
+  projectId String?   @map("project")
+  operation String    @default("")
+  before    Json?
+  after     Json?
+  timestamp DateTime? @default(now())
+
+  @@index([projectId])
 }

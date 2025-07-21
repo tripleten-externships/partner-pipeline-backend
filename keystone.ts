@@ -1,10 +1,9 @@
 import dotenv from "dotenv";
-dotenv.config();
-
-import { withAuth, session } from "./auth";
+import { config } from "@keystone-6/core";
 import { lists } from "./models";
 
-import { config } from "@keystone-6/core";
+dotenv.config();
+
 import expressSession from "express-session";
 import { keystoneSession } from "./config/keystoneSession";
 import { withAuth } from "./auth";
@@ -73,11 +72,7 @@ export default withAuth(
         forcePathStyle: true,
       },
     },
-
     lists,
-    session,
-
-    lists: Models,
     session: keystoneSession,
   })
 );

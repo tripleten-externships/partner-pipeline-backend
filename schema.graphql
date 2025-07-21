@@ -11,6 +11,7 @@ type User {
   createdAt: DateTime
   isActive: Boolean
   lastLoginDate: DateTime
+  projects: Project
 }
 
 type PasswordState {
@@ -36,6 +37,7 @@ input UserWhereInput {
   createdAt: DateTimeNullableFilter
   isActive: BooleanFilter
   lastLoginDate: DateTimeNullableFilter
+  projects: ProjectWhereInput
 }
 
 input IDFilter {
@@ -132,6 +134,13 @@ input UserUpdateInput {
   createdAt: DateTime
   isActive: Boolean
   lastLoginDate: DateTime
+  projects: ProjectRelateToOneForUpdateInput
+}
+
+input ProjectRelateToOneForUpdateInput {
+  create: ProjectCreateInput
+  connect: ProjectWhereUniqueInput
+  disconnect: Boolean
 }
 
 input UserUpdateArgs {
@@ -148,6 +157,12 @@ input UserCreateInput {
   createdAt: DateTime
   isActive: Boolean
   lastLoginDate: DateTime
+  projects: ProjectRelateToOneForCreateInput
+}
+
+input ProjectRelateToOneForCreateInput {
+  create: ProjectCreateInput
+  connect: ProjectWhereUniqueInput
 }
 
 type UserLog {
@@ -211,62 +226,138 @@ input UserRelateToOneForCreateInput {
   connect: UserWhereUniqueInput
 }
 
-type TestUpload {
+type Project {
   id: ID!
-  upload: ImageFieldOutput
+  name: String
+  createdAt: DateTime
+  project: String
+  isActive: Boolean
+  lastUpdate: DateTime
+  members(
+    where: UserWhereInput! = {}
+    orderBy: [UserOrderByInput!]! = []
+    take: Int
+    skip: Int! = 0
+    cursor: UserWhereUniqueInput
+  ): [User!]
+  membersCount(where: UserWhereInput! = {}): Int
 }
 
-type ImageFieldOutput {
-  id: ID!
-  filesize: Int!
-  width: Int!
-  height: Int!
-  extension: ImageExtension!
-  url: String!
-}
-
-enum ImageExtension {
-  jpg
-  png
-  webp
-  gif
-}
-
-input TestUploadWhereUniqueInput {
+input ProjectWhereUniqueInput {
   id: ID
 }
 
-input TestUploadWhereInput {
-  AND: [TestUploadWhereInput!]
-  OR: [TestUploadWhereInput!]
-  NOT: [TestUploadWhereInput!]
+input ProjectWhereInput {
+  AND: [ProjectWhereInput!]
+  OR: [ProjectWhereInput!]
+  NOT: [ProjectWhereInput!]
   id: IDFilter
+  name: StringFilter
+  createdAt: DateTimeNullableFilter
+  project: StringFilter
+  isActive: BooleanFilter
+  lastUpdate: DateTimeNullableFilter
+  members: UserManyRelationFilter
 }
 
-input TestUploadOrderByInput {
+input UserManyRelationFilter {
+  every: UserWhereInput
+  some: UserWhereInput
+  none: UserWhereInput
+}
+
+input ProjectOrderByInput {
   id: OrderDirection
+  name: OrderDirection
+  createdAt: OrderDirection
+  project: OrderDirection
+  isActive: OrderDirection
+  lastUpdate: OrderDirection
 }
 
-input TestUploadUpdateInput {
-  upload: ImageFieldInput
+input ProjectUpdateInput {
+  name: String
+  createdAt: DateTime
+  project: String
+  isActive: Boolean
+  lastUpdate: DateTime
+  members: UserRelateToManyForUpdateInput
 }
 
-input ImageFieldInput {
-  upload: Upload!
+input UserRelateToManyForUpdateInput {
+  disconnect: [UserWhereUniqueInput!]
+  set: [UserWhereUniqueInput!]
+  create: [UserCreateInput!]
+  connect: [UserWhereUniqueInput!]
 }
 
-"""
-The `Upload` scalar type represents a file upload.
-"""
-scalar Upload
-
-input TestUploadUpdateArgs {
-  where: TestUploadWhereUniqueInput!
-  data: TestUploadUpdateInput!
+input ProjectUpdateArgs {
+  where: ProjectWhereUniqueInput!
+  data: ProjectUpdateInput!
 }
 
-input TestUploadCreateInput {
-  upload: ImageFieldInput
+input ProjectCreateInput {
+  name: String
+  createdAt: DateTime
+  project: String
+  isActive: Boolean
+  lastUpdate: DateTime
+  members: UserRelateToManyForCreateInput
+}
+
+input UserRelateToManyForCreateInput {
+  create: [UserCreateInput!]
+  connect: [UserWhereUniqueInput!]
+}
+
+type ProjectLog {
+  id: ID!
+  project: Project
+  operation: String
+  before: JSON
+  after: JSON
+  timestamp: DateTime
+}
+
+input ProjectLogWhereUniqueInput {
+  id: ID
+}
+
+input ProjectLogWhereInput {
+  AND: [ProjectLogWhereInput!]
+  OR: [ProjectLogWhereInput!]
+  NOT: [ProjectLogWhereInput!]
+  id: IDFilter
+  project: ProjectWhereInput
+  operation: StringFilter
+  timestamp: DateTimeNullableFilter
+}
+
+input ProjectLogOrderByInput {
+  id: OrderDirection
+  operation: OrderDirection
+  timestamp: OrderDirection
+}
+
+input ProjectLogUpdateInput {
+  project: ProjectRelateToOneForUpdateInput
+  operation: String
+  before: JSON
+  after: JSON
+  timestamp: DateTime
+}
+
+input ProjectLogUpdateArgs {
+  where: ProjectLogWhereUniqueInput!
+  data: ProjectLogUpdateInput!
+}
+
+input ProjectLogCreateInput {
+  project: ProjectRelateToOneForCreateInput
+  operation: String
+  before: JSON
+  after: JSON
+  timestamp: DateTime
 }
 
 """
@@ -288,12 +379,18 @@ type Mutation {
   updateUserLogs(data: [UserLogUpdateArgs!]!): [UserLog]
   deleteUserLog(where: UserLogWhereUniqueInput!): UserLog
   deleteUserLogs(where: [UserLogWhereUniqueInput!]!): [UserLog]
-  createTestUpload(data: TestUploadCreateInput!): TestUpload
-  createTestUploads(data: [TestUploadCreateInput!]!): [TestUpload]
-  updateTestUpload(where: TestUploadWhereUniqueInput!, data: TestUploadUpdateInput!): TestUpload
-  updateTestUploads(data: [TestUploadUpdateArgs!]!): [TestUpload]
-  deleteTestUpload(where: TestUploadWhereUniqueInput!): TestUpload
-  deleteTestUploads(where: [TestUploadWhereUniqueInput!]!): [TestUpload]
+  createProject(data: ProjectCreateInput!): Project
+  createProjects(data: [ProjectCreateInput!]!): [Project]
+  updateProject(where: ProjectWhereUniqueInput!, data: ProjectUpdateInput!): Project
+  updateProjects(data: [ProjectUpdateArgs!]!): [Project]
+  deleteProject(where: ProjectWhereUniqueInput!): Project
+  deleteProjects(where: [ProjectWhereUniqueInput!]!): [Project]
+  createProjectLog(data: ProjectLogCreateInput!): ProjectLog
+  createProjectLogs(data: [ProjectLogCreateInput!]!): [ProjectLog]
+  updateProjectLog(where: ProjectLogWhereUniqueInput!, data: ProjectLogUpdateInput!): ProjectLog
+  updateProjectLogs(data: [ProjectLogUpdateArgs!]!): [ProjectLog]
+  deleteProjectLog(where: ProjectLogWhereUniqueInput!): ProjectLog
+  deleteProjectLogs(where: [ProjectLogWhereUniqueInput!]!): [ProjectLog]
   endSession: Boolean!
   authenticateUserWithPassword(
     email: String!
@@ -340,15 +437,24 @@ type Query {
   ): [UserLog!]
   userLog(where: UserLogWhereUniqueInput!): UserLog
   userLogsCount(where: UserLogWhereInput! = {}): Int
-  testUploads(
-    where: TestUploadWhereInput! = {}
-    orderBy: [TestUploadOrderByInput!]! = []
+  projects(
+    where: ProjectWhereInput! = {}
+    orderBy: [ProjectOrderByInput!]! = []
     take: Int
     skip: Int! = 0
-    cursor: TestUploadWhereUniqueInput
-  ): [TestUpload!]
-  testUpload(where: TestUploadWhereUniqueInput!): TestUpload
-  testUploadsCount(where: TestUploadWhereInput! = {}): Int
+    cursor: ProjectWhereUniqueInput
+  ): [Project!]
+  project(where: ProjectWhereUniqueInput!): Project
+  projectsCount(where: ProjectWhereInput! = {}): Int
+  projectLogs(
+    where: ProjectLogWhereInput! = {}
+    orderBy: [ProjectLogOrderByInput!]! = []
+    take: Int
+    skip: Int! = 0
+    cursor: ProjectLogWhereUniqueInput
+  ): [ProjectLog!]
+  projectLog(where: ProjectLogWhereUniqueInput!): ProjectLog
+  projectLogsCount(where: ProjectLogWhereInput! = {}): Int
   keystone: KeystoneMeta!
   authenticatedItem: AuthenticatedItem
 }
