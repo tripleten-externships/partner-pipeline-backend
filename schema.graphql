@@ -8,6 +8,13 @@ type Milestone {
   status: String
   assignee: String
   createdAt: DateTime
+  isActive: Boolean
+  lastLoginDate: DateTime
+  projects: Project
+}
+
+type PasswordState {
+  isSet: Boolean!
 }
 
 scalar DateTime @specifiedBy(url: "https://datatracker.ietf.org/doc/html/rfc3339#section-5.6")
@@ -26,6 +33,9 @@ input MilestoneWhereInput {
   status: StringFilter
   assignee: StringFilter
   createdAt: DateTimeNullableFilter
+  isActive: BooleanFilter
+  lastLoginDate: DateTimeNullableFilter
+  projects: ProjectWhereInput
 }
 
 input IDFilter {
@@ -187,6 +197,13 @@ input UserUpdateInput {
   createdAt: DateTime
   isActive: Boolean
   lastLoginDate: DateTime
+  projects: ProjectRelateToOneForUpdateInput
+}
+
+input ProjectRelateToOneForUpdateInput {
+  create: ProjectCreateInput
+  connect: ProjectWhereUniqueInput
+  disconnect: Boolean
 }
 
 input UserUpdateArgs {
@@ -203,6 +220,12 @@ input UserCreateInput {
   createdAt: DateTime
   isActive: Boolean
   lastLoginDate: DateTime
+  projects: ProjectRelateToOneForCreateInput
+}
+
+input ProjectRelateToOneForCreateInput {
+  create: ProjectCreateInput
+  connect: ProjectWhereUniqueInput
 }
 
 type UserLog {
@@ -266,10 +289,145 @@ input UserRelateToOneForCreateInput {
   connect: UserWhereUniqueInput
 }
 
+type Project {
+  id: ID!
+  name: String
+  createdAt: DateTime
+  project: String
+  isActive: Boolean
+  lastUpdate: DateTime
+  members(
+    where: UserWhereInput! = {}
+    orderBy: [UserOrderByInput!]! = []
+    take: Int
+    skip: Int! = 0
+    cursor: UserWhereUniqueInput
+  ): [User!]
+  membersCount(where: UserWhereInput! = {}): Int
+}
+
+input ProjectWhereUniqueInput {
+  id: ID
+}
+
+input ProjectWhereInput {
+  AND: [ProjectWhereInput!]
+  OR: [ProjectWhereInput!]
+  NOT: [ProjectWhereInput!]
+  id: IDFilter
+  name: StringFilter
+  createdAt: DateTimeNullableFilter
+  project: StringFilter
+  isActive: BooleanFilter
+  lastUpdate: DateTimeNullableFilter
+  members: UserManyRelationFilter
+}
+
+input UserManyRelationFilter {
+  every: UserWhereInput
+  some: UserWhereInput
+  none: UserWhereInput
+}
+
+input ProjectOrderByInput {
+  id: OrderDirection
+  name: OrderDirection
+  createdAt: OrderDirection
+  project: OrderDirection
+  isActive: OrderDirection
+  lastUpdate: OrderDirection
+}
+
+input ProjectUpdateInput {
+  name: String
+  createdAt: DateTime
+  project: String
+  isActive: Boolean
+  lastUpdate: DateTime
+  members: UserRelateToManyForUpdateInput
+}
+
+input UserRelateToManyForUpdateInput {
+  disconnect: [UserWhereUniqueInput!]
+  set: [UserWhereUniqueInput!]
+  create: [UserCreateInput!]
+  connect: [UserWhereUniqueInput!]
+}
+
+input ProjectUpdateArgs {
+  where: ProjectWhereUniqueInput!
+  data: ProjectUpdateInput!
+}
+
+input ProjectCreateInput {
+  name: String
+  createdAt: DateTime
+  project: String
+  isActive: Boolean
+  lastUpdate: DateTime
+  members: UserRelateToManyForCreateInput
+}
+
+input UserRelateToManyForCreateInput {
+  create: [UserCreateInput!]
+  connect: [UserWhereUniqueInput!]
+}
+
+type ProjectLog {
+  id: ID!
+  project: Project
+  operation: String
+  before: JSON
+  after: JSON
+  timestamp: DateTime
+}
+
+input ProjectLogWhereUniqueInput {
+  id: ID
+}
+
+input ProjectLogWhereInput {
+  AND: [ProjectLogWhereInput!]
+  OR: [ProjectLogWhereInput!]
+  NOT: [ProjectLogWhereInput!]
+  id: IDFilter
+  project: ProjectWhereInput
+  operation: StringFilter
+  timestamp: DateTimeNullableFilter
+}
+
+input ProjectLogOrderByInput {
+  id: OrderDirection
+  operation: OrderDirection
+  timestamp: OrderDirection
+}
+
+input ProjectLogUpdateInput {
+  project: ProjectRelateToOneForUpdateInput
+  operation: String
+  before: JSON
+  after: JSON
+  timestamp: DateTime
+}
+
+input ProjectLogUpdateArgs {
+  where: ProjectLogWhereUniqueInput!
+  data: ProjectLogUpdateInput!
+}
+
+input ProjectLogCreateInput {
+  project: ProjectRelateToOneForCreateInput
+  operation: String
+  before: JSON
+  after: JSON
+  timestamp: DateTime
+}
+
 """
 The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
 """
-scalar JSON @specifiedBy(url: "http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf")
+scalar JSON
+  @specifiedBy(url: "http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf")
 
 type Mutation {
   createMilestone(data: MilestoneCreateInput!): Milestone
@@ -290,12 +448,29 @@ type Mutation {
   updateUserLogs(data: [UserLogUpdateArgs!]!): [UserLog]
   deleteUserLog(where: UserLogWhereUniqueInput!): UserLog
   deleteUserLogs(where: [UserLogWhereUniqueInput!]!): [UserLog]
+  createProject(data: ProjectCreateInput!): Project
+  createProjects(data: [ProjectCreateInput!]!): [Project]
+  updateProject(where: ProjectWhereUniqueInput!, data: ProjectUpdateInput!): Project
+  updateProjects(data: [ProjectUpdateArgs!]!): [Project]
+  deleteProject(where: ProjectWhereUniqueInput!): Project
+  deleteProjects(where: [ProjectWhereUniqueInput!]!): [Project]
+  createProjectLog(data: ProjectLogCreateInput!): ProjectLog
+  createProjectLogs(data: [ProjectLogCreateInput!]!): [ProjectLog]
+  updateProjectLog(where: ProjectLogWhereUniqueInput!, data: ProjectLogUpdateInput!): ProjectLog
+  updateProjectLogs(data: [ProjectLogUpdateArgs!]!): [ProjectLog]
+  deleteProjectLog(where: ProjectLogWhereUniqueInput!): ProjectLog
+  deleteProjectLogs(where: [ProjectLogWhereUniqueInput!]!): [ProjectLog]
   endSession: Boolean!
-  authenticateUserWithPassword(email: String!, password: String!): UserAuthenticationWithPasswordResult
+  authenticateUserWithPassword(
+    email: String!
+    password: String!
+  ): UserAuthenticationWithPasswordResult
   createInitialUser(data: CreateInitialUserInput!): UserAuthenticationWithPasswordSuccess!
 }
 
-union UserAuthenticationWithPasswordResult = UserAuthenticationWithPasswordSuccess | UserAuthenticationWithPasswordFailure
+union UserAuthenticationWithPasswordResult =
+    UserAuthenticationWithPasswordSuccess
+  | UserAuthenticationWithPasswordFailure
 
 type UserAuthenticationWithPasswordSuccess {
   sessionToken: String!
@@ -313,15 +488,51 @@ input CreateInitialUserInput {
 }
 
 type Query {
-  milestones(where: MilestoneWhereInput! = {}, orderBy: [MilestoneOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: MilestoneWhereUniqueInput): [Milestone!]
+  milestones(
+    where: MilestoneWhereInput! = {}
+    orderBy: [MilestoneOrderByInput!]! = []
+    take: Int
+    skip: Int! = 0
+    cursor: MilestoneWhereUniqueInput
+  ): [Milestone!]
   milestone(where: MilestoneWhereUniqueInput!): Milestone
   milestonesCount(where: MilestoneWhereInput! = {}): Int
-  users(where: UserWhereInput! = {}, orderBy: [UserOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: UserWhereUniqueInput): [User!]
+  users(
+    where: UserWhereInput! = {}
+    orderBy: [UserOrderByInput!]! = []
+    take: Int
+    skip: Int! = 0
+    cursor: UserWhereUniqueInput
+  ): [User!]
   user(where: UserWhereUniqueInput!): User
   usersCount(where: UserWhereInput! = {}): Int
-  userLogs(where: UserLogWhereInput! = {}, orderBy: [UserLogOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: UserLogWhereUniqueInput): [UserLog!]
+  userLogs(
+    where: UserLogWhereInput! = {}
+    orderBy: [UserLogOrderByInput!]! = []
+    take: Int
+    skip: Int! = 0
+    cursor: UserLogWhereUniqueInput
+  ): [UserLog!]
   userLog(where: UserLogWhereUniqueInput!): UserLog
   userLogsCount(where: UserLogWhereInput! = {}): Int
+  projects(
+    where: ProjectWhereInput! = {}
+    orderBy: [ProjectOrderByInput!]! = []
+    take: Int
+    skip: Int! = 0
+    cursor: ProjectWhereUniqueInput
+  ): [Project!]
+  project(where: ProjectWhereUniqueInput!): Project
+  projectsCount(where: ProjectWhereInput! = {}): Int
+  projectLogs(
+    where: ProjectLogWhereInput! = {}
+    orderBy: [ProjectLogOrderByInput!]! = []
+    take: Int
+    skip: Int! = 0
+    cursor: ProjectLogWhereUniqueInput
+  ): [ProjectLog!]
+  projectLog(where: ProjectLogWhereUniqueInput!): ProjectLog
+  projectLogsCount(where: ProjectLogWhereInput! = {}): Int
   keystone: KeystoneMeta!
   authenticatedItem: AuthenticatedItem
 }
