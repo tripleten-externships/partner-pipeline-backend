@@ -356,7 +356,7 @@ input ProjectLogCreateInput {
 
 type Milestone {
   id: ID!
-  projectId: String
+  project: Project
   milestoneName: String
   status: String
   assignee: String
@@ -372,7 +372,7 @@ input MilestoneWhereInput {
   OR: [MilestoneWhereInput!]
   NOT: [MilestoneWhereInput!]
   id: IDFilter
-  projectId: StringFilter
+  project: ProjectWhereInput
   milestoneName: StringFilter
   status: StringFilter
   assignee: StringFilter
@@ -381,7 +381,6 @@ input MilestoneWhereInput {
 
 input MilestoneOrderByInput {
   id: OrderDirection
-  projectId: OrderDirection
   milestoneName: OrderDirection
   status: OrderDirection
   assignee: OrderDirection
@@ -389,7 +388,7 @@ input MilestoneOrderByInput {
 }
 
 input MilestoneUpdateInput {
-  projectId: String
+  project: ProjectRelateToOneForUpdateInput
   milestoneName: String
   status: String
   assignee: String
@@ -402,7 +401,7 @@ input MilestoneUpdateArgs {
 }
 
 input MilestoneCreateInput {
-  projectId: String
+  project: ProjectRelateToOneForCreateInput
   milestoneName: String
   status: String
   assignee: String

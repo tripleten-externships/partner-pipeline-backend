@@ -49,6 +49,7 @@ model Project {
   lastUpdate              DateTime?    @default(now())
   members                 User[]       @relation("User_projects")
   from_ProjectLog_project ProjectLog[] @relation("ProjectLog_project")
+  from_Milestone_project  Milestone[]  @relation("Milestone_project")
 }
 
 model ProjectLog {
@@ -65,7 +66,8 @@ model ProjectLog {
 
 model Milestone {
   id            String    @id @default(uuid())
-  projectId     String    @default("")
+  project       Project?  @relation("Milestone_project", fields: [projectId], references: [id])
+  projectId     String?   @map("project")
   milestoneName String    @default("")
   status        String    @default("not_started")
   assignee      String    @default("")
