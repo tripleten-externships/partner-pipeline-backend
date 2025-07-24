@@ -5,10 +5,8 @@ import { text, select, relationship, timestamp } from "@keystone-6/core/fields";
 
 export const Milestone: ListConfig<Lists.Milestone.TypeInfo<any>, any> = list({
   fields: {
-    projectId: text({
-      validation: { isRequired: true },
-      isIndexed: true,
-    }),
+    project: relationship({ ref: "Project", many: false }),
+
     milestoneName: text({
       validation: { isRequired: true },
     }),
