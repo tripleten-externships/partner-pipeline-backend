@@ -233,13 +233,7 @@ type Project {
   project: String
   isActive: Boolean
   lastUpdate: DateTime
-  members(
-    where: UserWhereInput! = {}
-    orderBy: [UserOrderByInput!]! = []
-    take: Int
-    skip: Int! = 0
-    cursor: UserWhereUniqueInput
-  ): [User!]
+  members(where: UserWhereInput! = {}, orderBy: [UserOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: UserWhereUniqueInput): [User!]
   membersCount(where: UserWhereInput! = {}): Int
 }
 
@@ -360,11 +354,127 @@ input ProjectLogCreateInput {
   timestamp: DateTime
 }
 
+type Milestone {
+  id: ID!
+  name: String
+  status: String
+  project: Project
+  updatedAt: DateTime
+  updatedBy: User
+}
+
+input MilestoneWhereUniqueInput {
+  id: ID
+}
+
+input MilestoneWhereInput {
+  AND: [MilestoneWhereInput!]
+  OR: [MilestoneWhereInput!]
+  NOT: [MilestoneWhereInput!]
+  id: IDFilter
+  name: StringFilter
+  status: StringNullableFilter
+  project: ProjectWhereInput
+  updatedAt: DateTimeNullableFilter
+  updatedBy: UserWhereInput
+}
+
+input MilestoneOrderByInput {
+  id: OrderDirection
+  name: OrderDirection
+  status: OrderDirection
+  updatedAt: OrderDirection
+}
+
+input MilestoneUpdateInput {
+  name: String
+  status: String
+  project: ProjectRelateToOneForUpdateInput
+  updatedAt: DateTime
+  updatedBy: UserRelateToOneForUpdateInput
+}
+
+input MilestoneUpdateArgs {
+  where: MilestoneWhereUniqueInput!
+  data: MilestoneUpdateInput!
+}
+
+input MilestoneCreateInput {
+  name: String
+  status: String
+  project: ProjectRelateToOneForCreateInput
+  updatedAt: DateTime
+  updatedBy: UserRelateToOneForCreateInput
+}
+
+type ActivityLog {
+  id: ID!
+  milestone: Milestone
+  oldStatus: String
+  newStatus: String
+  user: User
+  timestamp: DateTime
+}
+
+input ActivityLogWhereUniqueInput {
+  id: ID
+}
+
+input ActivityLogWhereInput {
+  AND: [ActivityLogWhereInput!]
+  OR: [ActivityLogWhereInput!]
+  NOT: [ActivityLogWhereInput!]
+  id: IDFilter
+  milestone: MilestoneWhereInput
+  oldStatus: StringNullableFilter
+  newStatus: StringNullableFilter
+  user: UserWhereInput
+  timestamp: DateTimeNullableFilter
+}
+
+input ActivityLogOrderByInput {
+  id: OrderDirection
+  oldStatus: OrderDirection
+  newStatus: OrderDirection
+  timestamp: OrderDirection
+}
+
+input ActivityLogUpdateInput {
+  milestone: MilestoneRelateToOneForUpdateInput
+  oldStatus: String
+  newStatus: String
+  user: UserRelateToOneForUpdateInput
+  timestamp: DateTime
+}
+
+input MilestoneRelateToOneForUpdateInput {
+  create: MilestoneCreateInput
+  connect: MilestoneWhereUniqueInput
+  disconnect: Boolean
+}
+
+input ActivityLogUpdateArgs {
+  where: ActivityLogWhereUniqueInput!
+  data: ActivityLogUpdateInput!
+}
+
+input ActivityLogCreateInput {
+  milestone: MilestoneRelateToOneForCreateInput
+  oldStatus: String
+  newStatus: String
+  user: UserRelateToOneForCreateInput
+  timestamp: DateTime
+}
+
+input MilestoneRelateToOneForCreateInput {
+  create: MilestoneCreateInput
+  connect: MilestoneWhereUniqueInput
+}
+
 """
 The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
 """
-scalar JSON
-  @specifiedBy(url: "http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf")
+scalar JSON @specifiedBy(url: "http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf")
 
 type Mutation {
   createUser(data: UserCreateInput!): User
@@ -391,17 +501,24 @@ type Mutation {
   updateProjectLogs(data: [ProjectLogUpdateArgs!]!): [ProjectLog]
   deleteProjectLog(where: ProjectLogWhereUniqueInput!): ProjectLog
   deleteProjectLogs(where: [ProjectLogWhereUniqueInput!]!): [ProjectLog]
+  createMilestone(data: MilestoneCreateInput!): Milestone
+  createMilestones(data: [MilestoneCreateInput!]!): [Milestone]
+  updateMilestone(where: MilestoneWhereUniqueInput!, data: MilestoneUpdateInput!): Milestone
+  updateMilestones(data: [MilestoneUpdateArgs!]!): [Milestone]
+  deleteMilestone(where: MilestoneWhereUniqueInput!): Milestone
+  deleteMilestones(where: [MilestoneWhereUniqueInput!]!): [Milestone]
+  createActivityLog(data: ActivityLogCreateInput!): ActivityLog
+  createActivityLogs(data: [ActivityLogCreateInput!]!): [ActivityLog]
+  updateActivityLog(where: ActivityLogWhereUniqueInput!, data: ActivityLogUpdateInput!): ActivityLog
+  updateActivityLogs(data: [ActivityLogUpdateArgs!]!): [ActivityLog]
+  deleteActivityLog(where: ActivityLogWhereUniqueInput!): ActivityLog
+  deleteActivityLogs(where: [ActivityLogWhereUniqueInput!]!): [ActivityLog]
   endSession: Boolean!
-  authenticateUserWithPassword(
-    email: String!
-    password: String!
-  ): UserAuthenticationWithPasswordResult
+  authenticateUserWithPassword(email: String!, password: String!): UserAuthenticationWithPasswordResult
   createInitialUser(data: CreateInitialUserInput!): UserAuthenticationWithPasswordSuccess!
 }
 
-union UserAuthenticationWithPasswordResult =
-    UserAuthenticationWithPasswordSuccess
-  | UserAuthenticationWithPasswordFailure
+union UserAuthenticationWithPasswordResult = UserAuthenticationWithPasswordSuccess | UserAuthenticationWithPasswordFailure
 
 type UserAuthenticationWithPasswordSuccess {
   sessionToken: String!
@@ -419,42 +536,24 @@ input CreateInitialUserInput {
 }
 
 type Query {
-  users(
-    where: UserWhereInput! = {}
-    orderBy: [UserOrderByInput!]! = []
-    take: Int
-    skip: Int! = 0
-    cursor: UserWhereUniqueInput
-  ): [User!]
+  users(where: UserWhereInput! = {}, orderBy: [UserOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: UserWhereUniqueInput): [User!]
   user(where: UserWhereUniqueInput!): User
   usersCount(where: UserWhereInput! = {}): Int
-  userLogs(
-    where: UserLogWhereInput! = {}
-    orderBy: [UserLogOrderByInput!]! = []
-    take: Int
-    skip: Int! = 0
-    cursor: UserLogWhereUniqueInput
-  ): [UserLog!]
+  userLogs(where: UserLogWhereInput! = {}, orderBy: [UserLogOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: UserLogWhereUniqueInput): [UserLog!]
   userLog(where: UserLogWhereUniqueInput!): UserLog
   userLogsCount(where: UserLogWhereInput! = {}): Int
-  projects(
-    where: ProjectWhereInput! = {}
-    orderBy: [ProjectOrderByInput!]! = []
-    take: Int
-    skip: Int! = 0
-    cursor: ProjectWhereUniqueInput
-  ): [Project!]
+  projects(where: ProjectWhereInput! = {}, orderBy: [ProjectOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ProjectWhereUniqueInput): [Project!]
   project(where: ProjectWhereUniqueInput!): Project
   projectsCount(where: ProjectWhereInput! = {}): Int
-  projectLogs(
-    where: ProjectLogWhereInput! = {}
-    orderBy: [ProjectLogOrderByInput!]! = []
-    take: Int
-    skip: Int! = 0
-    cursor: ProjectLogWhereUniqueInput
-  ): [ProjectLog!]
+  projectLogs(where: ProjectLogWhereInput! = {}, orderBy: [ProjectLogOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ProjectLogWhereUniqueInput): [ProjectLog!]
   projectLog(where: ProjectLogWhereUniqueInput!): ProjectLog
   projectLogsCount(where: ProjectLogWhereInput! = {}): Int
+  milestones(where: MilestoneWhereInput! = {}, orderBy: [MilestoneOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: MilestoneWhereUniqueInput): [Milestone!]
+  milestone(where: MilestoneWhereUniqueInput!): Milestone
+  milestonesCount(where: MilestoneWhereInput! = {}): Int
+  activityLogs(where: ActivityLogWhereInput! = {}, orderBy: [ActivityLogOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ActivityLogWhereUniqueInput): [ActivityLog!]
+  activityLog(where: ActivityLogWhereUniqueInput!): ActivityLog
+  activityLogsCount(where: ActivityLogWhereInput! = {}): Int
   keystone: KeystoneMeta!
   authenticatedItem: AuthenticatedItem
 }

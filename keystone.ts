@@ -21,7 +21,7 @@ export default withAuth(
         credentials: true,
       },
       extendExpressApp: (app, _context) => {
-        setupPassport();
+        //remember untag setupPassport();
 
         app.use(
           expressSession({
