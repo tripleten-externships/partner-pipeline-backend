@@ -5,6 +5,9 @@ import { env } from "./config";
 export function setupPassport() {
   if (!env.googleClientId || !env.googleClientSecret) {
     throw new Error("Missing Google OAuth credentials");
+    // skipping Google OAuth setup
+    // console.warn("Skipping Google OAuth setup");
+    // return;
   }
 
   passport.use(
