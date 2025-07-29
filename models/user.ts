@@ -65,6 +65,7 @@ export const User: ListConfig<Lists.User.TypeInfo<any>, any> = list({
     lastLoginDate: timestamp({
       defaultValue: { kind: "now" },
     }),
+    activityLogs: relationship({ ref: "ActivityLog.updatedBy", many: true }), // backlink for all Activitylog.updatedBy entries
     projects: relationship({ ref: "Project.members" }),
   },
   hooks: {

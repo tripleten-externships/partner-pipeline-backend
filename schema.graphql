@@ -11,6 +11,8 @@ type User {
   createdAt: DateTime
   isActive: Boolean
   lastLoginDate: DateTime
+  activityLogs(where: ActivityLogWhereInput! = {}, orderBy: [ActivityLogOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ActivityLogWhereUniqueInput): [ActivityLog!]
+  activityLogsCount(where: ActivityLogWhereInput! = {}): Int
   projects: Project
 }
 
@@ -37,6 +39,7 @@ input UserWhereInput {
   createdAt: DateTimeNullableFilter
   isActive: BooleanFilter
   lastLoginDate: DateTimeNullableFilter
+  activityLogs: ActivityLogManyRelationFilter
   projects: ProjectWhereInput
 }
 
@@ -109,6 +112,12 @@ input DateTimeNullableFilter {
   not: DateTimeNullableFilter
 }
 
+input ActivityLogManyRelationFilter {
+  every: ActivityLogWhereInput
+  some: ActivityLogWhereInput
+  none: ActivityLogWhereInput
+}
+
 input UserOrderByInput {
   id: OrderDirection
   name: OrderDirection
@@ -134,7 +143,15 @@ input UserUpdateInput {
   createdAt: DateTime
   isActive: Boolean
   lastLoginDate: DateTime
+  activityLogs: ActivityLogRelateToManyForUpdateInput
   projects: ProjectRelateToOneForUpdateInput
+}
+
+input ActivityLogRelateToManyForUpdateInput {
+  disconnect: [ActivityLogWhereUniqueInput!]
+  set: [ActivityLogWhereUniqueInput!]
+  create: [ActivityLogCreateInput!]
+  connect: [ActivityLogWhereUniqueInput!]
 }
 
 input ProjectRelateToOneForUpdateInput {
@@ -157,7 +174,13 @@ input UserCreateInput {
   createdAt: DateTime
   isActive: Boolean
   lastLoginDate: DateTime
+  activityLogs: ActivityLogRelateToManyForCreateInput
   projects: ProjectRelateToOneForCreateInput
+}
+
+input ActivityLogRelateToManyForCreateInput {
+  create: [ActivityLogCreateInput!]
+  connect: [ActivityLogWhereUniqueInput!]
 }
 
 input ProjectRelateToOneForCreateInput {
@@ -354,6 +377,7 @@ input ProjectLogCreateInput {
   timestamp: DateTime
 }
 
+<<<<<<< HEAD
 type Milestone {
   id: ID!
   name: String
@@ -414,6 +438,7 @@ type ActivityLog {
   newStatus: String
   user: User
   timestamp: DateTime
+
 }
 
 input ActivityLogWhereUniqueInput {
@@ -425,11 +450,13 @@ input ActivityLogWhereInput {
   OR: [ActivityLogWhereInput!]
   NOT: [ActivityLogWhereInput!]
   id: IDFilter
+
   milestone: MilestoneWhereInput
   oldStatus: StringNullableFilter
   newStatus: StringNullableFilter
   user: UserWhereInput
   timestamp: DateTimeNullableFilter
+
 }
 
 input ActivityLogOrderByInput {
@@ -437,6 +464,7 @@ input ActivityLogOrderByInput {
   oldStatus: OrderDirection
   newStatus: OrderDirection
   timestamp: OrderDirection
+<<<<<<< HEAD
 }
 
 input ActivityLogUpdateInput {
@@ -451,6 +479,7 @@ input MilestoneRelateToOneForUpdateInput {
   create: MilestoneCreateInput
   connect: MilestoneWhereUniqueInput
   disconnect: Boolean
+
 }
 
 input ActivityLogUpdateArgs {
@@ -459,6 +488,7 @@ input ActivityLogUpdateArgs {
 }
 
 input ActivityLogCreateInput {
+<<<<<<< HEAD
   milestone: MilestoneRelateToOneForCreateInput
   oldStatus: String
   newStatus: String
@@ -469,6 +499,14 @@ input ActivityLogCreateInput {
 input MilestoneRelateToOneForCreateInput {
   create: MilestoneCreateInput
   connect: MilestoneWhereUniqueInput
+=======
+  oldStatus: String
+  newStatus: String
+  timestamp: DateTime
+  projectId: String
+  milestoneId: String
+  updatedBy: UserRelateToOneForCreateInput
+>>>>>>> 03a55a92925e2b4c0fbc3d7682263a59d1a40ed4
 }
 
 """
@@ -501,12 +539,15 @@ type Mutation {
   updateProjectLogs(data: [ProjectLogUpdateArgs!]!): [ProjectLog]
   deleteProjectLog(where: ProjectLogWhereUniqueInput!): ProjectLog
   deleteProjectLogs(where: [ProjectLogWhereUniqueInput!]!): [ProjectLog]
+<<<<<<< HEAD
   createMilestone(data: MilestoneCreateInput!): Milestone
   createMilestones(data: [MilestoneCreateInput!]!): [Milestone]
   updateMilestone(where: MilestoneWhereUniqueInput!, data: MilestoneUpdateInput!): Milestone
   updateMilestones(data: [MilestoneUpdateArgs!]!): [Milestone]
   deleteMilestone(where: MilestoneWhereUniqueInput!): Milestone
   deleteMilestones(where: [MilestoneWhereUniqueInput!]!): [Milestone]
+=======
+>>>>>>> 03a55a92925e2b4c0fbc3d7682263a59d1a40ed4
   createActivityLog(data: ActivityLogCreateInput!): ActivityLog
   createActivityLogs(data: [ActivityLogCreateInput!]!): [ActivityLog]
   updateActivityLog(where: ActivityLogWhereUniqueInput!, data: ActivityLogUpdateInput!): ActivityLog
@@ -548,9 +589,12 @@ type Query {
   projectLogs(where: ProjectLogWhereInput! = {}, orderBy: [ProjectLogOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ProjectLogWhereUniqueInput): [ProjectLog!]
   projectLog(where: ProjectLogWhereUniqueInput!): ProjectLog
   projectLogsCount(where: ProjectLogWhereInput! = {}): Int
+<<<<<<< HEAD
   milestones(where: MilestoneWhereInput! = {}, orderBy: [MilestoneOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: MilestoneWhereUniqueInput): [Milestone!]
   milestone(where: MilestoneWhereUniqueInput!): Milestone
   milestonesCount(where: MilestoneWhereInput! = {}): Int
+=======
+>>>>>>> 03a55a92925e2b4c0fbc3d7682263a59d1a40ed4
   activityLogs(where: ActivityLogWhereInput! = {}, orderBy: [ActivityLogOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ActivityLogWhereUniqueInput): [ActivityLog!]
   activityLog(where: ActivityLogWhereUniqueInput!): ActivityLog
   activityLogsCount(where: ActivityLogWhereInput! = {}): Int
