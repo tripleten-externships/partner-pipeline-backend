@@ -8,12 +8,17 @@ export const Project: ListConfig<Lists.Project.TypeInfo<any>, any> = list({
   access: {
     operation: {
       query: ({ session }) => isSignedIn({ session }),
-      create: ({ session }) => {
-        console.log("Session at create access:", session);
-        return permissions.isAdminLike({ session });
-      },
+
+      // bypass so anyone an create a project
+      // create: ({ session }) => {
+      //   console.log("Session at create access:", session);
+      //   return permissions.isAdminLike({ session });
+      // },
 
       // create: ({ session }) => permissions.isAdminLike({ session }),
+
+      // allow anyone signed in to create
+      create: ({ session }) => isSignedIn({ session }),
       update: ({ session }) =>
         permissions.isAdminLike({ session }) || permissions.isProjectMember({ session }),
       delete: ({ session }) => permissions.isAdminLike({ session }),
@@ -34,6 +39,8 @@ export const Project: ListConfig<Lists.Project.TypeInfo<any>, any> = list({
       defaultValue: { kind: "now" },
     }),
     members: relationship({ ref: "User.projects", many: true }),
+    // add milestones field for reference to milestone schema
+    milestones: relationship({ ref: "Milestone.project", many: true }),
   },
   hooks: {
     async afterOperation({ operation, item, originalItem, context }) {
