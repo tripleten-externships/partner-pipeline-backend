@@ -9,16 +9,13 @@ export const Project: ListConfig<Lists.Project.TypeInfo<any>, any> = list({
     operation: {
       query: ({ session }) => isSignedIn({ session }),
 
-      // bypass so anyone an create a project
-      // create: ({ session }) => {
-      //   console.log("Session at create access:", session);
-      //   return permissions.isAdminLike({ session });
-      // },
+      create: ({ session }) => {
+        console.log("Session at create access:", session);
+        return permissions.isAdminLike({ session });
+      },
 
       // create: ({ session }) => permissions.isAdminLike({ session }),
 
-      // allow anyone signed in to create
-      create: ({ session }) => isSignedIn({ session }),
       update: ({ session }) =>
         permissions.isAdminLike({ session }) || permissions.isProjectMember({ session }),
       delete: ({ session }) => permissions.isAdminLike({ session }),
