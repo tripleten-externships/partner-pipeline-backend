@@ -258,6 +258,8 @@ type Project {
   lastUpdate: DateTime
   members(where: UserWhereInput! = {}, orderBy: [UserOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: UserWhereUniqueInput): [User!]
   membersCount(where: UserWhereInput! = {}): Int
+  milestones(where: MilestoneWhereInput! = {}, orderBy: [MilestoneOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: MilestoneWhereUniqueInput): [Milestone!]
+  milestonesCount(where: MilestoneWhereInput! = {}): Int
 }
 
 input ProjectWhereUniqueInput {
@@ -275,12 +277,19 @@ input ProjectWhereInput {
   isActive: BooleanFilter
   lastUpdate: DateTimeNullableFilter
   members: UserManyRelationFilter
+  milestones: MilestoneManyRelationFilter
 }
 
 input UserManyRelationFilter {
   every: UserWhereInput
   some: UserWhereInput
   none: UserWhereInput
+}
+
+input MilestoneManyRelationFilter {
+  every: MilestoneWhereInput
+  some: MilestoneWhereInput
+  none: MilestoneWhereInput
 }
 
 input ProjectOrderByInput {
@@ -299,6 +308,7 @@ input ProjectUpdateInput {
   isActive: Boolean
   lastUpdate: DateTime
   members: UserRelateToManyForUpdateInput
+  milestones: MilestoneRelateToManyForUpdateInput
 }
 
 input UserRelateToManyForUpdateInput {
@@ -306,6 +316,13 @@ input UserRelateToManyForUpdateInput {
   set: [UserWhereUniqueInput!]
   create: [UserCreateInput!]
   connect: [UserWhereUniqueInput!]
+}
+
+input MilestoneRelateToManyForUpdateInput {
+  disconnect: [MilestoneWhereUniqueInput!]
+  set: [MilestoneWhereUniqueInput!]
+  create: [MilestoneCreateInput!]
+  connect: [MilestoneWhereUniqueInput!]
 }
 
 input ProjectUpdateArgs {
@@ -320,11 +337,17 @@ input ProjectCreateInput {
   isActive: Boolean
   lastUpdate: DateTime
   members: UserRelateToManyForCreateInput
+  milestones: MilestoneRelateToManyForCreateInput
 }
 
 input UserRelateToManyForCreateInput {
   create: [UserCreateInput!]
   connect: [UserWhereUniqueInput!]
+}
+
+input MilestoneRelateToManyForCreateInput {
+  create: [MilestoneCreateInput!]
+  connect: [MilestoneWhereUniqueInput!]
 }
 
 type ProjectLog {
