@@ -68,21 +68,24 @@ model ProjectLog {
   @@index([projectId])
 }
 
-<<<<<<< HEAD
 model Milestone {
-  id                         String        @id @default(uuid())
-  name                       String        @default("")
-  status                     String?       @default("not_started")
-  project                    Project?      @relation("Milestone_project", fields: [projectId], references: [id])
-  projectId                  String?       @map("project")
-  updatedAt                  DateTime?     @default(now()) @updatedAt
-  updatedBy                  User?         @relation("Milestone_updatedBy", fields: [updatedById], references: [id])
-  updatedById                String?       @map("updatedBy")
+  id            String     @id @default(uuid())
+  project       Project?   @relation("Milestone_project", fields: [projectId], references: [id])
+  projectId     String?    @map("project")
+  milestoneName String     @default("")
+  status        String     @default("not_started")
+  assignee      String     @default("")
+  createdAt     DateTime?  @default(now())
+  updatedAt     DateTime?  @default(now()) @updatedAt
+  updatedBy     User?      @relation("Milestone_updatedBy", fields: [updatedById], references: [id])
+  updatedById   String?    @map("updatedBy")
   from_ActivityLog_milestone ActivityLog[] @relation("ActivityLog_milestone")
 
   @@index([projectId])
+  @@index([status])
   @@index([updatedById])
 }
+
 
 model ActivityLog {
   id          String     @id @default(uuid())
@@ -96,5 +99,5 @@ model ActivityLog {
 
   @@index([milestoneId])
   @@index([userId])
-
 }
+

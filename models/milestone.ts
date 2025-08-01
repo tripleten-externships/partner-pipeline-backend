@@ -1,13 +1,15 @@
 import { list } from "@keystone-6/core";
-import { text, timestamp, select, relationship } from "@keystone-6/core/fields";
+import type { ListConfig } from "@keystone-6/core";
+import type { Lists } from ".keystone/types";
+import { text, select, relationship, timestamp } from "@keystone-6/core/fields";
 
-export const Milestone = list({
+export const Milestone: ListConfig<Lists.Milestone.TypeInfo<any>, any> = list({
   access: {
     operation: {
-      query: () => true,
-      create: () => true,
-      update: () => true,
-      delete: () => true,
+      query: ({ session }) => !!session,
+      create: ({ session }) => !!session,
+      update: ({ session }) => !!session,
+      delete: ({ session }) => !!session,
     },
   },
 
@@ -50,21 +52,38 @@ export const Milestone = list({
   },
 
   fields: {
-    name: text({ validation: { isRequired: true } }),
+    milestoneName: text({
+      validation: { isRequired: true },
+    }),
+
     status: select({
       options: [
         { label: "Not Started", value: "not_started" },
         { label: "In Progress", value: "in_progress" },
         { label: "Completed", value: "completed" },
+        { label: "Blocked", value: "blocked" },
       ],
       defaultValue: "not_started",
+      validation: { isRequired: true },
+      isIndexed: true,
       ui: { displayMode: "segmented-control" },
     }),
+
+    assignee: text({
+      validation: { isRequired: false },
+    }),
+
+    createdAt: timestamp({
+      defaultValue: { kind: "now" },
+    }),
+
     project: relationship({ ref: "Project", many: false }),
+
     updatedAt: timestamp({
       defaultValue: { kind: "now" },
       db: { updatedAt: true },
     }),
+
     updatedBy: relationship({ ref: "User", many: false }),
   },
 });
