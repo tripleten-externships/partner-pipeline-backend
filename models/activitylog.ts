@@ -1,30 +1,44 @@
 import { list } from "@keystone-6/core";
-import type { ListConfig } from "@keystone-6/core";
-import type { Lists } from ".keystone/types";
-import { relationship, text, timestamp } from "@keystone-6/core/fields";
-import { isSignedIn } from "../utils/access";
+import { relationship, select, timestamp } from "@keystone-6/core/fields";
 
-export const ActivityLog: ListConfig<Lists.ActivityLog.TypeInfo<any>, any> = list({
+export const ActivityLog = list({
+  ui: {
+    isHidden: false,
+    labelField: "newStatus",
+  },
   access: {
     operation: {
-      query: isSignedIn,
-      create: isSignedIn,
-      update: isSignedIn,
-      delete: isSignedIn,
+      query: () => true,
+      create: () => true,
+      update: () => false,
+      delete: () => false,
     },
   },
   fields: {
-    oldStatus: text({ validation: { isRequired: true } }),
-    newStatus: text({ validation: { isRequired: true } }),
+    milestone: relationship({ ref: "Milestone", many: false }),
+    oldStatus: select({
+      options: [
+        { label: "Not Started", value: "not_started" },
+        { label: "In Progress", value: "in_progress" },
+        { label: "Completed", value: "completed" },
+        { label: "cat", value: "cat" },
+        { label: "dog", value: "dog" },
+        { label: "fish", value: "fish" },
+        { label: "mouse", value: "mouse" },
+      ],
+    }),
+    newStatus: select({
+      options: [
+        { label: "Not Started", value: "not_started" },
+        { label: "In Progress", value: "in_progress" },
+        { label: "Completed", value: "completed" },
+        { label: "cat", value: "cat" },
+        { label: "dog", value: "dog" },
+        { label: "fish", value: "fish" },
+        { label: "mouse", value: "mouse" },
+      ],
+    }),
+    user: relationship({ ref: "User", many: false }),
     timestamp: timestamp({ defaultValue: { kind: "now" } }),
-    projectId: text({
-      validation: { isRequired: true },
-      isIndexed: true,
-    }), // add relationship field when project model is created
-    milestoneId: text({
-      validation: { isRequired: true },
-      isIndexed: true,
-    }), // add relationship field when milestone model is created
-    updatedBy: relationship({ ref: "User.activityLogs", many: false }),
   },
 });
