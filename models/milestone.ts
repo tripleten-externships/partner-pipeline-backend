@@ -52,6 +52,7 @@ export const Milestone: ListConfig<Lists.Milestone.TypeInfo<any>, any> = list({
   },
 
   fields: {
+    project: relationship({ ref: "Project.milestones", many: false }),
     milestoneName: text({
       validation: { isRequired: true },
     }),
@@ -76,8 +77,6 @@ export const Milestone: ListConfig<Lists.Milestone.TypeInfo<any>, any> = list({
     createdAt: timestamp({
       defaultValue: { kind: "now" },
     }),
-
-    project: relationship({ ref: "Project", many: false }),
 
     updatedAt: timestamp({
       defaultValue: { kind: "now" },

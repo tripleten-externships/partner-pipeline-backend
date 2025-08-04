@@ -10,6 +10,7 @@ import { withAuth } from "./auth";
 import * as Models from "./models";
 import authRoutes from "./routes/authRoutes";
 import { setupPassport, passport } from "./config/passport";
+import { createMilestoneRouter } from "./routes/milestoneDataRoutes";
 
 export default withAuth(
   config({
@@ -20,8 +21,13 @@ export default withAuth(
         methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
         credentials: true,
       },
+<<<<<<< HEAD
       extendExpressApp: (app, _context) => {
         //remember untag setupPassport();
+=======
+      extendExpressApp: (app, commonContext) => {
+        setupPassport();
+>>>>>>> 9486db59948eee7b2265425e6ceda1c375b26e57
 
         app.use(
           expressSession({
@@ -34,6 +40,8 @@ export default withAuth(
         app.use(passport.initialize());
         app.use(passport.session());
         app.use(authRoutes);
+        // milestone api endpoint with keystone context injected
+        app.use(createMilestoneRouter(commonContext));
       },
     },
     db: {

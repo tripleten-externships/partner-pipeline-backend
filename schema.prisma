@@ -52,8 +52,8 @@ model Project {
   isActive                Boolean      @default(false)
   lastUpdate              DateTime?    @default(now())
   members                 User[]       @relation("User_projects")
+  milestones              Milestone[]  @relation("Milestone_project")
   from_ProjectLog_project ProjectLog[] @relation("ProjectLog_project")
-  from_Milestone_project  Milestone[]  @relation("Milestone_project")
 }
 
 model ProjectLog {

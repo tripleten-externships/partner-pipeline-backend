@@ -1,20 +1,34 @@
 import { Request, Response } from "express";
+import { Context } from ".keystone/types";
 
-//stub data 'for simulation!'
-const mockMilestones = {
-  "1": [
-    { name: "first phase", status: "completed", assigne: "ana" },
-    { name: "second phase", status: "ongoing", assigne: "tom" },
-  ],
-  "2": [], //no milestones!
-};
+// context from milestone route file
+export const getProjectMilestones = async (req: Request, res: Response, context: Context) => {
+  try {
+    const { projectId } = req.params;
 
-export const getProjectMilestones = (req: Request, res: Response) => {
-  const { projectId } = req.params; // extract the projectId from the URL
+    // use keystone context to access database info from milestone schema
+    const milestones = await context.query.Milestone.findMany({
+      where: {
+        project: {
+          id: {
+            equals: projectId,
+          },
+        },
+      },
+      query: `
+        milestoneName
+        status
+        assignee
+      `,
+    });
 
-  // Fetch milestones for the given projectId, defaulting to empty array if there is none.
-  const milestones = mockMilestones[projectId] || [];
+    if (milestones.length === 0) {
+      return res.status(404).json({ message: "No milestones found for this project." });
+    }
 
-  //respond with the list of milestones 'even if it is an empty array'.
-  res.status(200).json(milestones);
+    res.status(200).json(milestones);
+  } catch (err) {
+    console.error("Failed to get milestones:", err);
+    res.status(500).json({ message: "Error retrieving milestones" });
+  }
 };
