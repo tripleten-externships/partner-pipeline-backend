@@ -34,6 +34,7 @@ export const Project: ListConfig<Lists.Project.TypeInfo<any>, any> = list({
       defaultValue: { kind: "now" },
     }),
     members: relationship({ ref: "User.projects", many: true }),
+    invitations: relationship({ ref: "ProjectInvitation.project", many: true }), // <-- Added field
   },
   hooks: {
     async afterOperation({ operation, item, originalItem, context }) {
@@ -65,6 +66,24 @@ export const ProjectLog: ListConfig<Lists.ProjectLog.TypeInfo<any>, any> = list(
       create: ({ session }) => !!session && session.data.isAdmin,
       update: () => false,
       delete: () => false,
+    },
+  },
+});
+
+// ====================
+// ProjectInvitation List (Added)
+// ====================
+export const ProjectInvitation = list({
+  fields: {
+    email: text(),
+    project: relationship({ ref: 'Project.invitations' }),
+  },
+  access: {
+    operation: {
+      query: () => true,
+      create: () => true,
+      update: () => true,
+      delete: () => true,
     },
   },
 });

@@ -67,6 +67,7 @@ export const User: ListConfig<Lists.User.TypeInfo<any>, any> = list({
     }),
     activityLogs: relationship({ ref: "ActivityLog.updatedBy", many: true }), // backlink for all Activitylog.updatedBy entries
     projects: relationship({ ref: "Project.members" }),
+    invitations: relationship({ ref: "ProjectInvitation.user", many: true }), // <-- NEW FIELD
   },
   hooks: {
     async afterOperation({ operation, item, originalItem, context }) {
