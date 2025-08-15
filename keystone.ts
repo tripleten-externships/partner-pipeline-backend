@@ -11,6 +11,7 @@ import * as Models from "./models";
 import authRoutes from "./routes/authRoutes";
 import { setupPassport, passport } from "./config/passport";
 import { createMilestoneRouter } from "./routes/milestoneDataRoutes";
+import { createActivityLogRouter } from "./routes/activityLogRoute";
 
 export default withAuth(
   config({
@@ -37,6 +38,8 @@ export default withAuth(
         app.use(authRoutes);
         // milestone api endpoint with keystone context injected
         app.use(createMilestoneRouter(commonContext));
+        // activity log api endpoint with keystone context injected
+        app.use(createActivityLogRouter(commonContext));
       },
     },
     db: {

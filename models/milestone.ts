@@ -5,7 +5,6 @@ import { text, select, relationship, timestamp } from "@keystone-6/core/fields";
 
 export const Milestone: ListConfig<Lists.Milestone.TypeInfo<any>, any> = list({
   fields: {
-    // update: add milestones field from Project schema
     project: relationship({ ref: "Project.milestones", many: false }),
 
     milestoneName: text({
