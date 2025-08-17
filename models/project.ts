@@ -35,6 +35,8 @@ export const Project: ListConfig<Lists.Project.TypeInfo<any>, any> = list({
     }),
     members: relationship({ ref: "User.projects", many: true }),
     invitations: relationship({ ref: "ProjectInvitation.project", many: true }), // <-- Added field
+    // add milestones field for reference to milestone schema
+    milestones: relationship({ ref: "Milestone.project", many: true }),
   },
   hooks: {
     async afterOperation({ operation, item, originalItem, context }) {
