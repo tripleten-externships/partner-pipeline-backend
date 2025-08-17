@@ -1,9 +1,8 @@
-// export * from "./user";
-// export * from "./project";
-// export * from "./activitylog";
+//test
 
 import { User, UserLog } from "./user";
 import { Project, ProjectLog } from "./project";
+import { Milestone } from "./milestone";
 import { ActivityLog } from "./activitylog";
 
 export const lists = {
@@ -11,5 +10,6 @@ export const lists = {
   UserLog,
   Project,
   ProjectLog,
+  Milestone,
   ActivityLog,
 };

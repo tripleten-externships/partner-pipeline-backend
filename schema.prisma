@@ -49,6 +49,7 @@ model Project {
   isActive                Boolean      @default(false)
   lastUpdate              DateTime?    @default(now())
   members                 User[]       @relation("User_projects")
+  milestones              Milestone[]  @relation("Milestone_project")
   from_ProjectLog_project ProjectLog[] @relation("ProjectLog_project")
 }
 
@@ -62,6 +63,19 @@ model ProjectLog {
   timestamp DateTime? @default(now())
 
   @@index([projectId])
+}
+
+model Milestone {
+  id            String    @id @default(uuid())
+  project       Project?  @relation("Milestone_project", fields: [projectId], references: [id])
+  projectId     String?   @map("project")
+  milestoneName String    @default("")
+  status        String    @default("not_started")
+  assignee      String    @default("")
+  createdAt     DateTime? @default(now())
+
+  @@index([projectId])
+  @@index([status])
 }
 
 model ActivityLog {

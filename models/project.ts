@@ -8,12 +8,14 @@ export const Project: ListConfig<Lists.Project.TypeInfo<any>, any> = list({
   access: {
     operation: {
       query: ({ session }) => isSignedIn({ session }),
+
       create: ({ session }) => {
         console.log("Session at create access:", session);
         return permissions.isAdminLike({ session });
       },
 
       // create: ({ session }) => permissions.isAdminLike({ session }),
+
       update: ({ session }) =>
         permissions.isAdminLike({ session }) || permissions.isProjectMember({ session }),
       delete: ({ session }) => permissions.isAdminLike({ session }),
