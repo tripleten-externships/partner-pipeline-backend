@@ -3,6 +3,7 @@ import type { ListConfig } from "@keystone-6/core";
 import type { Lists } from ".keystone/types";
 import { checkbox, relationship, text, timestamp, json } from "@keystone-6/core/fields";
 import { permissions, isSignedIn } from "../utils/access";
+import { use } from "passport";
 
 export const Project: ListConfig<Lists.Project.TypeInfo<any>, any> = list({
   access: {
@@ -81,6 +82,7 @@ export const ProjectInvitation = list({
   fields: {
     email: text(),
     project: relationship({ ref: "Project.invitations" }),
+    user: relationship({ ref: "User.invitations" }),
   },
   access: {
     operation: {
