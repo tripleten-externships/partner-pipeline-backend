@@ -80,7 +80,7 @@ export const ProjectLog: ListConfig<Lists.ProjectLog.TypeInfo<any>, any> = list(
 export const ProjectInvitation = list({
   fields: {
     email: text(),
-    project: relationship({ ref: 'Project.invitations' }),
+    project: relationship({ ref: "Project.invitations" }),
   },
   access: {
     operation: {
