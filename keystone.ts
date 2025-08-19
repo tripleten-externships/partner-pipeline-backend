@@ -21,8 +21,13 @@ export default withAuth(
         methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
         credentials: true,
       },
+<<<<<<< HEAD
+      extendExpressApp: (app, _context) => {
+        //remember untag setupPassport();
+=======
       extendExpressApp: (app, commonContext) => {
         setupPassport();
+>>>>>>> 9486db59948eee7b2265425e6ceda1c375b26e57
 
         app.use(
           expressSession({
@@ -57,7 +62,7 @@ export default withAuth(
       s3_file_storage: {
         kind: "s3",
         type: "file",
-        bucketName: process.env.S3_BUCKET_NAME || "project_name-keystonejs",
+        bucketName: process.env.S3_BUCKET_NAME || "partner-pipeline-keystonejs",
         region: process.env.S3_REGION || "us-east-2",
         accessKeyId: process.env.S3_ACCESS_KEY_ID || "keystone",
         secretAccessKey: process.env.S3_SECRET_ACCESS_KEY || "keystone",
@@ -67,7 +72,7 @@ export default withAuth(
       s3_image_storage: {
         kind: "s3",
         type: "image",
-        bucketName: process.env.S3_BUCKET_NAME || "project_name-keystonejs",
+        bucketName: process.env.S3_BUCKET_NAME || "partner-pipeline-keystonejs",
         region: process.env.S3_REGION || "us-east-2",
         accessKeyId: process.env.S3_ACCESS_KEY_ID || "keystone",
         secretAccessKey: process.env.S3_SECRET_ACCESS_KEY || "keystone",
