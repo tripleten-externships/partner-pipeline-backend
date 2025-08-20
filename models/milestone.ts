@@ -4,6 +4,47 @@ import type { Lists } from ".keystone/types";
 import { text, select, relationship, timestamp } from "@keystone-6/core/fields";
 
 export const Milestone: ListConfig<Lists.Milestone.TypeInfo<any>, any> = list({
+  // --------------------
+  // Fields
+  // --------------------
+  fields: {
+    project: relationship({ ref: "Project.milestones", many: false }),
+    milestoneName: text({
+      validation: { isRequired: true },
+    }),
+
+    status: select({
+      options: [
+        { label: "Not Started", value: "not_started" },
+        { label: "In Progress", value: "in_progress" },
+        { label: "Completed", value: "completed" },
+        { label: "Blocked", value: "blocked" },
+      ],
+      defaultValue: "not_started",
+      validation: { isRequired: true },
+      isIndexed: true,
+      ui: { displayMode: "segmented-control" },
+    }),
+
+    assignee: text({
+      validation: { isRequired: false },
+    }),
+
+    createdAt: timestamp({
+      defaultValue: { kind: "now" },
+    }),
+
+    updatedAt: timestamp({
+      defaultValue: { kind: "now" },
+      db: { updatedAt: true },
+    }),
+
+    updatedBy: relationship({ ref: "User", many: false }),
+  },
+
+  // --------------------
+  // Access
+  // --------------------
   access: {
     operation: {
       query: ({ session }) => !!session,
@@ -13,6 +54,9 @@ export const Milestone: ListConfig<Lists.Milestone.TypeInfo<any>, any> = list({
     },
   },
 
+  // --------------------
+  // Hooks
+  // --------------------
   hooks: {
     async afterOperation(
       args: {
@@ -49,40 +93,5 @@ export const Milestone: ListConfig<Lists.Milestone.TypeInfo<any>, any> = list({
         });
       }
     },
-  },
-
-  fields: {
-    project: relationship({ ref: "Project.milestones", many: false }),
-    milestoneName: text({
-      validation: { isRequired: true },
-    }),
-
-    status: select({
-      options: [
-        { label: "Not Started", value: "not_started" },
-        { label: "In Progress", value: "in_progress" },
-        { label: "Completed", value: "completed" },
-        { label: "Blocked", value: "blocked" },
-      ],
-      defaultValue: "not_started",
-      validation: { isRequired: true },
-      isIndexed: true,
-      ui: { displayMode: "segmented-control" },
-    }),
-
-    assignee: text({
-      validation: { isRequired: false },
-    }),
-
-    createdAt: timestamp({
-      defaultValue: { kind: "now" },
-    }),
-
-    updatedAt: timestamp({
-      defaultValue: { kind: "now" },
-      db: { updatedAt: true },
-    }),
-
-    updatedBy: relationship({ ref: "User", many: false }),
   },
 });
