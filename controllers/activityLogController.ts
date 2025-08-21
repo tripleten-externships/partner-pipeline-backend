@@ -7,10 +7,13 @@ export const getActivityLog = async (req: Request, res: Response, context: Conte
 
     const activityLog = await context.query.ActivityLog.findMany({
       where: {
-        projectId: { equals: projectId }, // must match the Project item ID
+        project: { id: { equals: projectId } }, // must match the Project item ID
       }, // milsteoneId must match the milestoneID
       query: `
-        milestoneId
+        milestone {
+          id
+          milestoneName
+        }
         oldStatus
         newStatus
         updatedBy {
