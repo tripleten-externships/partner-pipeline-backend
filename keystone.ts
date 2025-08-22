@@ -12,6 +12,7 @@ import authRoutes from "./routes/authRoutes";
 import { setupPassport, passport } from "./config/passport";
 import { createMilestoneRouter } from "./routes/milestoneDataRoutes";
 import { createActivityLogRouter } from "./routes/activityLogRoute";
+import { createInvitationsRouter } from "./routes/invitationsRoute";
 
 export default withAuth(
   config({
@@ -35,11 +36,15 @@ export default withAuth(
 
         app.use(passport.initialize());
         app.use(passport.session());
+
+        app.get("/api/_root_health", (_req, res) => res.send("ok-root"));
+
         app.use(authRoutes);
         // milestone api endpoint with keystone context
         app.use(createMilestoneRouter(commonContext));
         // activity log api endpoint with keystone context
         app.use(createActivityLogRouter(commonContext));
+        app.use(createInvitationsRouter(commonContext));
       },
     },
     db: {

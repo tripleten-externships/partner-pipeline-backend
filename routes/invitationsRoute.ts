@@ -1,10 +1,13 @@
 import { Router } from "express";
 import crypto from "crypto";
-import bcrypt from "bcryptjs";
+import * as bcrypt from "bcryptjs";
 import type { Context } from ".keystone/types";
 
 export function createInvitationsRouter(commonContext: Context) {
+  console.log("[invites] mounting invitations router");
   const router = Router();
+
+  router.get("/api/_invites/health", (_req, res) => res.send("ok-invites"));
 
   // create a token (admin-only)
   router.post("/api/projects/:projectId/invitations", async (req, res) => {
