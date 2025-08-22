@@ -9,6 +9,7 @@ export const Milestone: ListConfig<Lists.Milestone.TypeInfo<any>, any> = list({
   // --------------------
   fields: {
     project: relationship({ ref: "Project.milestones", many: false }),
+    activityLogs: relationship({ ref: "ActivityLog.milestone", many: true }),
     milestoneName: text({
       validation: { isRequired: true },
     }),

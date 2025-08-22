@@ -12,7 +12,6 @@ generator client {
 }
 
 model User {
-
   id                       String        @id @default(uuid())
   name                     String        @default("")
   email                    String        @unique @default("")
@@ -22,12 +21,11 @@ model User {
   createdAt                DateTime?     @default(now())
   isActive                 Boolean       @default(false)
   lastLoginDate            DateTime?     @default(now())
+  activityLogs             ActivityLog[] @relation("ActivityLog_updatedBy")
   projects                 Project?      @relation("User_projects", fields: [projectsId], references: [id])
   projectsId               String?       @map("projects")
   from_UserLog_user        UserLog[]     @relation("UserLog_user")
   from_Milestone_updatedBy Milestone[]   @relation("Milestone_updatedBy")
-  from_ActivityLog_user    ActivityLog[] @relation("ActivityLog_user")
-
 
   @@index([projectsId])
 }
@@ -45,15 +43,16 @@ model UserLog {
 }
 
 model Project {
-  id                      String       @id @default(uuid())
-  name                    String       @default("")
-  createdAt               DateTime?    @default(now())
-  project                 String       @default("")
-  isActive                Boolean      @default(false)
-  lastUpdate              DateTime?    @default(now())
-  members                 User[]       @relation("User_projects")
-  milestones              Milestone[]  @relation("Milestone_project")
-  from_ProjectLog_project ProjectLog[] @relation("ProjectLog_project")
+  id                      String        @id @default(uuid())
+  name                    String        @default("")
+  createdAt               DateTime?     @default(now())
+  project                 String        @default("")
+  isActive                Boolean       @default(false)
+  lastUpdate              DateTime?     @default(now())
+  members                 User[]        @relation("User_projects")
+  milestones              Milestone[]   @relation("Milestone_project")
+  activityLogs            ActivityLog[] @relation("ActivityLog_project")
+  from_ProjectLog_project ProjectLog[]  @relation("ProjectLog_project")
 }
 
 model ProjectLog {
@@ -69,35 +68,36 @@ model ProjectLog {
 }
 
 model Milestone {
-  id            String     @id @default(uuid())
-  project       Project?   @relation("Milestone_project", fields: [projectId], references: [id])
-  projectId     String?    @map("project")
-  milestoneName String     @default("")
-  status        String     @default("not_started")
-  assignee      String     @default("")
-  createdAt     DateTime?  @default(now())
-  updatedAt     DateTime?  @default(now()) @updatedAt
-  updatedBy     User?      @relation("Milestone_updatedBy", fields: [updatedById], references: [id])
-  updatedById   String?    @map("updatedBy")
-  from_ActivityLog_milestone ActivityLog[] @relation("ActivityLog_milestone")
+  id            String        @id @default(uuid())
+  project       Project?      @relation("Milestone_project", fields: [projectId], references: [id])
+  projectId     String?       @map("project")
+  activityLogs  ActivityLog[] @relation("ActivityLog_milestone")
+  milestoneName String        @default("")
+  status        String        @default("not_started")
+  assignee      String        @default("")
+  createdAt     DateTime?     @default(now())
+  updatedAt     DateTime?     @default(now()) @updatedAt
+  updatedBy     User?         @relation("Milestone_updatedBy", fields: [updatedById], references: [id])
+  updatedById   String?       @map("updatedBy")
 
   @@index([projectId])
   @@index([status])
   @@index([updatedById])
 }
 
-
 model ActivityLog {
   id          String     @id @default(uuid())
+  project     Project?   @relation("ActivityLog_project", fields: [projectId], references: [id])
+  projectId   String?    @map("project")
   milestone   Milestone? @relation("ActivityLog_milestone", fields: [milestoneId], references: [id])
   milestoneId String?    @map("milestone")
+  updatedBy   User?      @relation("ActivityLog_updatedBy", fields: [updatedById], references: [id])
+  updatedById String?    @map("updatedBy")
   oldStatus   String?
   newStatus   String?
-  user        User?      @relation("ActivityLog_user", fields: [userId], references: [id])
-  userId      String?    @map("user")
   timestamp   DateTime?  @default(now())
 
+  @@index([projectId])
   @@index([milestoneId])
-  @@index([userId])
+  @@index([updatedById])
 }
-
