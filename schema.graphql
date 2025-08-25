@@ -262,6 +262,8 @@ type Project {
   milestonesCount(where: MilestoneWhereInput! = {}): Int
   activityLogs(where: ActivityLogWhereInput! = {}, orderBy: [ActivityLogOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ActivityLogWhereUniqueInput): [ActivityLog!]
   activityLogsCount(where: ActivityLogWhereInput! = {}): Int
+  invitations(where: InvitationTokenWhereInput! = {}, orderBy: [InvitationTokenOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: InvitationTokenWhereUniqueInput): [InvitationToken!]
+  invitationsCount(where: InvitationTokenWhereInput! = {}): Int
 }
 
 input ProjectWhereUniqueInput {
@@ -281,6 +283,7 @@ input ProjectWhereInput {
   members: UserManyRelationFilter
   milestones: MilestoneManyRelationFilter
   activityLogs: ActivityLogManyRelationFilter
+  invitations: InvitationTokenManyRelationFilter
 }
 
 input UserManyRelationFilter {
@@ -293,6 +296,12 @@ input MilestoneManyRelationFilter {
   every: MilestoneWhereInput
   some: MilestoneWhereInput
   none: MilestoneWhereInput
+}
+
+input InvitationTokenManyRelationFilter {
+  every: InvitationTokenWhereInput
+  some: InvitationTokenWhereInput
+  none: InvitationTokenWhereInput
 }
 
 input ProjectOrderByInput {
@@ -313,6 +322,7 @@ input ProjectUpdateInput {
   members: UserRelateToManyForUpdateInput
   milestones: MilestoneRelateToManyForUpdateInput
   activityLogs: ActivityLogRelateToManyForUpdateInput
+  invitations: InvitationTokenRelateToManyForUpdateInput
 }
 
 input UserRelateToManyForUpdateInput {
@@ -329,6 +339,13 @@ input MilestoneRelateToManyForUpdateInput {
   connect: [MilestoneWhereUniqueInput!]
 }
 
+input InvitationTokenRelateToManyForUpdateInput {
+  disconnect: [InvitationTokenWhereUniqueInput!]
+  set: [InvitationTokenWhereUniqueInput!]
+  create: [InvitationTokenCreateInput!]
+  connect: [InvitationTokenWhereUniqueInput!]
+}
+
 input ProjectUpdateArgs {
   where: ProjectWhereUniqueInput!
   data: ProjectUpdateInput!
@@ -343,6 +360,7 @@ input ProjectCreateInput {
   members: UserRelateToManyForCreateInput
   milestones: MilestoneRelateToManyForCreateInput
   activityLogs: ActivityLogRelateToManyForCreateInput
+  invitations: InvitationTokenRelateToManyForCreateInput
 }
 
 input UserRelateToManyForCreateInput {
@@ -353,6 +371,11 @@ input UserRelateToManyForCreateInput {
 input MilestoneRelateToManyForCreateInput {
   create: [MilestoneCreateInput!]
   connect: [MilestoneWhereUniqueInput!]
+}
+
+input InvitationTokenRelateToManyForCreateInput {
+  create: [InvitationTokenCreateInput!]
+  connect: [InvitationTokenWhereUniqueInput!]
 }
 
 type ProjectLog {
@@ -541,6 +564,151 @@ input MilestoneRelateToOneForCreateInput {
   connect: MilestoneWhereUniqueInput
 }
 
+type InvitationToken {
+  id: ID!
+  tokenHash: String
+  project: Project
+  roleToGrant: String
+  expiresAt: DateTime
+  maxUses: Int
+  usedCount: Int
+  revoked: Boolean
+  createdBy: User
+  notes: String
+}
+
+input InvitationTokenWhereUniqueInput {
+  id: ID
+}
+
+input InvitationTokenWhereInput {
+  AND: [InvitationTokenWhereInput!]
+  OR: [InvitationTokenWhereInput!]
+  NOT: [InvitationTokenWhereInput!]
+  id: IDFilter
+  tokenHash: StringFilter
+  project: ProjectWhereInput
+  roleToGrant: StringFilter
+  expiresAt: DateTimeFilter
+  maxUses: IntNullableFilter
+  usedCount: IntNullableFilter
+  revoked: BooleanFilter
+  createdBy: UserWhereInput
+  notes: StringFilter
+}
+
+input DateTimeFilter {
+  equals: DateTime
+  in: [DateTime!]
+  notIn: [DateTime!]
+  lt: DateTime
+  lte: DateTime
+  gt: DateTime
+  gte: DateTime
+  not: DateTimeFilter
+}
+
+input IntNullableFilter {
+  equals: Int
+  in: [Int!]
+  notIn: [Int!]
+  lt: Int
+  lte: Int
+  gt: Int
+  gte: Int
+  not: IntNullableFilter
+}
+
+input InvitationTokenOrderByInput {
+  id: OrderDirection
+  tokenHash: OrderDirection
+  roleToGrant: OrderDirection
+  expiresAt: OrderDirection
+  maxUses: OrderDirection
+  usedCount: OrderDirection
+  revoked: OrderDirection
+  notes: OrderDirection
+}
+
+input InvitationTokenUpdateInput {
+  tokenHash: String
+  project: ProjectRelateToOneForUpdateInput
+  roleToGrant: String
+  expiresAt: DateTime
+  maxUses: Int
+  usedCount: Int
+  revoked: Boolean
+  createdBy: UserRelateToOneForUpdateInput
+  notes: String
+}
+
+input InvitationTokenUpdateArgs {
+  where: InvitationTokenWhereUniqueInput!
+  data: InvitationTokenUpdateInput!
+}
+
+input InvitationTokenCreateInput {
+  tokenHash: String
+  project: ProjectRelateToOneForCreateInput
+  roleToGrant: String
+  expiresAt: DateTime
+  maxUses: Int
+  usedCount: Int
+  revoked: Boolean
+  createdBy: UserRelateToOneForCreateInput
+  notes: String
+}
+
+type InvitationTokenLog {
+  id: ID!
+  operation: String
+  before: String
+  after: String
+  timestamp: DateTime
+}
+
+input InvitationTokenLogWhereUniqueInput {
+  id: ID
+}
+
+input InvitationTokenLogWhereInput {
+  AND: [InvitationTokenLogWhereInput!]
+  OR: [InvitationTokenLogWhereInput!]
+  NOT: [InvitationTokenLogWhereInput!]
+  id: IDFilter
+  operation: StringFilter
+  before: StringFilter
+  after: StringFilter
+  timestamp: DateTimeNullableFilter
+}
+
+input InvitationTokenLogOrderByInput {
+  id: OrderDirection
+  operation: OrderDirection
+  before: OrderDirection
+  after: OrderDirection
+  timestamp: OrderDirection
+}
+
+input InvitationTokenLogUpdateInput {
+  operation: String
+  before: String
+  after: String
+  timestamp: DateTime
+}
+
+input InvitationTokenLogUpdateArgs {
+  where: InvitationTokenLogWhereUniqueInput!
+  data: InvitationTokenLogUpdateInput!
+}
+
+input InvitationTokenLogCreateInput {
+  operation: String
+  before: String
+  after: String
+  timestamp: DateTime
+}
+
 """
 The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
 """
@@ -583,6 +751,18 @@ type Mutation {
   updateActivityLogs(data: [ActivityLogUpdateArgs!]!): [ActivityLog]
   deleteActivityLog(where: ActivityLogWhereUniqueInput!): ActivityLog
   deleteActivityLogs(where: [ActivityLogWhereUniqueInput!]!): [ActivityLog]
+  createInvitationToken(data: InvitationTokenCreateInput!): InvitationToken
+  createInvitationTokens(data: [InvitationTokenCreateInput!]!): [InvitationToken]
+  updateInvitationToken(where: InvitationTokenWhereUniqueInput!, data: InvitationTokenUpdateInput!): InvitationToken
+  updateInvitationTokens(data: [InvitationTokenUpdateArgs!]!): [InvitationToken]
+  deleteInvitationToken(where: InvitationTokenWhereUniqueInput!): InvitationToken
+  deleteInvitationTokens(where: [InvitationTokenWhereUniqueInput!]!): [InvitationToken]
+  createInvitationTokenLog(data: InvitationTokenLogCreateInput!): InvitationTokenLog
+  createInvitationTokenLogs(data: [InvitationTokenLogCreateInput!]!): [InvitationTokenLog]
+  updateInvitationTokenLog(where: InvitationTokenLogWhereUniqueInput!, data: InvitationTokenLogUpdateInput!): InvitationTokenLog
+  updateInvitationTokenLogs(data: [InvitationTokenLogUpdateArgs!]!): [InvitationTokenLog]
+  deleteInvitationTokenLog(where: InvitationTokenLogWhereUniqueInput!): InvitationTokenLog
+  deleteInvitationTokenLogs(where: [InvitationTokenLogWhereUniqueInput!]!): [InvitationTokenLog]
   endSession: Boolean!
   authenticateUserWithPassword(email: String!, password: String!): UserAuthenticationWithPasswordResult
   createInitialUser(data: CreateInitialUserInput!): UserAuthenticationWithPasswordSuccess!
@@ -624,6 +804,12 @@ type Query {
   activityLogs(where: ActivityLogWhereInput! = {}, orderBy: [ActivityLogOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ActivityLogWhereUniqueInput): [ActivityLog!]
   activityLog(where: ActivityLogWhereUniqueInput!): ActivityLog
   activityLogsCount(where: ActivityLogWhereInput! = {}): Int
+  invitationTokens(where: InvitationTokenWhereInput! = {}, orderBy: [InvitationTokenOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: InvitationTokenWhereUniqueInput): [InvitationToken!]
+  invitationToken(where: InvitationTokenWhereUniqueInput!): InvitationToken
+  invitationTokensCount(where: InvitationTokenWhereInput! = {}): Int
+  invitationTokenLogs(where: InvitationTokenLogWhereInput! = {}, orderBy: [InvitationTokenLogOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: InvitationTokenLogWhereUniqueInput): [InvitationTokenLog!]
+  invitationTokenLog(where: InvitationTokenLogWhereUniqueInput!): InvitationTokenLog
+  invitationTokenLogsCount(where: InvitationTokenLogWhereInput! = {}): Int
   keystone: KeystoneMeta!
   authenticatedItem: AuthenticatedItem
 }
