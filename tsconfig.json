@@ -5,7 +5,8 @@
     "strict": true,
     "noEmit": true,
     "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "types": ["node"]
   },
-  "include": ["models", ".keystone"]
+  "include": ["models", "routes", "controllers", "config", "types", ".keystone"]
 }
