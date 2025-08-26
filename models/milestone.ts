@@ -3,6 +3,12 @@ import type { ListConfig } from "@keystone-6/core";
 import type { Lists } from ".keystone/types";
 import { text, select, relationship, timestamp } from "@keystone-6/core/fields";
 
+// --------------------
+// Helper functions for role-based access
+// --------------------
+const isAdmin = (session: any) => session?.data?.isAdmin;
+const isManager = (session: any) => session?.data?.role === "Manager";
+
 export const Milestone: ListConfig<Lists.Milestone.TypeInfo<any>, any> = list({
   // --------------------
   // Fields
@@ -44,14 +50,27 @@ export const Milestone: ListConfig<Lists.Milestone.TypeInfo<any>, any> = list({
   },
 
   // --------------------
-  // Access
+  // Access - more granular, role-based
   // --------------------
   access: {
+    // operation-level access: broad rules
     operation: {
-      query: ({ session }) => !!session,
-      create: ({ session }) => !!session,
-      update: ({ session }) => !!session,
-      delete: ({ session }) => !!session,
+      query: ({ session }) => !!session, // allow logged-in users
+      create: ({ session }) => isAdmin(session) || isManager(session), // if admin or manager
+      update: ({ session }) => !!session, // allow logged-in users
+      delete: ({ session }) => isAdmin(session), // only if admin
+    },
+    // item-level access:
+    item: {
+      update: ({ session, item }) => {
+        if (!session) return false;
+        if (isAdmin(session)) return true;
+        if (isManager(session) && item.assignee === session.data.id) return true;
+        return false;
+      },
+      delete: ({ session, item }) => {
+        return isAdmin(session);
+      },
     },
   },
 
