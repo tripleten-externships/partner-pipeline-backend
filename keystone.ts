@@ -11,6 +11,8 @@ import * as Models from "./models";
 import authRoutes from "./routes/authRoutes";
 import { setupPassport, passport } from "./config/passport";
 import { createMilestoneRouter } from "./routes/milestoneDataRoutes";
+import { createActivityLogRouter } from "./routes/activityLogRoute";
+import { createInvitationsRouter } from "./routes/invitationsRoute";
 
 export default withAuth(
   config({
@@ -34,9 +36,15 @@ export default withAuth(
 
         app.use(passport.initialize());
         app.use(passport.session());
+
+        app.get("/api/_root_health", (_req, res) => res.send("ok-root"));
+
         app.use(authRoutes);
-        // milestone api endpoint with keystone context injected
+        // milestone api endpoint with keystone context
         app.use(createMilestoneRouter(commonContext));
+        // activity log api endpoint with keystone context
+        app.use(createActivityLogRouter(commonContext));
+        app.use(createInvitationsRouter(commonContext));
       },
     },
     db: {
@@ -57,7 +65,7 @@ export default withAuth(
       s3_file_storage: {
         kind: "s3",
         type: "file",
-        bucketName: process.env.S3_BUCKET_NAME || "project_name-keystonejs",
+        bucketName: process.env.S3_BUCKET_NAME || "partner-pipeline-keystonejs",
         region: process.env.S3_REGION || "us-east-2",
         accessKeyId: process.env.S3_ACCESS_KEY_ID || "keystone",
         secretAccessKey: process.env.S3_SECRET_ACCESS_KEY || "keystone",
@@ -67,7 +75,7 @@ export default withAuth(
       s3_image_storage: {
         kind: "s3",
         type: "image",
-        bucketName: process.env.S3_BUCKET_NAME || "project_name-keystonejs",
+        bucketName: process.env.S3_BUCKET_NAME || "partner-pipeline-keystonejs",
         region: process.env.S3_REGION || "us-east-2",
         accessKeyId: process.env.S3_ACCESS_KEY_ID || "keystone",
         secretAccessKey: process.env.S3_SECRET_ACCESS_KEY || "keystone",

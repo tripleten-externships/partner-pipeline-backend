@@ -1,9 +1,8 @@
-// test
-
 import { User, UserLog } from "./user";
 import { Project, ProjectLog, ProjectInvitation } from "./project";
 import { Milestone } from "./milestone";
-import { ActivityLog } from "./activitylog";
+import { ActivityLog } from "./activityLog";
+import { InvitationToken, InvitationTokenLog } from "./invitationToken";
 
 export const lists = {
   User,
@@ -13,4 +12,6 @@ export const lists = {
   ProjectInvitation, // <-- Added field
   Milestone,
   ActivityLog,
+  InvitationToken,
+  InvitationTokenLog,
 };

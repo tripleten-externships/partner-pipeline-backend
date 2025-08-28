@@ -25,7 +25,9 @@ model User {
   projects          Project?            @relation("User_projects", fields: [projectsId], references: [id])
   projectsId        String?             @map("projects")
   invitation       ProjectInvitation[] @relation("ProjectInvitation_user")
-  from_UserLog_user UserLog[]           @relation("UserLog_user")
+  from_UserLog_user              UserLog[]         @relation("UserLog_user")
+  from_Milestone_updatedBy       Milestone[]       @relation("Milestone_updatedBy")
+  from_InvitationToken_createdBy InvitationToken[] @relation("InvitationToken_createdBy")
 
   @@index([projectsId])
 }
@@ -50,9 +52,11 @@ model Project {
   isActive                Boolean             @default(false)
   lastUpdate              DateTime?           @default(now())
   members                 User[]              @relation("User_projects")
-  invitation             ProjectInvitation[] @relation("ProjectInvitation_project")
   milestones              Milestone[]         @relation("Milestone_project")
-  from_ProjectLog_project ProjectLog[]        @relation("ProjectLog_project")
+  activityLogs            ActivityLog[]     @relation("ActivityLog_project")
+  invitation              ProjectInvitation[] @relation("ProjectInvitation_project")
+  invitations             InvitationToken[] @relation("InvitationToken_project")
+  from_ProjectLog_project ProjectLog[]      @relation("ProjectLog_project")
 }
 
 model ProjectLog {
@@ -80,29 +84,63 @@ model ProjectInvitation {
 }
 
 model Milestone {
-  id            String    @id @default(uuid())
-  project       Project?  @relation("Milestone_project", fields: [projectId], references: [id])
-  projectId     String?   @map("project")
-  milestoneName String    @default("")
-  status        String    @default("not_started")
-  assignee      String    @default("")
-  createdAt     DateTime? @default(now())
+  id            String        @id @default(uuid())
+  project       Project?      @relation("Milestone_project", fields: [projectId], references: [id])
+  projectId     String?       @map("project")
+  activityLogs  ActivityLog[] @relation("ActivityLog_milestone")
+  milestoneName String        @default("")
+  status        String        @default("not_started")
+  assignee      String        @default("")
+  createdAt     DateTime?     @default(now())
+  updatedAt     DateTime?     @default(now()) @updatedAt
+  updatedBy     User?         @relation("Milestone_updatedBy", fields: [updatedById], references: [id])
+  updatedById   String?       @map("updatedBy")
 
   @@index([projectId])
   @@index([status])
+  @@index([updatedById])
 }
 
 model ActivityLog {
-  id          String    @id @default(uuid())
-  oldStatus   String    @default("")
-  newStatus   String    @default("")
-  timestamp   DateTime? @default(now())
-  projectId   String    @default("")
-  milestoneId String    @default("")
-  updatedBy   User?     @relation("ActivityLog_updatedBy", fields: [updatedById], references: [id])
-  updatedById String?   @map("updatedBy")
+  id          String     @id @default(uuid())
+  project     Project?   @relation("ActivityLog_project", fields: [projectId], references: [id])
+  projectId   String?    @map("project")
+  milestone   Milestone? @relation("ActivityLog_milestone", fields: [milestoneId], references: [id])
+  milestoneId String?    @map("milestone")
+  updatedBy   User?      @relation("ActivityLog_updatedBy", fields: [updatedById], references: [id])
+  updatedById String?    @map("updatedBy")
+  oldStatus   String?
+  newStatus   String?
+  timestamp   DateTime?  @default(now())
 
   @@index([projectId])
   @@index([milestoneId])
   @@index([updatedById])
+}
+
+model InvitationToken {
+  id          String   @id @default(uuid())
+  tokenHash   String   @default("")
+  project     Project? @relation("InvitationToken_project", fields: [projectId], references: [id])
+  projectId   String?  @map("project")
+  roleToGrant String   @default("Student")
+  expiresAt   DateTime
+  maxUses     Int?     @default(1)
+  usedCount   Int?     @default(0)
+  revoked     Boolean  @default(false)
+  createdBy   User?    @relation("InvitationToken_createdBy", fields: [createdById], references: [id])
+  createdById String?  @map("createdBy")
+  notes       String   @default("")
+
+  @@index([tokenHash])
+  @@index([projectId])
+  @@index([createdById])
+}
+
+model InvitationTokenLog {
+  id        String    @id @default(uuid())
+  operation String    @default("")
+  before    String    @default("")
+  after     String    @default("")
+  timestamp DateTime? @default(now())
 }

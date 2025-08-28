@@ -9,12 +9,14 @@ export const Project: ListConfig<Lists.Project.TypeInfo<any>, any> = list({
     operation: {
       query: ({ session }) => isSignedIn({ session }),
 
-      create: ({ session }) => {
-        console.log("Session at create access:", session);
-        return permissions.isAdminLike({ session });
-      },
+      // create: ({ session }) => {
+      //   console.log("Session at create access:", session);
+      //   return permissions.isAdminLike({ session });
+      // },
 
       // create: ({ session }) => permissions.isAdminLike({ session }),
+
+      create: isSignedIn,
 
       update: ({ session }) =>
         permissions.isAdminLike({ session }) || permissions.isProjectMember({ session }),
@@ -39,7 +41,10 @@ export const Project: ListConfig<Lists.Project.TypeInfo<any>, any> = list({
     invitation: relationship({ ref: "ProjectInvitation.project", many: true }), // <-- Added field
     // milestones field added for reference to milestone schema
     milestones: relationship({ ref: "Milestone.project", many: true }), // <-- Added field
+    activityLogs: relationship({ ref: "ActivityLog.project", many: true }),
+    invitations: relationship({ ref: "InvitationToken.project", many: true }),
   },
+
   hooks: {
     async afterOperation({ operation, item, originalItem, context }) {
       if (operation === "create" || operation === "update" || operation === "delete") {
