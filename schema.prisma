@@ -24,7 +24,7 @@ model User {
   activityLogs      ActivityLog[]       @relation("ActivityLog_updatedBy")
   projects          Project?            @relation("User_projects", fields: [projectsId], references: [id])
   projectsId        String?             @map("projects")
-  invitations       ProjectInvitation[] @relation("ProjectInvitation_user")
+  invitation       ProjectInvitation[] @relation("ProjectInvitation_user")
   from_UserLog_user UserLog[]           @relation("UserLog_user")
 
   @@index([projectsId])
@@ -50,7 +50,7 @@ model Project {
   isActive                Boolean             @default(false)
   lastUpdate              DateTime?           @default(now())
   members                 User[]              @relation("User_projects")
-  invitations             ProjectInvitation[] @relation("ProjectInvitation_project")
+  invitation             ProjectInvitation[] @relation("ProjectInvitation_project")
   milestones              Milestone[]         @relation("Milestone_project")
   from_ProjectLog_project ProjectLog[]        @relation("ProjectLog_project")
 }
