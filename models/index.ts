@@ -1,4 +1,4 @@
-//test
+// test
 
 import { User, UserLog } from "./user";
 import { Project, ProjectLog, ProjectInvitation } from "./project";
