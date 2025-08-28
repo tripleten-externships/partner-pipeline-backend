@@ -38,8 +38,9 @@ export const Project: ListConfig<Lists.Project.TypeInfo<any>, any> = list({
       defaultValue: { kind: "now" },
     }),
     members: relationship({ ref: "User.projects", many: true }),
-    // add milestones field for reference to milestone schema
-    milestones: relationship({ ref: "Milestone.project", many: true }),
+    invitation: relationship({ ref: "ProjectInvitation.project", many: true }), // <-- Added field
+    // milestones field added for reference to milestone schema
+    milestones: relationship({ ref: "Milestone.project", many: true }), // <-- Added field
     activityLogs: relationship({ ref: "ActivityLog.project", many: true }),
     invitations: relationship({ ref: "InvitationToken.project", many: true }),
   },
@@ -74,6 +75,25 @@ export const ProjectLog: ListConfig<Lists.ProjectLog.TypeInfo<any>, any> = list(
       create: ({ session }) => !!session && session.data.isAdmin,
       update: () => false,
       delete: () => false,
+    },
+  },
+});
+
+// ====================
+// ProjectInvitation List (Added)
+// ====================
+export const ProjectInvitation = list({
+  fields: {
+    email: text(),
+    project: relationship({ ref: "Project.invitations" }),
+    user: relationship({ ref: "User.invitations" }),
+  },
+  access: {
+    operation: {
+      query: () => true,
+      create: () => true,
+      update: () => true,
+      delete: () => true,
     },
   },
 });
