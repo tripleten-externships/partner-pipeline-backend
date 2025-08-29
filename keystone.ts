@@ -6,11 +6,12 @@ dotenv.config();
 
 import expressSession from "express-session";
 import { keystoneSession } from "./config/keystoneSession";
-import { withAuth } from "./auth";
+import { withAuth, sessionSecret } from "./auth";
 import * as Models from "./models";
 import authRoutes from "./routes/authRoutes";
 import { setupPassport, passport } from "./config/passport";
 import { createMilestoneRouter } from "./routes/milestoneDataRoutes";
+import { createPermissionRouter } from "./routes/permissionRoutes";
 import { createActivityLogRouter } from "./routes/activityLogRoute";
 import { createInvitationsRouter } from "./routes/invitationsRoute";
 
@@ -28,7 +29,7 @@ export default withAuth(
 
         app.use(
           expressSession({
-            secret: process.env.SESSION_SECRET!,
+            secret: sessionSecret!,
             resave: false,
             saveUninitialized: false,
           })
@@ -40,10 +41,17 @@ export default withAuth(
         app.get("/api/_root_health", (_req, res) => res.send("ok-root"));
 
         app.use(authRoutes);
+
         // milestone api endpoint with keystone context
         app.use(createMilestoneRouter(commonContext));
+
+        // permission management api endpoints
+        app.use(createPermissionRouter(commonContext));
+
         // activity log api endpoint with keystone context
         app.use(createActivityLogRouter(commonContext));
+
+        // invitations api endpoint with keystone context
         app.use(createInvitationsRouter(commonContext));
       },
     },

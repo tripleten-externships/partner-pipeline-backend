@@ -24,8 +24,13 @@ import { statelessSessions } from "@keystone-6/core/session";
 // for a stateless session, a SESSION_SECRET should always be provided
 //   especially in production (statelessSessions will throw if SESSION_SECRET is undefined)
 let sessionSecret = process.env.SESSION_SECRET;
-if (!sessionSecret && process.env.NODE_ENV !== "production") {
+if (!sessionSecret) {
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("SESSION_SECRET environment variable must be set in production");
+  }
+  // Generate a 32+ character secret for development
   sessionSecret = randomBytes(32).toString("hex");
+  console.log("🔐 Generated session secret for development:", sessionSecret);
 }
 
 // withAuth is a function we can use to wrap our base configuration
@@ -36,7 +41,17 @@ const { withAuth } = createAuth({
   // this is a GraphQL query fragment for fetching what data will be attached to a context.session
   //   this can be helpful for when you are writing your access control functions
   //   you can find out more at https://keystonejs.com/docs/guides/auth-and-access-control
-  sessionData: "id name email role isAdmin",
+  sessionData: `
+    id 
+    name 
+    email 
+    role 
+    isAdmin
+    userPermissions {
+      permission
+      granted
+    }
+  `,
   secretField: "password",
 
   // WARNING: remove initFirstItem functionality in production
@@ -63,4 +78,4 @@ const session = statelessSessions({
   secret: sessionSecret!,
 });
 
-export { withAuth, session };
+export { withAuth, session, sessionSecret };

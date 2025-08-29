@@ -21,12 +21,19 @@ model User {
   createdAt                      DateTime?         @default(now())
   isActive                       Boolean           @default(false)
   lastLoginDate                  DateTime?         @default(now())
+
+  // Relations
   activityLogs                   ActivityLog[]     @relation("ActivityLog_updatedBy")
   projects                       Project?          @relation("User_projects", fields: [projectsId], references: [id])
   projectsId                     String?           @map("projects")
   from_UserLog_user              UserLog[]         @relation("UserLog_user")
   from_Milestone_updatedBy       Milestone[]       @relation("Milestone_updatedBy")
   from_InvitationToken_createdBy InvitationToken[] @relation("InvitationToken_createdBy")
+
+  // Permissions system
+  customPermissions              Permission[]      @relation("Permission_users")
+  userPermissions                UserPermission[]  @relation("UserPermission_user")
+  from_UserPermission_grantedBy  UserPermission[]  @relation("UserPermission_grantedBy")
 
   @@index([projectsId])
 }
@@ -50,10 +57,12 @@ model Project {
   project                 String            @default("")
   isActive                Boolean           @default(false)
   lastUpdate              DateTime?         @default(now())
+
   members                 User[]            @relation("User_projects")
   milestones              Milestone[]       @relation("Milestone_project")
   activityLogs            ActivityLog[]     @relation("ActivityLog_project")
   invitations             InvitationToken[] @relation("InvitationToken_project")
+
   from_ProjectLog_project ProjectLog[]      @relation("ProjectLog_project")
 }
 
@@ -104,6 +113,29 @@ model ActivityLog {
   @@index([updatedById])
 }
 
+model Permission {
+  id          String @id @default(uuid())
+  name        String @unique @default("")
+  description String @default("")
+  category    String
+  roles       Json   @default("[]")
+  users       User[] @relation("Permission_users")
+}
+
+model UserPermission {
+  id          String    @id @default(uuid())
+  user        User?     @relation("UserPermission_user", fields: [userId], references: [id])
+  userId      String?   @map("user")
+  permission  String
+  granted     String    @default("allow")
+  grantedBy   User?     @relation("UserPermission_grantedBy", fields: [grantedById], references: [id])
+  grantedById String?   @map("grantedBy")
+  grantedAt   DateTime? @default(now())
+
+  @@index([userId])
+  @@index([grantedById])
+}
+
 model InvitationToken {
   id          String   @id @default(uuid())
   tokenHash   String   @default("")
@@ -130,3 +162,4 @@ model InvitationTokenLog {
   after     String    @default("")
   timestamp DateTime? @default(now())
 }
+
