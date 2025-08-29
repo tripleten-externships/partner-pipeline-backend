@@ -1,10 +1,9 @@
-//test
-
 import { User, UserLog } from "./user";
 import { Project, ProjectLog } from "./project";
 import { Milestone } from "./milestone";
-import { ActivityLog } from "./activitylog";
+import { ActivityLog } from "./activityLog";
 import { Permission, UserPermission } from "./permission";
+import { InvitationToken, InvitationTokenLog } from "./invitationToken";
 
 export const lists = {
   User,
@@ -15,4 +14,6 @@ export const lists = {
   ActivityLog,
   Permission,
   UserPermission,
+  InvitationToken,
+  InvitationTokenLog,
 };

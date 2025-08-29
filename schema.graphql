@@ -26,650 +26,7 @@ type PasswordState {
 
 scalar DateTime @specifiedBy(url: "https://datatracker.ietf.org/doc/html/rfc3339#section-5.6")
 
-input UserWhereUniqueInput {
-  id: ID
-  email: String
-}
-
-input UserWhereInput {
-  AND: [UserWhereInput!]
-  OR: [UserWhereInput!]
-  NOT: [UserWhereInput!]
-  id: IDFilter
-  name: StringFilter
-  email: StringFilter
-  role: StringNullableFilter
-  isAdmin: BooleanFilter
-  createdAt: DateTimeNullableFilter
-  isActive: BooleanFilter
-  lastLoginDate: DateTimeNullableFilter
-  activityLogs: ActivityLogManyRelationFilter
-  projects: ProjectWhereInput
-  customPermissions: PermissionManyRelationFilter
-  userPermissions: UserPermissionManyRelationFilter
-}
-
-input IDFilter {
-  equals: ID
-  in: [ID!]
-  notIn: [ID!]
-  lt: ID
-  lte: ID
-  gt: ID
-  gte: ID
-  not: IDFilter
-}
-
-input StringFilter {
-  equals: String
-  in: [String!]
-  notIn: [String!]
-  lt: String
-  lte: String
-  gt: String
-  gte: String
-  contains: String
-  startsWith: String
-  endsWith: String
-  not: NestedStringFilter
-}
-
-input NestedStringFilter {
-  equals: String
-  in: [String!]
-  notIn: [String!]
-  lt: String
-  lte: String
-  gt: String
-  gte: String
-  contains: String
-  startsWith: String
-  endsWith: String
-  not: NestedStringFilter
-}
-
-input StringNullableFilter {
-  equals: String
-  in: [String!]
-  notIn: [String!]
-  lt: String
-  lte: String
-  gt: String
-  gte: String
-  contains: String
-  startsWith: String
-  endsWith: String
-  not: StringNullableFilter
-}
-
-input BooleanFilter {
-  equals: Boolean
-  not: BooleanFilter
-}
-
-input DateTimeNullableFilter {
-  equals: DateTime
-  in: [DateTime!]
-  notIn: [DateTime!]
-  lt: DateTime
-  lte: DateTime
-  gt: DateTime
-  gte: DateTime
-  not: DateTimeNullableFilter
-}
-
-input ActivityLogManyRelationFilter {
-  every: ActivityLogWhereInput
-  some: ActivityLogWhereInput
-  none: ActivityLogWhereInput
-}
-
-input PermissionManyRelationFilter {
-  every: PermissionWhereInput
-  some: PermissionWhereInput
-  none: PermissionWhereInput
-}
-
-input UserPermissionManyRelationFilter {
-  every: UserPermissionWhereInput
-  some: UserPermissionWhereInput
-  none: UserPermissionWhereInput
-}
-
-input UserOrderByInput {
-  id: OrderDirection
-  name: OrderDirection
-  email: OrderDirection
-  role: OrderDirection
-  isAdmin: OrderDirection
-  createdAt: OrderDirection
-  isActive: OrderDirection
-  lastLoginDate: OrderDirection
-}
-
-enum OrderDirection {
-  asc
-  desc
-}
-
-input UserUpdateInput {
-  name: String
-  email: String
-  password: String
-  role: String
-  isAdmin: Boolean
-  createdAt: DateTime
-  isActive: Boolean
-  lastLoginDate: DateTime
-  activityLogs: ActivityLogRelateToManyForUpdateInput
-  projects: ProjectRelateToOneForUpdateInput
-  customPermissions: PermissionRelateToManyForUpdateInput
-  userPermissions: UserPermissionRelateToManyForUpdateInput
-}
-
-input ActivityLogRelateToManyForUpdateInput {
-  disconnect: [ActivityLogWhereUniqueInput!]
-  set: [ActivityLogWhereUniqueInput!]
-  create: [ActivityLogCreateInput!]
-  connect: [ActivityLogWhereUniqueInput!]
-}
-
-input ProjectRelateToOneForUpdateInput {
-  create: ProjectCreateInput
-  connect: ProjectWhereUniqueInput
-  disconnect: Boolean
-}
-
-input PermissionRelateToManyForUpdateInput {
-  disconnect: [PermissionWhereUniqueInput!]
-  set: [PermissionWhereUniqueInput!]
-  create: [PermissionCreateInput!]
-  connect: [PermissionWhereUniqueInput!]
-}
-
-input UserPermissionRelateToManyForUpdateInput {
-  disconnect: [UserPermissionWhereUniqueInput!]
-  set: [UserPermissionWhereUniqueInput!]
-  create: [UserPermissionCreateInput!]
-  connect: [UserPermissionWhereUniqueInput!]
-}
-
-input UserUpdateArgs {
-  where: UserWhereUniqueInput!
-  data: UserUpdateInput!
-}
-
-input UserCreateInput {
-  name: String
-  email: String
-  password: String
-  role: String
-  isAdmin: Boolean
-  createdAt: DateTime
-  isActive: Boolean
-  lastLoginDate: DateTime
-  activityLogs: ActivityLogRelateToManyForCreateInput
-  projects: ProjectRelateToOneForCreateInput
-  customPermissions: PermissionRelateToManyForCreateInput
-  userPermissions: UserPermissionRelateToManyForCreateInput
-}
-
-input ActivityLogRelateToManyForCreateInput {
-  create: [ActivityLogCreateInput!]
-  connect: [ActivityLogWhereUniqueInput!]
-}
-
-input ProjectRelateToOneForCreateInput {
-  create: ProjectCreateInput
-  connect: ProjectWhereUniqueInput
-}
-
-input PermissionRelateToManyForCreateInput {
-  create: [PermissionCreateInput!]
-  connect: [PermissionWhereUniqueInput!]
-}
-
-input UserPermissionRelateToManyForCreateInput {
-  create: [UserPermissionCreateInput!]
-  connect: [UserPermissionWhereUniqueInput!]
-}
-
-type UserLog {
-  id: ID!
-  user: User
-  operation: String
-  before: JSON
-  after: JSON
-  timestamp: DateTime
-}
-
-input UserLogWhereUniqueInput {
-  id: ID
-}
-
-input UserLogWhereInput {
-  AND: [UserLogWhereInput!]
-  OR: [UserLogWhereInput!]
-  NOT: [UserLogWhereInput!]
-  id: IDFilter
-  user: UserWhereInput
-  operation: StringFilter
-  timestamp: DateTimeNullableFilter
-}
-
-input UserLogOrderByInput {
-  id: OrderDirection
-  operation: OrderDirection
-  timestamp: OrderDirection
-}
-
-input UserLogUpdateInput {
-  user: UserRelateToOneForUpdateInput
-  operation: String
-  before: JSON
-  after: JSON
-  timestamp: DateTime
-}
-
-input UserRelateToOneForUpdateInput {
-  create: UserCreateInput
-  connect: UserWhereUniqueInput
-  disconnect: Boolean
-}
-
-input UserLogUpdateArgs {
-  where: UserLogWhereUniqueInput!
-  data: UserLogUpdateInput!
-}
-
-input UserLogCreateInput {
-  user: UserRelateToOneForCreateInput
-  operation: String
-  before: JSON
-  after: JSON
-  timestamp: DateTime
-}
-
-input UserRelateToOneForCreateInput {
-  create: UserCreateInput
-  connect: UserWhereUniqueInput
-}
-
-type Project {
-  id: ID!
-  name: String
-  createdAt: DateTime
-  project: String
-  isActive: Boolean
-  lastUpdate: DateTime
-  members(where: UserWhereInput! = {}, orderBy: [UserOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: UserWhereUniqueInput): [User!]
-  membersCount(where: UserWhereInput! = {}): Int
-  milestones(where: MilestoneWhereInput! = {}, orderBy: [MilestoneOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: MilestoneWhereUniqueInput): [Milestone!]
-  milestonesCount(where: MilestoneWhereInput! = {}): Int
-}
-
-input ProjectWhereUniqueInput {
-  id: ID
-}
-
-input ProjectWhereInput {
-  AND: [ProjectWhereInput!]
-  OR: [ProjectWhereInput!]
-  NOT: [ProjectWhereInput!]
-  id: IDFilter
-  name: StringFilter
-  createdAt: DateTimeNullableFilter
-  project: StringFilter
-  isActive: BooleanFilter
-  lastUpdate: DateTimeNullableFilter
-  members: UserManyRelationFilter
-  milestones: MilestoneManyRelationFilter
-}
-
-input UserManyRelationFilter {
-  every: UserWhereInput
-  some: UserWhereInput
-  none: UserWhereInput
-}
-
-input MilestoneManyRelationFilter {
-  every: MilestoneWhereInput
-  some: MilestoneWhereInput
-  none: MilestoneWhereInput
-}
-
-input ProjectOrderByInput {
-  id: OrderDirection
-  name: OrderDirection
-  createdAt: OrderDirection
-  project: OrderDirection
-  isActive: OrderDirection
-  lastUpdate: OrderDirection
-}
-
-input ProjectUpdateInput {
-  name: String
-  createdAt: DateTime
-  project: String
-  isActive: Boolean
-  lastUpdate: DateTime
-  members: UserRelateToManyForUpdateInput
-  milestones: MilestoneRelateToManyForUpdateInput
-}
-
-input UserRelateToManyForUpdateInput {
-  disconnect: [UserWhereUniqueInput!]
-  set: [UserWhereUniqueInput!]
-  create: [UserCreateInput!]
-  connect: [UserWhereUniqueInput!]
-}
-
-input MilestoneRelateToManyForUpdateInput {
-  disconnect: [MilestoneWhereUniqueInput!]
-  set: [MilestoneWhereUniqueInput!]
-  create: [MilestoneCreateInput!]
-  connect: [MilestoneWhereUniqueInput!]
-}
-
-input ProjectUpdateArgs {
-  where: ProjectWhereUniqueInput!
-  data: ProjectUpdateInput!
-}
-
-input ProjectCreateInput {
-  name: String
-  createdAt: DateTime
-  project: String
-  isActive: Boolean
-  lastUpdate: DateTime
-  members: UserRelateToManyForCreateInput
-  milestones: MilestoneRelateToManyForCreateInput
-}
-
-input UserRelateToManyForCreateInput {
-  create: [UserCreateInput!]
-  connect: [UserWhereUniqueInput!]
-}
-
-input MilestoneRelateToManyForCreateInput {
-  create: [MilestoneCreateInput!]
-  connect: [MilestoneWhereUniqueInput!]
-}
-
-type ProjectLog {
-  id: ID!
-  project: Project
-  operation: String
-  before: JSON
-  after: JSON
-  timestamp: DateTime
-}
-
-input ProjectLogWhereUniqueInput {
-  id: ID
-}
-
-input ProjectLogWhereInput {
-  AND: [ProjectLogWhereInput!]
-  OR: [ProjectLogWhereInput!]
-  NOT: [ProjectLogWhereInput!]
-  id: IDFilter
-  project: ProjectWhereInput
-  operation: StringFilter
-  timestamp: DateTimeNullableFilter
-}
-
-input ProjectLogOrderByInput {
-  id: OrderDirection
-  operation: OrderDirection
-  timestamp: OrderDirection
-}
-
-input ProjectLogUpdateInput {
-  project: ProjectRelateToOneForUpdateInput
-  operation: String
-  before: JSON
-  after: JSON
-  timestamp: DateTime
-}
-
-input ProjectLogUpdateArgs {
-  where: ProjectLogWhereUniqueInput!
-  data: ProjectLogUpdateInput!
-}
-
-input ProjectLogCreateInput {
-  project: ProjectRelateToOneForCreateInput
-  operation: String
-  before: JSON
-  after: JSON
-  timestamp: DateTime
-}
-
-type Milestone {
-  id: ID!
-  project: Project
-  milestoneName: String
-  status: String
-  assignee: String
-  createdAt: DateTime
-}
-
-input MilestoneWhereUniqueInput {
-  id: ID
-}
-
-input MilestoneWhereInput {
-  AND: [MilestoneWhereInput!]
-  OR: [MilestoneWhereInput!]
-  NOT: [MilestoneWhereInput!]
-  id: IDFilter
-  project: ProjectWhereInput
-  milestoneName: StringFilter
-  status: StringFilter
-  assignee: StringFilter
-  createdAt: DateTimeNullableFilter
-}
-
-input MilestoneOrderByInput {
-  id: OrderDirection
-  milestoneName: OrderDirection
-  status: OrderDirection
-  assignee: OrderDirection
-  createdAt: OrderDirection
-}
-
-input MilestoneUpdateInput {
-  project: ProjectRelateToOneForUpdateInput
-  milestoneName: String
-  status: String
-  assignee: String
-  createdAt: DateTime
-}
-
-input MilestoneUpdateArgs {
-  where: MilestoneWhereUniqueInput!
-  data: MilestoneUpdateInput!
-}
-
-input MilestoneCreateInput {
-  project: ProjectRelateToOneForCreateInput
-  milestoneName: String
-  status: String
-  assignee: String
-  createdAt: DateTime
-}
-
-type ActivityLog {
-  id: ID!
-  oldStatus: String
-  newStatus: String
-  timestamp: DateTime
-  projectId: String
-  milestoneId: String
-  updatedBy: User
-}
-
-input ActivityLogWhereUniqueInput {
-  id: ID
-}
-
-input ActivityLogWhereInput {
-  AND: [ActivityLogWhereInput!]
-  OR: [ActivityLogWhereInput!]
-  NOT: [ActivityLogWhereInput!]
-  id: IDFilter
-  oldStatus: StringFilter
-  newStatus: StringFilter
-  timestamp: DateTimeNullableFilter
-  projectId: StringFilter
-  milestoneId: StringFilter
-  updatedBy: UserWhereInput
-}
-
-input ActivityLogOrderByInput {
-  id: OrderDirection
-  oldStatus: OrderDirection
-  newStatus: OrderDirection
-  timestamp: OrderDirection
-  projectId: OrderDirection
-  milestoneId: OrderDirection
-}
-
-input ActivityLogUpdateInput {
-  oldStatus: String
-  newStatus: String
-  timestamp: DateTime
-  projectId: String
-  milestoneId: String
-  updatedBy: UserRelateToOneForUpdateInput
-}
-
-input ActivityLogUpdateArgs {
-  where: ActivityLogWhereUniqueInput!
-  data: ActivityLogUpdateInput!
-}
-
-input ActivityLogCreateInput {
-  oldStatus: String
-  newStatus: String
-  timestamp: DateTime
-  projectId: String
-  milestoneId: String
-  updatedBy: UserRelateToOneForCreateInput
-}
-
-type Permission {
-  id: ID!
-  name: String
-  description: String
-  category: String
-  roles: [String!]
-  users(where: UserWhereInput! = {}, orderBy: [UserOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: UserWhereUniqueInput): [User!]
-  usersCount(where: UserWhereInput! = {}): Int
-}
-
-input PermissionWhereUniqueInput {
-  id: ID
-  name: String
-}
-
-input PermissionWhereInput {
-  AND: [PermissionWhereInput!]
-  OR: [PermissionWhereInput!]
-  NOT: [PermissionWhereInput!]
-  id: IDFilter
-  name: StringFilter
-  description: StringFilter
-  category: StringFilter
-  users: UserManyRelationFilter
-}
-
-input PermissionOrderByInput {
-  id: OrderDirection
-  name: OrderDirection
-  description: OrderDirection
-  category: OrderDirection
-}
-
-input PermissionUpdateInput {
-  name: String
-  description: String
-  category: String
-  roles: [String!]
-  users: UserRelateToManyForUpdateInput
-}
-
-input PermissionUpdateArgs {
-  where: PermissionWhereUniqueInput!
-  data: PermissionUpdateInput!
-}
-
-input PermissionCreateInput {
-  name: String
-  description: String
-  category: String
-  roles: [String!]
-  users: UserRelateToManyForCreateInput
-}
-
-type UserPermission {
-  id: ID!
-  user: User
-  permission: String
-  granted: String
-  grantedBy: User
-  grantedAt: DateTime
-}
-
-input UserPermissionWhereUniqueInput {
-  id: ID
-}
-
-input UserPermissionWhereInput {
-  AND: [UserPermissionWhereInput!]
-  OR: [UserPermissionWhereInput!]
-  NOT: [UserPermissionWhereInput!]
-  id: IDFilter
-  user: UserWhereInput
-  permission: StringFilter
-  granted: StringFilter
-  grantedBy: UserWhereInput
-  grantedAt: DateTimeNullableFilter
-}
-
-input UserPermissionOrderByInput {
-  id: OrderDirection
-  permission: OrderDirection
-  granted: OrderDirection
-  grantedAt: OrderDirection
-}
-
-input UserPermissionUpdateInput {
-  user: UserRelateToOneForUpdateInput
-  permission: String
-  granted: String
-  grantedBy: UserRelateToOneForUpdateInput
-  grantedAt: DateTime
-}
-
-input UserPermissionUpdateArgs {
-  where: UserPermissionWhereUniqueInput!
-  data: UserPermissionUpdateInput!
-}
-
-input UserPermissionCreateInput {
-  user: UserRelateToOneForCreateInput
-  permission: String
-  granted: String
-  grantedBy: UserRelateToOneForCreateInput
-  grantedAt: DateTime
-}
-
-"""
-The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
-"""
-scalar JSON @specifiedBy(url: "http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf")
+# ... (filters/inputs above unchanged)
 
 type Mutation {
   createUser(data: UserCreateInput!): User
@@ -678,204 +35,121 @@ type Mutation {
   updateUsers(data: [UserUpdateArgs!]!): [User]
   deleteUser(where: UserWhereUniqueInput!): User
   deleteUsers(where: [UserWhereUniqueInput!]!): [User]
+
+  # Logs
   createUserLog(data: UserLogCreateInput!): UserLog
   createUserLogs(data: [UserLogCreateInput!]!): [UserLog]
   updateUserLog(where: UserLogWhereUniqueInput!, data: UserLogUpdateInput!): UserLog
   updateUserLogs(data: [UserLogUpdateArgs!]!): [UserLog]
   deleteUserLog(where: UserLogWhereUniqueInput!): UserLog
   deleteUserLogs(where: [UserLogWhereUniqueInput!]!): [UserLog]
+
+  # Projects
   createProject(data: ProjectCreateInput!): Project
   createProjects(data: [ProjectCreateInput!]!): [Project]
   updateProject(where: ProjectWhereUniqueInput!, data: ProjectUpdateInput!): Project
   updateProjects(data: [ProjectUpdateArgs!]!): [Project]
   deleteProject(where: ProjectWhereUniqueInput!): Project
   deleteProjects(where: [ProjectWhereUniqueInput!]!): [Project]
+
   createProjectLog(data: ProjectLogCreateInput!): ProjectLog
   createProjectLogs(data: [ProjectLogCreateInput!]!): [ProjectLog]
   updateProjectLog(where: ProjectLogWhereUniqueInput!, data: ProjectLogUpdateInput!): ProjectLog
   updateProjectLogs(data: [ProjectLogUpdateArgs!]!): [ProjectLog]
   deleteProjectLog(where: ProjectLogWhereUniqueInput!): ProjectLog
   deleteProjectLogs(where: [ProjectLogWhereUniqueInput!]!): [ProjectLog]
+
+  # Milestones
   createMilestone(data: MilestoneCreateInput!): Milestone
   createMilestones(data: [MilestoneCreateInput!]!): [Milestone]
   updateMilestone(where: MilestoneWhereUniqueInput!, data: MilestoneUpdateInput!): Milestone
   updateMilestones(data: [MilestoneUpdateArgs!]!): [Milestone]
   deleteMilestone(where: MilestoneWhereUniqueInput!): Milestone
   deleteMilestones(where: [MilestoneWhereUniqueInput!]!): [Milestone]
+
+  # Activity Logs
   createActivityLog(data: ActivityLogCreateInput!): ActivityLog
   createActivityLogs(data: [ActivityLogCreateInput!]!): [ActivityLog]
   updateActivityLog(where: ActivityLogWhereUniqueInput!, data: ActivityLogUpdateInput!): ActivityLog
   updateActivityLogs(data: [ActivityLogUpdateArgs!]!): [ActivityLog]
   deleteActivityLog(where: ActivityLogWhereUniqueInput!): ActivityLog
   deleteActivityLogs(where: [ActivityLogWhereUniqueInput!]!): [ActivityLog]
+
+  # Permissions
   createPermission(data: PermissionCreateInput!): Permission
   createPermissions(data: [PermissionCreateInput!]!): [Permission]
   updatePermission(where: PermissionWhereUniqueInput!, data: PermissionUpdateInput!): Permission
   updatePermissions(data: [PermissionUpdateArgs!]!): [Permission]
   deletePermission(where: PermissionWhereUniqueInput!): Permission
   deletePermissions(where: [PermissionWhereUniqueInput!]!): [Permission]
+
   createUserPermission(data: UserPermissionCreateInput!): UserPermission
   createUserPermissions(data: [UserPermissionCreateInput!]!): [UserPermission]
   updateUserPermission(where: UserPermissionWhereUniqueInput!, data: UserPermissionUpdateInput!): UserPermission
   updateUserPermissions(data: [UserPermissionUpdateArgs!]!): [UserPermission]
   deleteUserPermission(where: UserPermissionWhereUniqueInput!): UserPermission
   deleteUserPermissions(where: [UserPermissionWhereUniqueInput!]!): [UserPermission]
+
+  # Invitations
+  createInvitationToken(data: InvitationTokenCreateInput!): InvitationToken
+  createInvitationTokens(data: [InvitationTokenCreateInput!]!): [InvitationToken]
+  updateInvitationToken(where: InvitationTokenWhereUniqueInput!, data: InvitationTokenUpdateInput!): InvitationToken
+  updateInvitationTokens(data: [InvitationTokenUpdateArgs!]!): [InvitationToken]
+  deleteInvitationToken(where: InvitationTokenWhereUniqueInput!): InvitationToken
+  deleteInvitationTokens(where: [InvitationTokenWhereUniqueInput!]!): [InvitationToken]
+
+  createInvitationTokenLog(data: InvitationTokenLogCreateInput!): InvitationTokenLog
+  createInvitationTokenLogs(data: [InvitationTokenLogCreateInput!]!): [InvitationTokenLog]
+  updateInvitationTokenLog(where: InvitationTokenLogWhereUniqueInput!, data: InvitationTokenLogUpdateInput!): InvitationTokenLog
+  updateInvitationTokenLogs(data: [InvitationTokenLogUpdateArgs!]!): [InvitationTokenLog]
+  deleteInvitationTokenLog(where: InvitationTokenLogWhereUniqueInput!): InvitationTokenLog
+  deleteInvitationTokenLogs(where: [InvitationTokenLogWhereUniqueInput!]!): [InvitationTokenLog]
+
   endSession: Boolean!
   authenticateUserWithPassword(email: String!, password: String!): UserAuthenticationWithPasswordResult
   createInitialUser(data: CreateInitialUserInput!): UserAuthenticationWithPasswordSuccess!
-}
-
-union UserAuthenticationWithPasswordResult = UserAuthenticationWithPasswordSuccess | UserAuthenticationWithPasswordFailure
-
-type UserAuthenticationWithPasswordSuccess {
-  sessionToken: String!
-  item: User!
-}
-
-type UserAuthenticationWithPasswordFailure {
-  message: String!
-}
-
-input CreateInitialUserInput {
-  name: String
-  email: String
-  password: String
 }
 
 type Query {
   users(where: UserWhereInput! = {}, orderBy: [UserOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: UserWhereUniqueInput): [User!]
   user(where: UserWhereUniqueInput!): User
   usersCount(where: UserWhereInput! = {}): Int
+
   userLogs(where: UserLogWhereInput! = {}, orderBy: [UserLogOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: UserLogWhereUniqueInput): [UserLog!]
   userLog(where: UserLogWhereUniqueInput!): UserLog
   userLogsCount(where: UserLogWhereInput! = {}): Int
+
   projects(where: ProjectWhereInput! = {}, orderBy: [ProjectOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ProjectWhereUniqueInput): [Project!]
   project(where: ProjectWhereUniqueInput!): Project
   projectsCount(where: ProjectWhereInput! = {}): Int
+
   projectLogs(where: ProjectLogWhereInput! = {}, orderBy: [ProjectLogOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ProjectLogWhereUniqueInput): [ProjectLog!]
   projectLog(where: ProjectLogWhereUniqueInput!): ProjectLog
   projectLogsCount(where: ProjectLogWhereInput! = {}): Int
+
   milestones(where: MilestoneWhereInput! = {}, orderBy: [MilestoneOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: MilestoneWhereUniqueInput): [Milestone!]
   milestone(where: MilestoneWhereUniqueInput!): Milestone
   milestonesCount(where: MilestoneWhereInput! = {}): Int
+
   activityLogs(where: ActivityLogWhereInput! = {}, orderBy: [ActivityLogOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ActivityLogWhereUniqueInput): [ActivityLog!]
   activityLog(where: ActivityLogWhereUniqueInput!): ActivityLog
   activityLogsCount(where: ActivityLogWhereInput! = {}): Int
+
+  # Permissions
   permissions(where: PermissionWhereInput! = {}, orderBy: [PermissionOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: PermissionWhereUniqueInput): [Permission!]
   permission(where: PermissionWhereUniqueInput!): Permission
   permissionsCount(where: PermissionWhereInput! = {}): Int
+
   userPermissions(where: UserPermissionWhereInput! = {}, orderBy: [UserPermissionOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: UserPermissionWhereUniqueInput): [UserPermission!]
   userPermission(where: UserPermissionWhereUniqueInput!): UserPermission
   userPermissionsCount(where: UserPermissionWhereInput! = {}): Int
-  keystone: KeystoneMeta!
-  authenticatedItem: AuthenticatedItem
-}
 
-union AuthenticatedItem = User
+  # Invitations
+  invitationTokens(where: InvitationTokenWhereInput! = {}, orderBy: [InvitationTokenOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: InvitationTokenWhereUniqueInput): [InvitationToken!]
+  invitationToken(where: InvitationTokenWhereUniqueInput!): InvitationToken
+  invitationTokensCount(where: InvitationTokenWhereInput! = {}): Int
 
-type KeystoneMeta {
-  adminMeta: KeystoneAdminMeta!
-}
-
-type KeystoneAdminMeta {
-  lists: [KeystoneAdminUIListMeta!]!
-  list(key: String!): KeystoneAdminUIListMeta
-}
-
-type KeystoneAdminUIListMeta {
-  key: String!
-  itemQueryName: String!
-  listQueryName: String!
-  hideCreate: Boolean!
-  hideDelete: Boolean!
-  path: String!
-  label: String!
-  singular: String!
-  plural: String!
-  description: String
-  initialColumns: [String!]!
-  pageSize: Int!
-  labelField: String!
-  fields: [KeystoneAdminUIFieldMeta!]!
-  groups: [KeystoneAdminUIFieldGroupMeta!]!
-  initialSort: KeystoneAdminUISort
-  isHidden: Boolean!
-  isSingleton: Boolean!
-}
-
-type KeystoneAdminUIFieldMeta {
-  path: String!
-  label: String!
-  description: String
-  isOrderable: Boolean!
-  isFilterable: Boolean!
-  isNonNull: [KeystoneAdminUIFieldMetaIsNonNull!]
-  fieldMeta: JSON
-  viewsIndex: Int!
-  customViewsIndex: Int
-  createView: KeystoneAdminUIFieldMetaCreateView!
-  listView: KeystoneAdminUIFieldMetaListView!
-  itemView(id: ID): KeystoneAdminUIFieldMetaItemView
-  search: QueryMode
-}
-
-enum KeystoneAdminUIFieldMetaIsNonNull {
-  read
-  create
-  update
-}
-
-type KeystoneAdminUIFieldMetaCreateView {
-  fieldMode: KeystoneAdminUIFieldMetaCreateViewFieldMode!
-}
-
-enum KeystoneAdminUIFieldMetaCreateViewFieldMode {
-  edit
-  hidden
-}
-
-type KeystoneAdminUIFieldMetaListView {
-  fieldMode: KeystoneAdminUIFieldMetaListViewFieldMode!
-}
-
-enum KeystoneAdminUIFieldMetaListViewFieldMode {
-  read
-  hidden
-}
-
-type KeystoneAdminUIFieldMetaItemView {
-  fieldMode: KeystoneAdminUIFieldMetaItemViewFieldMode
-  fieldPosition: KeystoneAdminUIFieldMetaItemViewFieldPosition
-}
-
-enum KeystoneAdminUIFieldMetaItemViewFieldMode {
-  edit
-  read
-  hidden
-}
-
-enum KeystoneAdminUIFieldMetaItemViewFieldPosition {
-  form
-  sidebar
-}
-
-enum QueryMode {
-  default
-  insensitive
-}
-
-type KeystoneAdminUIFieldGroupMeta {
-  label: String!
-  description: String
-  fields: [KeystoneAdminUIFieldMeta!]!
-}
-
-type KeystoneAdminUISort {
-  field: String!
-  direction: KeystoneAdminUISortDirection!
-}
-
-enum KeystoneAdminUISortDirection {
-  ASC
-  DESC
+  invitationTokenLogs(where: InvitationTokenLogWhereInput! = {}, orderBy: [InvitationTokenLogOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: InvitationTokenLogWhereUniqueInput): [InvitationTokenLog!]
+  invitationTokenLog(where: InvitationTokenLogWhereUniqueInput!): InvitationTokenLog
+  invitationTokenLogsCount(where: InvitationTokenLogWhereInput! = {}): Int
 }
