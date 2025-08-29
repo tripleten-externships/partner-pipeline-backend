@@ -14,6 +14,10 @@ type User {
   activityLogs(where: ActivityLogWhereInput! = {}, orderBy: [ActivityLogOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ActivityLogWhereUniqueInput): [ActivityLog!]
   activityLogsCount(where: ActivityLogWhereInput! = {}): Int
   projects: Project
+  customPermissions(where: PermissionWhereInput! = {}, orderBy: [PermissionOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: PermissionWhereUniqueInput): [Permission!]
+  customPermissionsCount(where: PermissionWhereInput! = {}): Int
+  userPermissions(where: UserPermissionWhereInput! = {}, orderBy: [UserPermissionOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: UserPermissionWhereUniqueInput): [UserPermission!]
+  userPermissionsCount(where: UserPermissionWhereInput! = {}): Int
 }
 
 type PasswordState {
@@ -41,6 +45,8 @@ input UserWhereInput {
   lastLoginDate: DateTimeNullableFilter
   activityLogs: ActivityLogManyRelationFilter
   projects: ProjectWhereInput
+  customPermissions: PermissionManyRelationFilter
+  userPermissions: UserPermissionManyRelationFilter
 }
 
 input IDFilter {
@@ -118,6 +124,18 @@ input ActivityLogManyRelationFilter {
   none: ActivityLogWhereInput
 }
 
+input PermissionManyRelationFilter {
+  every: PermissionWhereInput
+  some: PermissionWhereInput
+  none: PermissionWhereInput
+}
+
+input UserPermissionManyRelationFilter {
+  every: UserPermissionWhereInput
+  some: UserPermissionWhereInput
+  none: UserPermissionWhereInput
+}
+
 input UserOrderByInput {
   id: OrderDirection
   name: OrderDirection
@@ -145,6 +163,8 @@ input UserUpdateInput {
   lastLoginDate: DateTime
   activityLogs: ActivityLogRelateToManyForUpdateInput
   projects: ProjectRelateToOneForUpdateInput
+  customPermissions: PermissionRelateToManyForUpdateInput
+  userPermissions: UserPermissionRelateToManyForUpdateInput
 }
 
 input ActivityLogRelateToManyForUpdateInput {
@@ -158,6 +178,20 @@ input ProjectRelateToOneForUpdateInput {
   create: ProjectCreateInput
   connect: ProjectWhereUniqueInput
   disconnect: Boolean
+}
+
+input PermissionRelateToManyForUpdateInput {
+  disconnect: [PermissionWhereUniqueInput!]
+  set: [PermissionWhereUniqueInput!]
+  create: [PermissionCreateInput!]
+  connect: [PermissionWhereUniqueInput!]
+}
+
+input UserPermissionRelateToManyForUpdateInput {
+  disconnect: [UserPermissionWhereUniqueInput!]
+  set: [UserPermissionWhereUniqueInput!]
+  create: [UserPermissionCreateInput!]
+  connect: [UserPermissionWhereUniqueInput!]
 }
 
 input UserUpdateArgs {
@@ -176,6 +210,8 @@ input UserCreateInput {
   lastLoginDate: DateTime
   activityLogs: ActivityLogRelateToManyForCreateInput
   projects: ProjectRelateToOneForCreateInput
+  customPermissions: PermissionRelateToManyForCreateInput
+  userPermissions: UserPermissionRelateToManyForCreateInput
 }
 
 input ActivityLogRelateToManyForCreateInput {
@@ -186,6 +222,16 @@ input ActivityLogRelateToManyForCreateInput {
 input ProjectRelateToOneForCreateInput {
   create: ProjectCreateInput
   connect: ProjectWhereUniqueInput
+}
+
+input PermissionRelateToManyForCreateInput {
+  create: [PermissionCreateInput!]
+  connect: [PermissionWhereUniqueInput!]
+}
+
+input UserPermissionRelateToManyForCreateInput {
+  create: [UserPermissionCreateInput!]
+  connect: [UserPermissionWhereUniqueInput!]
 }
 
 type UserLog {
@@ -513,6 +559,113 @@ input ActivityLogCreateInput {
   updatedBy: UserRelateToOneForCreateInput
 }
 
+type Permission {
+  id: ID!
+  name: String
+  description: String
+  category: String
+  roles: [String!]
+  users(where: UserWhereInput! = {}, orderBy: [UserOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: UserWhereUniqueInput): [User!]
+  usersCount(where: UserWhereInput! = {}): Int
+}
+
+input PermissionWhereUniqueInput {
+  id: ID
+  name: String
+}
+
+input PermissionWhereInput {
+  AND: [PermissionWhereInput!]
+  OR: [PermissionWhereInput!]
+  NOT: [PermissionWhereInput!]
+  id: IDFilter
+  name: StringFilter
+  description: StringFilter
+  category: StringFilter
+  users: UserManyRelationFilter
+}
+
+input PermissionOrderByInput {
+  id: OrderDirection
+  name: OrderDirection
+  description: OrderDirection
+  category: OrderDirection
+}
+
+input PermissionUpdateInput {
+  name: String
+  description: String
+  category: String
+  roles: [String!]
+  users: UserRelateToManyForUpdateInput
+}
+
+input PermissionUpdateArgs {
+  where: PermissionWhereUniqueInput!
+  data: PermissionUpdateInput!
+}
+
+input PermissionCreateInput {
+  name: String
+  description: String
+  category: String
+  roles: [String!]
+  users: UserRelateToManyForCreateInput
+}
+
+type UserPermission {
+  id: ID!
+  user: User
+  permission: String
+  granted: String
+  grantedBy: User
+  grantedAt: DateTime
+}
+
+input UserPermissionWhereUniqueInput {
+  id: ID
+}
+
+input UserPermissionWhereInput {
+  AND: [UserPermissionWhereInput!]
+  OR: [UserPermissionWhereInput!]
+  NOT: [UserPermissionWhereInput!]
+  id: IDFilter
+  user: UserWhereInput
+  permission: StringFilter
+  granted: StringFilter
+  grantedBy: UserWhereInput
+  grantedAt: DateTimeNullableFilter
+}
+
+input UserPermissionOrderByInput {
+  id: OrderDirection
+  permission: OrderDirection
+  granted: OrderDirection
+  grantedAt: OrderDirection
+}
+
+input UserPermissionUpdateInput {
+  user: UserRelateToOneForUpdateInput
+  permission: String
+  granted: String
+  grantedBy: UserRelateToOneForUpdateInput
+  grantedAt: DateTime
+}
+
+input UserPermissionUpdateArgs {
+  where: UserPermissionWhereUniqueInput!
+  data: UserPermissionUpdateInput!
+}
+
+input UserPermissionCreateInput {
+  user: UserRelateToOneForCreateInput
+  permission: String
+  granted: String
+  grantedBy: UserRelateToOneForCreateInput
+  grantedAt: DateTime
+}
+
 """
 The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
 """
@@ -555,6 +708,18 @@ type Mutation {
   updateActivityLogs(data: [ActivityLogUpdateArgs!]!): [ActivityLog]
   deleteActivityLog(where: ActivityLogWhereUniqueInput!): ActivityLog
   deleteActivityLogs(where: [ActivityLogWhereUniqueInput!]!): [ActivityLog]
+  createPermission(data: PermissionCreateInput!): Permission
+  createPermissions(data: [PermissionCreateInput!]!): [Permission]
+  updatePermission(where: PermissionWhereUniqueInput!, data: PermissionUpdateInput!): Permission
+  updatePermissions(data: [PermissionUpdateArgs!]!): [Permission]
+  deletePermission(where: PermissionWhereUniqueInput!): Permission
+  deletePermissions(where: [PermissionWhereUniqueInput!]!): [Permission]
+  createUserPermission(data: UserPermissionCreateInput!): UserPermission
+  createUserPermissions(data: [UserPermissionCreateInput!]!): [UserPermission]
+  updateUserPermission(where: UserPermissionWhereUniqueInput!, data: UserPermissionUpdateInput!): UserPermission
+  updateUserPermissions(data: [UserPermissionUpdateArgs!]!): [UserPermission]
+  deleteUserPermission(where: UserPermissionWhereUniqueInput!): UserPermission
+  deleteUserPermissions(where: [UserPermissionWhereUniqueInput!]!): [UserPermission]
   endSession: Boolean!
   authenticateUserWithPassword(email: String!, password: String!): UserAuthenticationWithPasswordResult
   createInitialUser(data: CreateInitialUserInput!): UserAuthenticationWithPasswordSuccess!
@@ -596,6 +761,12 @@ type Query {
   activityLogs(where: ActivityLogWhereInput! = {}, orderBy: [ActivityLogOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ActivityLogWhereUniqueInput): [ActivityLog!]
   activityLog(where: ActivityLogWhereUniqueInput!): ActivityLog
   activityLogsCount(where: ActivityLogWhereInput! = {}): Int
+  permissions(where: PermissionWhereInput! = {}, orderBy: [PermissionOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: PermissionWhereUniqueInput): [Permission!]
+  permission(where: PermissionWhereUniqueInput!): Permission
+  permissionsCount(where: PermissionWhereInput! = {}): Int
+  userPermissions(where: UserPermissionWhereInput! = {}, orderBy: [UserPermissionOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: UserPermissionWhereUniqueInput): [UserPermission!]
+  userPermission(where: UserPermissionWhereUniqueInput!): UserPermission
+  userPermissionsCount(where: UserPermissionWhereInput! = {}): Int
   keystone: KeystoneMeta!
   authenticatedItem: AuthenticatedItem
 }

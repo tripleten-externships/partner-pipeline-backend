@@ -6,11 +6,12 @@ dotenv.config();
 
 import expressSession from "express-session";
 import { keystoneSession } from "./config/keystoneSession";
-import { withAuth } from "./auth";
+import { withAuth, sessionSecret } from "./auth";
 import * as Models from "./models";
 import authRoutes from "./routes/authRoutes";
 import { setupPassport, passport } from "./config/passport";
 import { createMilestoneRouter } from "./routes/milestoneDataRoutes";
+import { createPermissionRouter } from "./routes/permissionRoutes";
 
 export default withAuth(
   config({
@@ -26,7 +27,7 @@ export default withAuth(
 
         app.use(
           expressSession({
-            secret: process.env.SESSION_SECRET!,
+            secret: sessionSecret!,
             resave: false,
             saveUninitialized: false,
           })
@@ -37,6 +38,8 @@ export default withAuth(
         app.use(authRoutes);
         // milestone api endpoint with keystone context injected
         app.use(createMilestoneRouter(commonContext));
+        // permission management api endpoints
+        app.use(createPermissionRouter(commonContext));
       },
     },
     db: {

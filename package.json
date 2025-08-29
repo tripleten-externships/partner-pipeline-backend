@@ -37,7 +37,6 @@
     "axios": "^1.6.2",
     "git-commit-msg-linter": "^4.11.1",
     "googleapis": "^129.0.0",
-    "husky": "^8.0.0",
     "jest": "^29.6.2",
     "luxon": "^3.4.4",
     "prettier": "3.0.1"
