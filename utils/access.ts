@@ -22,14 +22,11 @@ export const permissions = {
     ["Admin", "Lead Mentor", "Project Mentor"].includes(session?.data.role ?? ""),
   isProjectMember: ({ session }: { session?: Session }) => session?.data.project === "",
 
-    // UNCOMMENT FOR TESTING PURPOSES
+  // UNCOMMENT FOR TESTING PURPOSES
 
-    // isStudent: () => true,
-    // isProjectMentor: () => true,
-    // isLeadMentor: () => true,
-    // isExternalPartner: () => true,
-    // isAdminLike: () => true,
-
-
-
+  // isStudent: () => true,
+  // isProjectMentor: () => true,
+  // isLeadMentor: () => true,
+  // isExternalPartner: () => true,
+  // isAdminLike: () => true,
 };
