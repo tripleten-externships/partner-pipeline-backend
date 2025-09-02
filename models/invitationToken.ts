@@ -1,8 +1,9 @@
 import { list } from "@keystone-6/core";
 import type { ListConfig } from "@keystone-6/core";
 import type { Lists } from ".keystone/types";
-import { checkbox, relationship, text, timestamp, integer } from "@keystone-6/core/fields";
+import { checkbox, relationship, text, timestamp, integer,json } from "@keystone-6/core/fields";
 import { permissions, isSignedIn } from "../utils/access";
+
 
 export const InvitationToken: ListConfig<Lists.InvitationToken.TypeInfo<any>, any> = list({
   access: {
@@ -58,15 +59,17 @@ export const InvitationTokenLog: ListConfig<Lists.InvitationTokenLog.TypeInfo<an
   access: {
     operation: {
       query: ({ session }) => !!session && session.data.isAdmin,
-      create: () => false,
+      create: () => true,
       update: () => false,
       delete: () => false,
     },
   },
   fields: {
     operation: text({ validation: { isRequired: true } }),
-    before: text({ ui: { displayMode: "textarea" } }),
-    after: text({ ui: { displayMode: "textarea" } }),
+    before: json(),
+    after: json(),
+    // before: text({ ui: { displayMode: "textarea" } }),
+    // after: text({ ui: { displayMode: "textarea" } }),
     timestamp: timestamp({ defaultValue: { kind: "now" } }),
   },
 });
