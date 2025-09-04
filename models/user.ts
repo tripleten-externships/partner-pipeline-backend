@@ -13,7 +13,7 @@ import {
 import { UserRoleValues } from "../utils/values";
 import { permissions, isSignedIn } from "../utils/access";
 
-export const User: ListConfig<Lists.User.TypeInfo<any>, any> = list({
+export const User: ListConfig<Lists.User.TypeInfo<any>> = list({
   access: {
     operation: {
       query: ({ session }) => isSignedIn({ session }),
@@ -86,7 +86,7 @@ export const User: ListConfig<Lists.User.TypeInfo<any>, any> = list({
   },
 });
 
-export const UserLog: ListConfig<Lists.UserLog.TypeInfo<any>, any> = list({
+export const UserLog: ListConfig<Lists.UserLog.TypeInfo<any>> = list({
   fields: {
     user: relationship({ ref: "User", many: false }),
     operation: text({ validation: { isRequired: true } }), // "create", "update", "delete"

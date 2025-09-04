@@ -4,7 +4,7 @@ import type { Lists } from ".keystone/types";
 import { checkbox, relationship, text, timestamp, json } from "@keystone-6/core/fields";
 import { permissions, isSignedIn } from "../utils/access";
 
-export const Project: ListConfig<Lists.Project.TypeInfo<any>, any> = list({
+export const Project: ListConfig<Lists.Project.TypeInfo<any>> = list({
   access: {
     operation: {
       query: ({ session }) => isSignedIn({ session }),
@@ -61,7 +61,7 @@ export const Project: ListConfig<Lists.Project.TypeInfo<any>, any> = list({
   },
 });
 
-export const ProjectLog: ListConfig<Lists.ProjectLog.TypeInfo<any>, any> = list({
+export const ProjectLog: ListConfig<Lists.ProjectLog.TypeInfo<any>> = list({
   fields: {
     project: relationship({ ref: "Project", many: false }),
     operation: text({ validation: { isRequired: true } }), // "create", "update", "delete"
