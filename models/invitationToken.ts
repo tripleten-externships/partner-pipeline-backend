@@ -27,9 +27,9 @@ export const InvitationToken: ListConfig<Lists.InvitationToken.TypeInfo<any>> = 
     tokenHash: text({ isIndexed: "unique", validation: { isRequired: true } }),
 
     project: relationship({
-      ref: "Project.invitationTokens",
+      ref: "ProjectInvitation.invitationTokens",
       many: false,
-      ui: { labelField: "name" },
+      // ui: { labelField: "name" },
     }),
 
     roleToGrant: text({ defaultValue: "Student" }),

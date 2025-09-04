@@ -42,7 +42,7 @@ export const Project: ListConfig<Lists.Project.TypeInfo<any>> = list({
     // milestones field added for reference to milestone schema
     milestones: relationship({ ref: "Milestone.project", many: true }), // <-- Added field
     activityLogs: relationship({ ref: "ActivityLog.project", many: true }),
-    invitations: relationship({ ref: "InvitationToken.project", many: true }),
+    // invitationTokens: relationship({ ref: "InvitationToken.project", many: true }),
   },
 
   hooks: {
@@ -85,8 +85,9 @@ export const ProjectLog: ListConfig<Lists.ProjectLog.TypeInfo<any>> = list({
 export const ProjectInvitation = list({
   fields: {
     email: text(),
-    project: relationship({ ref: "Project.invitations" }),
-    user: relationship({ ref: "User.invitations" }),
+    project: relationship({ ref: "Project.invitation" }),
+    user: relationship({ ref: "User.invitation" }),
+    invitationTokens: relationship({ ref: "InvitationToken.project", many: true }),
   },
   access: {
     operation: {
