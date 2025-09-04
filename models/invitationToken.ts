@@ -24,10 +24,8 @@ export const InvitationToken: ListConfig<Lists.InvitationToken.TypeInfo<any>> = 
     },
   },
   fields: {
-    
     tokenHash: text({ isIndexed: "unique", validation: { isRequired: true } }),
 
-    
     project: relationship({
       ref: "Project.invitationTokens",
       many: false,
@@ -36,13 +34,11 @@ export const InvitationToken: ListConfig<Lists.InvitationToken.TypeInfo<any>> = 
 
     roleToGrant: text({ defaultValue: "Student" }),
 
-    
     expiresAt: timestamp({ validation: { isRequired: true } }),
     maxUses: integer({ defaultValue: 1 }),
     usedCount: integer({ defaultValue: 0 }),
     revoked: checkbox({ defaultValue: false }),
 
-    
     createdBy: relationship({ ref: "User", many: false }),
     notes: text({ ui: { displayMode: "textarea" } }),
   },
