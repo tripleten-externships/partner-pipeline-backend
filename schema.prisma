@@ -126,7 +126,7 @@ model InvitationToken {
 model InvitationTokenLog {
   id        String    @id @default(uuid())
   operation String    @default("")
-  before    String    @default("")
-  after     String    @default("")
+  before    Json?
+  after     Json?
   timestamp DateTime? @default(now())
 }
