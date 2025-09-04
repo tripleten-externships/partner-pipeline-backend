@@ -733,8 +733,8 @@ input InvitationTokenCreateInput {
 type InvitationTokenLog {
   id: ID!
   operation: String
-  before: String
-  after: String
+  before: JSON
+  after: JSON
   timestamp: DateTime
 }
 
@@ -748,23 +748,19 @@ input InvitationTokenLogWhereInput {
   NOT: [InvitationTokenLogWhereInput!]
   id: IDFilter
   operation: StringFilter
-  before: StringFilter
-  after: StringFilter
   timestamp: DateTimeNullableFilter
 }
 
 input InvitationTokenLogOrderByInput {
   id: OrderDirection
   operation: OrderDirection
-  before: OrderDirection
-  after: OrderDirection
   timestamp: OrderDirection
 }
 
 input InvitationTokenLogUpdateInput {
   operation: String
-  before: String
-  after: String
+  before: JSON
+  after: JSON
   timestamp: DateTime
 }
 
@@ -775,8 +771,8 @@ input InvitationTokenLogUpdateArgs {
 
 input InvitationTokenLogCreateInput {
   operation: String
-  before: String
-  after: String
+  before: JSON
+  after: JSON
   timestamp: DateTime
 }
 
