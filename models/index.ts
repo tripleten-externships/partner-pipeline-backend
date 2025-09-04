@@ -1,5 +1,5 @@
 import { User, UserLog } from "./user";
-import { Project, ProjectLog } from "./project";
+import { Project, ProjectLog, ProjectInvitation } from "./project";
 import { Milestone } from "./milestone";
 import { ActivityLog } from "./activityLog";
 import { InvitationToken, InvitationTokenLog } from "./invitationToken";
@@ -9,6 +9,7 @@ export const lists = {
   UserLog,
   Project,
   ProjectLog,
+  ProjectInvitation, // <-- Added field
   Milestone,
   ActivityLog,
   InvitationToken,

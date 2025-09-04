@@ -10,7 +10,7 @@ export function createInvitationsRouter(commonContext: Context) {
   router.get("/api/_invites/health", (_req, res) => res.send("ok-invites"));
 
   // create a token (admin-only)
-  router.post("/api/projects/:projectId/invitations", async (req, res) => {
+  router.post("/api/projects/:projectId/invitationTokens", async (req, res) => {
     const context = await commonContext.withRequest(req, res);
     if (!context) return res.status(500).send("Failed to get context");
 

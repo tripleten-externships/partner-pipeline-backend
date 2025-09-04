@@ -12,21 +12,22 @@ generator client {
 }
 
 model User {
-  id                             String            @id @default(uuid())
-  name                           String            @default("")
-  email                          String            @unique @default("")
+  id                             String              @id @default(uuid())
+  name                           String              @default("")
+  email                          String              @unique @default("")
   password                       String
-  role                           String?           @default("Student")
-  isAdmin                        Boolean           @default(true)
-  createdAt                      DateTime?         @default(now())
-  isActive                       Boolean           @default(false)
-  lastLoginDate                  DateTime?         @default(now())
-  activityLogs                   ActivityLog[]     @relation("ActivityLog_updatedBy")
-  projects                       Project?          @relation("User_projects", fields: [projectsId], references: [id])
-  projectsId                     String?           @map("projects")
-  from_UserLog_user              UserLog[]         @relation("UserLog_user")
-  from_Milestone_updatedBy       Milestone[]       @relation("Milestone_updatedBy")
-  from_InvitationToken_createdBy InvitationToken[] @relation("InvitationToken_createdBy")
+  role                           String?             @default("Student")
+  isAdmin                        Boolean             @default(true)
+  createdAt                      DateTime?           @default(now())
+  isActive                       Boolean             @default(false)
+  lastLoginDate                  DateTime?           @default(now())
+  activityLogs                   ActivityLog[]       @relation("ActivityLog_updatedBy")
+  projects                       Project?            @relation("User_projects", fields: [projectsId], references: [id])
+  projectsId                     String?             @map("projects")
+  invitation                     ProjectInvitation[] @relation("ProjectInvitation_user")
+  from_UserLog_user              UserLog[]           @relation("UserLog_user")
+  from_Milestone_updatedBy       Milestone[]         @relation("Milestone_updatedBy")
+  from_InvitationToken_createdBy InvitationToken[]   @relation("InvitationToken_createdBy")
 
   @@index([projectsId])
 }
@@ -44,17 +45,17 @@ model UserLog {
 }
 
 model Project {
-  id                      String            @id @default(uuid())
-  name                    String            @default("")
-  createdAt               DateTime?         @default(now())
-  project                 String            @default("")
-  isActive                Boolean           @default(false)
-  lastUpdate              DateTime?         @default(now())
-  members                 User[]            @relation("User_projects")
-  milestones              Milestone[]       @relation("Milestone_project")
-  activityLogs            ActivityLog[]     @relation("ActivityLog_project")
-  invitations             InvitationToken[] @relation("InvitationToken_project")
-  from_ProjectLog_project ProjectLog[]      @relation("ProjectLog_project")
+  id                      String              @id @default(uuid())
+  name                    String              @default("")
+  createdAt               DateTime?           @default(now())
+  project                 String              @default("")
+  isActive                Boolean             @default(false)
+  lastUpdate              DateTime?           @default(now())
+  members                 User[]              @relation("User_projects")
+  invitation              ProjectInvitation[] @relation("ProjectInvitation_project")
+  milestones              Milestone[]         @relation("Milestone_project")
+  activityLogs            ActivityLog[]       @relation("ActivityLog_project")
+  from_ProjectLog_project ProjectLog[]        @relation("ProjectLog_project")
 }
 
 model ProjectLog {
@@ -67,6 +68,19 @@ model ProjectLog {
   timestamp DateTime? @default(now())
 
   @@index([projectId])
+}
+
+model ProjectInvitation {
+  id               String            @id @default(uuid())
+  email            String            @default("")
+  project          Project?          @relation("ProjectInvitation_project", fields: [projectId], references: [id])
+  projectId        String?           @map("project")
+  user             User?             @relation("ProjectInvitation_user", fields: [userId], references: [id])
+  userId           String?           @map("user")
+  invitationTokens InvitationToken[] @relation("InvitationToken_project")
+
+  @@index([projectId])
+  @@index([userId])
 }
 
 model Milestone {
@@ -105,20 +119,19 @@ model ActivityLog {
 }
 
 model InvitationToken {
-  id          String   @id @default(uuid())
-  tokenHash   String   @default("")
-  project     Project? @relation("InvitationToken_project", fields: [projectId], references: [id])
-  projectId   String?  @map("project")
-  roleToGrant String   @default("Student")
+  id          String             @id @default(uuid())
+  tokenHash   String             @unique @default("")
+  project     ProjectInvitation? @relation("InvitationToken_project", fields: [projectId], references: [id])
+  projectId   String?            @map("project")
+  roleToGrant String             @default("Student")
   expiresAt   DateTime
-  maxUses     Int?     @default(1)
-  usedCount   Int?     @default(0)
-  revoked     Boolean  @default(false)
-  createdBy   User?    @relation("InvitationToken_createdBy", fields: [createdById], references: [id])
-  createdById String?  @map("createdBy")
-  notes       String   @default("")
+  maxUses     Int?               @default(1)
+  usedCount   Int?               @default(0)
+  revoked     Boolean            @default(false)
+  createdBy   User?              @relation("InvitationToken_createdBy", fields: [createdById], references: [id])
+  createdById String?            @map("createdBy")
+  notes       String             @default("")
 
-  @@index([tokenHash])
   @@index([projectId])
   @@index([createdById])
 }

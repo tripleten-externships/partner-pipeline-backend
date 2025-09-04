@@ -14,6 +14,8 @@ type User {
   activityLogs(where: ActivityLogWhereInput! = {}, orderBy: [ActivityLogOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ActivityLogWhereUniqueInput): [ActivityLog!]
   activityLogsCount(where: ActivityLogWhereInput! = {}): Int
   projects: Project
+  invitation(where: ProjectInvitationWhereInput! = {}, orderBy: [ProjectInvitationOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ProjectInvitationWhereUniqueInput): [ProjectInvitation!]
+  invitationCount(where: ProjectInvitationWhereInput! = {}): Int
 }
 
 type PasswordState {
@@ -41,6 +43,7 @@ input UserWhereInput {
   lastLoginDate: DateTimeNullableFilter
   activityLogs: ActivityLogManyRelationFilter
   projects: ProjectWhereInput
+  invitation: ProjectInvitationManyRelationFilter
 }
 
 input IDFilter {
@@ -118,6 +121,12 @@ input ActivityLogManyRelationFilter {
   none: ActivityLogWhereInput
 }
 
+input ProjectInvitationManyRelationFilter {
+  every: ProjectInvitationWhereInput
+  some: ProjectInvitationWhereInput
+  none: ProjectInvitationWhereInput
+}
+
 input UserOrderByInput {
   id: OrderDirection
   name: OrderDirection
@@ -145,6 +154,7 @@ input UserUpdateInput {
   lastLoginDate: DateTime
   activityLogs: ActivityLogRelateToManyForUpdateInput
   projects: ProjectRelateToOneForUpdateInput
+  invitation: ProjectInvitationRelateToManyForUpdateInput
 }
 
 input ActivityLogRelateToManyForUpdateInput {
@@ -158,6 +168,13 @@ input ProjectRelateToOneForUpdateInput {
   create: ProjectCreateInput
   connect: ProjectWhereUniqueInput
   disconnect: Boolean
+}
+
+input ProjectInvitationRelateToManyForUpdateInput {
+  disconnect: [ProjectInvitationWhereUniqueInput!]
+  set: [ProjectInvitationWhereUniqueInput!]
+  create: [ProjectInvitationCreateInput!]
+  connect: [ProjectInvitationWhereUniqueInput!]
 }
 
 input UserUpdateArgs {
@@ -176,6 +193,7 @@ input UserCreateInput {
   lastLoginDate: DateTime
   activityLogs: ActivityLogRelateToManyForCreateInput
   projects: ProjectRelateToOneForCreateInput
+  invitation: ProjectInvitationRelateToManyForCreateInput
 }
 
 input ActivityLogRelateToManyForCreateInput {
@@ -186,6 +204,11 @@ input ActivityLogRelateToManyForCreateInput {
 input ProjectRelateToOneForCreateInput {
   create: ProjectCreateInput
   connect: ProjectWhereUniqueInput
+}
+
+input ProjectInvitationRelateToManyForCreateInput {
+  create: [ProjectInvitationCreateInput!]
+  connect: [ProjectInvitationWhereUniqueInput!]
 }
 
 type UserLog {
@@ -258,12 +281,12 @@ type Project {
   lastUpdate: DateTime
   members(where: UserWhereInput! = {}, orderBy: [UserOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: UserWhereUniqueInput): [User!]
   membersCount(where: UserWhereInput! = {}): Int
+  invitation(where: ProjectInvitationWhereInput! = {}, orderBy: [ProjectInvitationOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ProjectInvitationWhereUniqueInput): [ProjectInvitation!]
+  invitationCount(where: ProjectInvitationWhereInput! = {}): Int
   milestones(where: MilestoneWhereInput! = {}, orderBy: [MilestoneOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: MilestoneWhereUniqueInput): [Milestone!]
   milestonesCount(where: MilestoneWhereInput! = {}): Int
   activityLogs(where: ActivityLogWhereInput! = {}, orderBy: [ActivityLogOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ActivityLogWhereUniqueInput): [ActivityLog!]
   activityLogsCount(where: ActivityLogWhereInput! = {}): Int
-  invitations(where: InvitationTokenWhereInput! = {}, orderBy: [InvitationTokenOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: InvitationTokenWhereUniqueInput): [InvitationToken!]
-  invitationsCount(where: InvitationTokenWhereInput! = {}): Int
 }
 
 input ProjectWhereUniqueInput {
@@ -281,9 +304,9 @@ input ProjectWhereInput {
   isActive: BooleanFilter
   lastUpdate: DateTimeNullableFilter
   members: UserManyRelationFilter
+  invitation: ProjectInvitationManyRelationFilter
   milestones: MilestoneManyRelationFilter
   activityLogs: ActivityLogManyRelationFilter
-  invitations: InvitationTokenManyRelationFilter
 }
 
 input UserManyRelationFilter {
@@ -296,12 +319,6 @@ input MilestoneManyRelationFilter {
   every: MilestoneWhereInput
   some: MilestoneWhereInput
   none: MilestoneWhereInput
-}
-
-input InvitationTokenManyRelationFilter {
-  every: InvitationTokenWhereInput
-  some: InvitationTokenWhereInput
-  none: InvitationTokenWhereInput
 }
 
 input ProjectOrderByInput {
@@ -320,9 +337,9 @@ input ProjectUpdateInput {
   isActive: Boolean
   lastUpdate: DateTime
   members: UserRelateToManyForUpdateInput
+  invitation: ProjectInvitationRelateToManyForUpdateInput
   milestones: MilestoneRelateToManyForUpdateInput
   activityLogs: ActivityLogRelateToManyForUpdateInput
-  invitations: InvitationTokenRelateToManyForUpdateInput
 }
 
 input UserRelateToManyForUpdateInput {
@@ -339,13 +356,6 @@ input MilestoneRelateToManyForUpdateInput {
   connect: [MilestoneWhereUniqueInput!]
 }
 
-input InvitationTokenRelateToManyForUpdateInput {
-  disconnect: [InvitationTokenWhereUniqueInput!]
-  set: [InvitationTokenWhereUniqueInput!]
-  create: [InvitationTokenCreateInput!]
-  connect: [InvitationTokenWhereUniqueInput!]
-}
-
 input ProjectUpdateArgs {
   where: ProjectWhereUniqueInput!
   data: ProjectUpdateInput!
@@ -358,9 +368,9 @@ input ProjectCreateInput {
   isActive: Boolean
   lastUpdate: DateTime
   members: UserRelateToManyForCreateInput
+  invitation: ProjectInvitationRelateToManyForCreateInput
   milestones: MilestoneRelateToManyForCreateInput
   activityLogs: ActivityLogRelateToManyForCreateInput
-  invitations: InvitationTokenRelateToManyForCreateInput
 }
 
 input UserRelateToManyForCreateInput {
@@ -371,11 +381,6 @@ input UserRelateToManyForCreateInput {
 input MilestoneRelateToManyForCreateInput {
   create: [MilestoneCreateInput!]
   connect: [MilestoneWhereUniqueInput!]
-}
-
-input InvitationTokenRelateToManyForCreateInput {
-  create: [InvitationTokenCreateInput!]
-  connect: [InvitationTokenWhereUniqueInput!]
 }
 
 type ProjectLog {
@@ -426,6 +431,72 @@ input ProjectLogCreateInput {
   before: JSON
   after: JSON
   timestamp: DateTime
+}
+
+type ProjectInvitation {
+  id: ID!
+  email: String
+  project: Project
+  user: User
+  invitationTokens(where: InvitationTokenWhereInput! = {}, orderBy: [InvitationTokenOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: InvitationTokenWhereUniqueInput): [InvitationToken!]
+  invitationTokensCount(where: InvitationTokenWhereInput! = {}): Int
+}
+
+input ProjectInvitationWhereUniqueInput {
+  id: ID
+}
+
+input ProjectInvitationWhereInput {
+  AND: [ProjectInvitationWhereInput!]
+  OR: [ProjectInvitationWhereInput!]
+  NOT: [ProjectInvitationWhereInput!]
+  id: IDFilter
+  email: StringFilter
+  project: ProjectWhereInput
+  user: UserWhereInput
+  invitationTokens: InvitationTokenManyRelationFilter
+}
+
+input InvitationTokenManyRelationFilter {
+  every: InvitationTokenWhereInput
+  some: InvitationTokenWhereInput
+  none: InvitationTokenWhereInput
+}
+
+input ProjectInvitationOrderByInput {
+  id: OrderDirection
+  email: OrderDirection
+}
+
+input ProjectInvitationUpdateInput {
+  email: String
+  project: ProjectRelateToOneForUpdateInput
+  user: UserRelateToOneForUpdateInput
+  invitationTokens: InvitationTokenRelateToManyForUpdateInput
+}
+
+input InvitationTokenRelateToManyForUpdateInput {
+  disconnect: [InvitationTokenWhereUniqueInput!]
+  set: [InvitationTokenWhereUniqueInput!]
+  create: [InvitationTokenCreateInput!]
+  connect: [InvitationTokenWhereUniqueInput!]
+}
+
+input ProjectInvitationUpdateArgs {
+  where: ProjectInvitationWhereUniqueInput!
+  data: ProjectInvitationUpdateInput!
+}
+
+input ProjectInvitationCreateInput {
+  email: String
+  project: ProjectRelateToOneForCreateInput
+  user: UserRelateToOneForCreateInput
+  invitationTokens: InvitationTokenRelateToManyForCreateInput
+}
+
+input InvitationTokenRelateToManyForCreateInput {
+  create: [InvitationTokenCreateInput!]
+  connect: [InvitationTokenWhereUniqueInput!]
 }
 
 type Milestone {
@@ -567,7 +638,7 @@ input MilestoneRelateToOneForCreateInput {
 type InvitationToken {
   id: ID!
   tokenHash: String
-  project: Project
+  project: ProjectInvitation
   roleToGrant: String
   expiresAt: DateTime
   maxUses: Int
@@ -579,6 +650,7 @@ type InvitationToken {
 
 input InvitationTokenWhereUniqueInput {
   id: ID
+  tokenHash: String
 }
 
 input InvitationTokenWhereInput {
@@ -587,7 +659,7 @@ input InvitationTokenWhereInput {
   NOT: [InvitationTokenWhereInput!]
   id: IDFilter
   tokenHash: StringFilter
-  project: ProjectWhereInput
+  project: ProjectInvitationWhereInput
   roleToGrant: StringFilter
   expiresAt: DateTimeFilter
   maxUses: IntNullableFilter
@@ -632,7 +704,7 @@ input InvitationTokenOrderByInput {
 
 input InvitationTokenUpdateInput {
   tokenHash: String
-  project: ProjectRelateToOneForUpdateInput
+  project: ProjectInvitationRelateToOneForUpdateInput
   roleToGrant: String
   expiresAt: DateTime
   maxUses: Int
@@ -642,6 +714,12 @@ input InvitationTokenUpdateInput {
   notes: String
 }
 
+input ProjectInvitationRelateToOneForUpdateInput {
+  create: ProjectInvitationCreateInput
+  connect: ProjectInvitationWhereUniqueInput
+  disconnect: Boolean
+}
+
 input InvitationTokenUpdateArgs {
   where: InvitationTokenWhereUniqueInput!
   data: InvitationTokenUpdateInput!
@@ -649,7 +727,7 @@ input InvitationTokenUpdateArgs {
 
 input InvitationTokenCreateInput {
   tokenHash: String
-  project: ProjectRelateToOneForCreateInput
+  project: ProjectInvitationRelateToOneForCreateInput
   roleToGrant: String
   expiresAt: DateTime
   maxUses: Int
@@ -657,6 +735,11 @@ input InvitationTokenCreateInput {
   revoked: Boolean
   createdBy: UserRelateToOneForCreateInput
   notes: String
+}
+
+input ProjectInvitationRelateToOneForCreateInput {
+  create: ProjectInvitationCreateInput
+  connect: ProjectInvitationWhereUniqueInput
 }
 
 type InvitationTokenLog {
@@ -735,6 +818,12 @@ type Mutation {
   updateProjectLogs(data: [ProjectLogUpdateArgs!]!): [ProjectLog]
   deleteProjectLog(where: ProjectLogWhereUniqueInput!): ProjectLog
   deleteProjectLogs(where: [ProjectLogWhereUniqueInput!]!): [ProjectLog]
+  createProjectInvitation(data: ProjectInvitationCreateInput!): ProjectInvitation
+  createProjectInvitations(data: [ProjectInvitationCreateInput!]!): [ProjectInvitation]
+  updateProjectInvitation(where: ProjectInvitationWhereUniqueInput!, data: ProjectInvitationUpdateInput!): ProjectInvitation
+  updateProjectInvitations(data: [ProjectInvitationUpdateArgs!]!): [ProjectInvitation]
+  deleteProjectInvitation(where: ProjectInvitationWhereUniqueInput!): ProjectInvitation
+  deleteProjectInvitations(where: [ProjectInvitationWhereUniqueInput!]!): [ProjectInvitation]
   createMilestone(data: MilestoneCreateInput!): Milestone
   createMilestones(data: [MilestoneCreateInput!]!): [Milestone]
   updateMilestone(where: MilestoneWhereUniqueInput!, data: MilestoneUpdateInput!): Milestone
@@ -782,29 +871,32 @@ input CreateInitialUserInput {
 }
 
 type Query {
-  users(where: UserWhereInput! = {}, orderBy: [UserOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: UserWhereUniqueInput): [User!]
   user(where: UserWhereUniqueInput!): User
+  users(where: UserWhereInput! = {}, orderBy: [UserOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: UserWhereUniqueInput): [User!]
   usersCount(where: UserWhereInput! = {}): Int
-  userLogs(where: UserLogWhereInput! = {}, orderBy: [UserLogOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: UserLogWhereUniqueInput): [UserLog!]
   userLog(where: UserLogWhereUniqueInput!): UserLog
+  userLogs(where: UserLogWhereInput! = {}, orderBy: [UserLogOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: UserLogWhereUniqueInput): [UserLog!]
   userLogsCount(where: UserLogWhereInput! = {}): Int
-  projects(where: ProjectWhereInput! = {}, orderBy: [ProjectOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ProjectWhereUniqueInput): [Project!]
   project(where: ProjectWhereUniqueInput!): Project
+  projects(where: ProjectWhereInput! = {}, orderBy: [ProjectOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ProjectWhereUniqueInput): [Project!]
   projectsCount(where: ProjectWhereInput! = {}): Int
-  projectLogs(where: ProjectLogWhereInput! = {}, orderBy: [ProjectLogOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ProjectLogWhereUniqueInput): [ProjectLog!]
   projectLog(where: ProjectLogWhereUniqueInput!): ProjectLog
+  projectLogs(where: ProjectLogWhereInput! = {}, orderBy: [ProjectLogOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ProjectLogWhereUniqueInput): [ProjectLog!]
   projectLogsCount(where: ProjectLogWhereInput! = {}): Int
-  milestones(where: MilestoneWhereInput! = {}, orderBy: [MilestoneOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: MilestoneWhereUniqueInput): [Milestone!]
+  projectInvitation(where: ProjectInvitationWhereUniqueInput!): ProjectInvitation
+  projectInvitations(where: ProjectInvitationWhereInput! = {}, orderBy: [ProjectInvitationOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ProjectInvitationWhereUniqueInput): [ProjectInvitation!]
+  projectInvitationsCount(where: ProjectInvitationWhereInput! = {}): Int
   milestone(where: MilestoneWhereUniqueInput!): Milestone
+  milestones(where: MilestoneWhereInput! = {}, orderBy: [MilestoneOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: MilestoneWhereUniqueInput): [Milestone!]
   milestonesCount(where: MilestoneWhereInput! = {}): Int
-  activityLogs(where: ActivityLogWhereInput! = {}, orderBy: [ActivityLogOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ActivityLogWhereUniqueInput): [ActivityLog!]
   activityLog(where: ActivityLogWhereUniqueInput!): ActivityLog
+  activityLogs(where: ActivityLogWhereInput! = {}, orderBy: [ActivityLogOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ActivityLogWhereUniqueInput): [ActivityLog!]
   activityLogsCount(where: ActivityLogWhereInput! = {}): Int
-  invitationTokens(where: InvitationTokenWhereInput! = {}, orderBy: [InvitationTokenOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: InvitationTokenWhereUniqueInput): [InvitationToken!]
   invitationToken(where: InvitationTokenWhereUniqueInput!): InvitationToken
+  invitationTokens(where: InvitationTokenWhereInput! = {}, orderBy: [InvitationTokenOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: InvitationTokenWhereUniqueInput): [InvitationToken!]
   invitationTokensCount(where: InvitationTokenWhereInput! = {}): Int
-  invitationTokenLogs(where: InvitationTokenLogWhereInput! = {}, orderBy: [InvitationTokenLogOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: InvitationTokenLogWhereUniqueInput): [InvitationTokenLog!]
   invitationTokenLog(where: InvitationTokenLogWhereUniqueInput!): InvitationTokenLog
+  invitationTokenLogs(where: InvitationTokenLogWhereInput! = {}, orderBy: [InvitationTokenLogOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: InvitationTokenLogWhereUniqueInput): [InvitationTokenLog!]
   invitationTokenLogsCount(where: InvitationTokenLogWhereInput! = {}): Int
   keystone: KeystoneMeta!
   authenticatedItem: AuthenticatedItem
@@ -823,23 +915,25 @@ type KeystoneAdminMeta {
 
 type KeystoneAdminUIListMeta {
   key: String!
-  itemQueryName: String!
-  listQueryName: String!
-  hideCreate: Boolean!
-  hideDelete: Boolean!
   path: String!
   label: String!
   singular: String!
   plural: String!
   description: String
-  initialColumns: [String!]!
   pageSize: Int!
   labelField: String!
   fields: [KeystoneAdminUIFieldMeta!]!
   groups: [KeystoneAdminUIFieldGroupMeta!]!
+  graphql: KeystoneAdminUIGraphQL!
+  initialColumns: [String!]!
+  initialSearchFields: [String!]!
   initialSort: KeystoneAdminUISort
-  isHidden: Boolean!
   isSingleton: Boolean!
+  hideCreate: Boolean!
+  hideDelete: Boolean!
+  isHidden: Boolean!
+  itemQueryName: String!
+  listQueryName: String!
 }
 
 type KeystoneAdminUIFieldMeta {
@@ -907,6 +1001,33 @@ type KeystoneAdminUIFieldGroupMeta {
   label: String!
   description: String
   fields: [KeystoneAdminUIFieldMeta!]!
+}
+
+type KeystoneAdminUIGraphQL {
+  names: KeystoneAdminUIGraphQLNames!
+}
+
+type KeystoneAdminUIGraphQLNames {
+  outputTypeName: String!
+  whereInputName: String!
+  whereUniqueInputName: String!
+  createInputName: String!
+  createMutationName: String!
+  createManyMutationName: String!
+  relateToOneForCreateInputName: String!
+  relateToManyForCreateInputName: String!
+  itemQueryName: String!
+  listOrderName: String!
+  listQueryCountName: String!
+  listQueryName: String!
+  updateInputName: String!
+  updateMutationName: String!
+  updateManyInputName: String!
+  updateManyMutationName: String!
+  relateToOneForUpdateInputName: String!
+  relateToManyForUpdateInputName: String!
+  deleteMutationName: String!
+  deleteManyMutationName: String!
 }
 
 type KeystoneAdminUISort {
