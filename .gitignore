@@ -14,4 +14,4 @@ __generated__
 *.vscode
 
 # Migrations(local only)
-migrations/20250906032745_dev_environment_update/
+migrations/20250906033741_dev_environment_update/
