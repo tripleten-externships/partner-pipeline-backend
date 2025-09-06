@@ -33,3 +33,5 @@ export const getProjectMilestones = async (req: Request, res: Response, context:
     res.status(500).json({ message: "Error retrieving milestones" });
   }
 };
+
+// TODO: updateMilestone function will be implemented here (PPC4-11)
