@@ -12,3 +12,6 @@ __generated__
 # OS
 .DS_Store
 *.vscode
+
+# Migrations(local only)
+migrations/20250906032745_dev_environment_update/

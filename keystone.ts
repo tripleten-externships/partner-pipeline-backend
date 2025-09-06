@@ -25,7 +25,7 @@ export default withAuth(
       },
       extendExpressApp: (app, commonContext) => {
         // bypass for dev testing
-        setupPassport();
+        // setupPassport();
 
         app.use(
           expressSession({
