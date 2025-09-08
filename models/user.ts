@@ -16,20 +16,22 @@ import { permissions, isSignedIn } from "../utils/access";
 export const User: ListConfig<Lists.User.TypeInfo<any>> = list({
   access: {
     operation: {
-      query: ({ session }) => isSignedIn({ session }),
+      // query: ({ session }) => isSignedIn({ session }),
+      query: () => true, // Temporarily allow public access for demo
       create: ({ session }) => permissions.isAdminLike({ session }),
       update: ({ session }) =>
         permissions.isAdminLike({ session }) || permissions.isStudent({ session }),
       delete: ({ session }) => permissions.isAdminLike({ session }),
     },
     filter: {
-      query: ({ session }) => {
-        if (permissions.isAdminLike({ session })) return true;
-        if (permissions.isStudent({ session })) {
-          return { id: { equals: session?.data?.id } };
-        }
-        return false;
-      },
+      // query: ({ session }) => {
+      //   if (permissions.isAdminLike({ session })) return true;
+      //   if (permissions.isStudent({ session })) {
+      //     return { id: { equals: session?.data?.id } };
+      //   }
+      //   return false;
+      // },
+      query: () => true, // Temporarily allow access to all users for demo
     },
     item: {
       update: ({ session, item }) =>

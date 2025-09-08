@@ -9,7 +9,8 @@ export const ActivityLog = list({
   },
   access: {
     operation: {
-      query: isSignedIn,
+      // query: isSignedIn,
+      query: () => true, // Temporarily allow public access for demo
       create: isSignedIn,
       update: isSignedIn,
       delete: isSignedIn,
