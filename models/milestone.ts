@@ -55,7 +55,8 @@ export const Milestone: ListConfig<Lists.Milestone.TypeInfo<any>, any> = list({
   access: {
     // operation-level access: broad rules
     operation: {
-      query: ({ session }) => !!session, // allow logged-in users
+      // query: ({ session }) => !!session, // allow logged-in users
+      query: () => true, // Temporarily allow public access for demo
       create: ({ session }) => isAdmin(session) || isManager(session), // if admin or manager
       update: ({ session }) => !!session, // allow logged-in users
       delete: ({ session }) => isAdmin(session), // only if admin
