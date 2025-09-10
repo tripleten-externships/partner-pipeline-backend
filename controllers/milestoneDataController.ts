@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { Context } from ".keystone/types";
+import { Milestone } from "../models/milestone";
 
 // context from milestone route file
 //test
@@ -35,3 +36,20 @@ export const getProjectMilestones = async (req: Request, res: Response, context:
 };
 
 // TODO: updateMilestone function will be implemented here (PPC4-11)
+export const updateMilestone = async (req: Request, res: Response, context: Context) => {
+  try {
+    const { id } = req.params; // Extract milestone id from URL params
+    const { milestoneName, status } = req.body; // Extract fields from req.body
+    const updated = await context.query.Milestone.updateOne({ // Update milestone in database using Keystone context
+      where: { id },
+      data: { milestoneName, status }, 
+      query: "id milestoneName status", // Return only selected fields
+    });
+    if (!updated) { // if milestone does not exist
+      return res.status(404).json({ message: "Milestone not found" });
+    } else return res.status(200).json(updated); // returns one that updated
+  } catch (err) {
+    console.error("Error updateding milestone", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
