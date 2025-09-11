@@ -871,32 +871,32 @@ input CreateInitialUserInput {
 }
 
 type Query {
-  users(where: UserWhereInput! = {}, orderBy: [UserOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: UserWhereUniqueInput): [User!]
   user(where: UserWhereUniqueInput!): User
+  users(where: UserWhereInput! = {}, orderBy: [UserOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: UserWhereUniqueInput): [User!]
   usersCount(where: UserWhereInput! = {}): Int
-  userLogs(where: UserLogWhereInput! = {}, orderBy: [UserLogOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: UserLogWhereUniqueInput): [UserLog!]
   userLog(where: UserLogWhereUniqueInput!): UserLog
+  userLogs(where: UserLogWhereInput! = {}, orderBy: [UserLogOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: UserLogWhereUniqueInput): [UserLog!]
   userLogsCount(where: UserLogWhereInput! = {}): Int
-  projects(where: ProjectWhereInput! = {}, orderBy: [ProjectOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ProjectWhereUniqueInput): [Project!]
   project(where: ProjectWhereUniqueInput!): Project
+  projects(where: ProjectWhereInput! = {}, orderBy: [ProjectOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ProjectWhereUniqueInput): [Project!]
   projectsCount(where: ProjectWhereInput! = {}): Int
-  projectLogs(where: ProjectLogWhereInput! = {}, orderBy: [ProjectLogOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ProjectLogWhereUniqueInput): [ProjectLog!]
   projectLog(where: ProjectLogWhereUniqueInput!): ProjectLog
+  projectLogs(where: ProjectLogWhereInput! = {}, orderBy: [ProjectLogOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ProjectLogWhereUniqueInput): [ProjectLog!]
   projectLogsCount(where: ProjectLogWhereInput! = {}): Int
-  projectInvitations(where: ProjectInvitationWhereInput! = {}, orderBy: [ProjectInvitationOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ProjectInvitationWhereUniqueInput): [ProjectInvitation!]
   projectInvitation(where: ProjectInvitationWhereUniqueInput!): ProjectInvitation
+  projectInvitations(where: ProjectInvitationWhereInput! = {}, orderBy: [ProjectInvitationOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ProjectInvitationWhereUniqueInput): [ProjectInvitation!]
   projectInvitationsCount(where: ProjectInvitationWhereInput! = {}): Int
-  milestones(where: MilestoneWhereInput! = {}, orderBy: [MilestoneOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: MilestoneWhereUniqueInput): [Milestone!]
   milestone(where: MilestoneWhereUniqueInput!): Milestone
+  milestones(where: MilestoneWhereInput! = {}, orderBy: [MilestoneOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: MilestoneWhereUniqueInput): [Milestone!]
   milestonesCount(where: MilestoneWhereInput! = {}): Int
-  activityLogs(where: ActivityLogWhereInput! = {}, orderBy: [ActivityLogOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ActivityLogWhereUniqueInput): [ActivityLog!]
   activityLog(where: ActivityLogWhereUniqueInput!): ActivityLog
+  activityLogs(where: ActivityLogWhereInput! = {}, orderBy: [ActivityLogOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ActivityLogWhereUniqueInput): [ActivityLog!]
   activityLogsCount(where: ActivityLogWhereInput! = {}): Int
-  invitationTokens(where: InvitationTokenWhereInput! = {}, orderBy: [InvitationTokenOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: InvitationTokenWhereUniqueInput): [InvitationToken!]
   invitationToken(where: InvitationTokenWhereUniqueInput!): InvitationToken
+  invitationTokens(where: InvitationTokenWhereInput! = {}, orderBy: [InvitationTokenOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: InvitationTokenWhereUniqueInput): [InvitationToken!]
   invitationTokensCount(where: InvitationTokenWhereInput! = {}): Int
-  invitationTokenLogs(where: InvitationTokenLogWhereInput! = {}, orderBy: [InvitationTokenLogOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: InvitationTokenLogWhereUniqueInput): [InvitationTokenLog!]
   invitationTokenLog(where: InvitationTokenLogWhereUniqueInput!): InvitationTokenLog
+  invitationTokenLogs(where: InvitationTokenLogWhereInput! = {}, orderBy: [InvitationTokenLogOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: InvitationTokenLogWhereUniqueInput): [InvitationTokenLog!]
   invitationTokenLogsCount(where: InvitationTokenLogWhereInput! = {}): Int
   keystone: KeystoneMeta!
   authenticatedItem: AuthenticatedItem
@@ -915,23 +915,25 @@ type KeystoneAdminMeta {
 
 type KeystoneAdminUIListMeta {
   key: String!
-  itemQueryName: String!
-  listQueryName: String!
-  hideCreate: Boolean!
-  hideDelete: Boolean!
   path: String!
   label: String!
   singular: String!
   plural: String!
   description: String
-  initialColumns: [String!]!
   pageSize: Int!
   labelField: String!
   fields: [KeystoneAdminUIFieldMeta!]!
   groups: [KeystoneAdminUIFieldGroupMeta!]!
+  graphql: KeystoneAdminUIGraphQL!
+  initialColumns: [String!]!
+  initialSearchFields: [String!]!
   initialSort: KeystoneAdminUISort
-  isHidden: Boolean!
   isSingleton: Boolean!
+  hideCreate: Boolean!
+  hideDelete: Boolean!
+  isHidden: Boolean!
+  itemQueryName: String!
+  listQueryName: String!
 }
 
 type KeystoneAdminUIFieldMeta {
@@ -999,6 +1001,33 @@ type KeystoneAdminUIFieldGroupMeta {
   label: String!
   description: String
   fields: [KeystoneAdminUIFieldMeta!]!
+}
+
+type KeystoneAdminUIGraphQL {
+  names: KeystoneAdminUIGraphQLNames!
+}
+
+type KeystoneAdminUIGraphQLNames {
+  outputTypeName: String!
+  whereInputName: String!
+  whereUniqueInputName: String!
+  createInputName: String!
+  createMutationName: String!
+  createManyMutationName: String!
+  relateToOneForCreateInputName: String!
+  relateToManyForCreateInputName: String!
+  itemQueryName: String!
+  listOrderName: String!
+  listQueryCountName: String!
+  listQueryName: String!
+  updateInputName: String!
+  updateMutationName: String!
+  updateManyInputName: String!
+  updateManyMutationName: String!
+  relateToOneForUpdateInputName: String!
+  relateToManyForUpdateInputName: String!
+  deleteMutationName: String!
+  deleteManyMutationName: String!
 }
 
 type KeystoneAdminUISort {
