@@ -10,6 +10,7 @@ const isAdmin = (session: any) => session?.data?.isAdmin;
 const isManager = (session: any) => session?.data?.role === "Manager";
 
 export const Milestone: ListConfig<Lists.Milestone.TypeInfo<any>, any> = list({
+
   // --------------------
   // Fields
   // --------------------
