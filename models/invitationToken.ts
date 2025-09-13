@@ -1,10 +1,10 @@
 import { list } from "@keystone-6/core";
 import type { ListConfig } from "@keystone-6/core";
 import type { Lists } from ".keystone/types";
-import { checkbox, relationship, text, timestamp, integer } from "@keystone-6/core/fields";
+import { checkbox, relationship, text, timestamp, integer, json } from "@keystone-6/core/fields";
 import { permissions, isSignedIn } from "../utils/access";
 
-export const InvitationToken: ListConfig<Lists.InvitationToken.TypeInfo<any>, any> = list({
+export const InvitationToken: ListConfig<Lists.InvitationToken.TypeInfo<any>> = list({
   access: {
     operation: {
       query: ({ session }) =>
@@ -24,17 +24,21 @@ export const InvitationToken: ListConfig<Lists.InvitationToken.TypeInfo<any>, an
     },
   },
   fields: {
-    // store only a hash of the token
-    tokenHash: text({ isIndexed: true, validation: { isRequired: true } }),
-    project: relationship({ ref: "Project.invitations", many: false, ui: { labelField: "name" } }),
+    tokenHash: text({ isIndexed: "unique", validation: { isRequired: true } }),
+
+    project: relationship({
+      ref: "ProjectInvitation.invitationTokens",
+      many: false,
+      // ui: { labelField: "name" },
+    }),
 
     roleToGrant: text({ defaultValue: "Student" }),
-    // constraints
+
     expiresAt: timestamp({ validation: { isRequired: true } }),
     maxUses: integer({ defaultValue: 1 }),
     usedCount: integer({ defaultValue: 0 }),
     revoked: checkbox({ defaultValue: false }),
-    // optional attribution
+
     createdBy: relationship({ ref: "User", many: false }),
     notes: text({ ui: { displayMode: "textarea" } }),
   },
@@ -54,19 +58,21 @@ export const InvitationToken: ListConfig<Lists.InvitationToken.TypeInfo<any>, an
   },
 });
 
-export const InvitationTokenLog: ListConfig<Lists.InvitationTokenLog.TypeInfo<any>, any> = list({
+export const InvitationTokenLog: ListConfig<Lists.InvitationTokenLog.TypeInfo<any>> = list({
   access: {
     operation: {
       query: ({ session }) => !!session && session.data.isAdmin,
-      create: () => false,
+      create: () => true,
       update: () => false,
       delete: () => false,
     },
   },
   fields: {
     operation: text({ validation: { isRequired: true } }),
-    before: text({ ui: { displayMode: "textarea" } }),
-    after: text({ ui: { displayMode: "textarea" } }),
+    before: json(),
+    after: json(),
+    // before: text({ ui: { displayMode: "textarea" } }),
+    // after: text({ ui: { displayMode: "textarea" } }),
     timestamp: timestamp({ defaultValue: { kind: "now" } }),
   },
 });

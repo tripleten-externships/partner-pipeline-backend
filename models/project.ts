@@ -4,7 +4,7 @@ import type { Lists } from ".keystone/types";
 import { checkbox, relationship, text, timestamp, json } from "@keystone-6/core/fields";
 import { permissions, isSignedIn } from "../utils/access";
 
-export const Project: ListConfig<Lists.Project.TypeInfo<any>, any> = list({
+export const Project: ListConfig<Lists.Project.TypeInfo<any>> = list({
   access: {
     operation: {
       query: ({ session }) => isSignedIn({ session }),
@@ -38,10 +38,11 @@ export const Project: ListConfig<Lists.Project.TypeInfo<any>, any> = list({
       defaultValue: { kind: "now" },
     }),
     members: relationship({ ref: "User.projects", many: true }),
-    // add milestones field for reference to milestone schema
-    milestones: relationship({ ref: "Milestone.project", many: true }),
+    invitation: relationship({ ref: "ProjectInvitation.project", many: true }), // <-- Added field
+    // milestones field added for reference to milestone schema
+    milestones: relationship({ ref: "Milestone.project", many: true }), // <-- Added field
     activityLogs: relationship({ ref: "ActivityLog.project", many: true }),
-    invitations: relationship({ ref: "InvitationToken.project", many: true }),
+    // invitationTokens: relationship({ ref: "InvitationToken.project", many: true }),
   },
 
   hooks: {
@@ -60,7 +61,7 @@ export const Project: ListConfig<Lists.Project.TypeInfo<any>, any> = list({
   },
 });
 
-export const ProjectLog: ListConfig<Lists.ProjectLog.TypeInfo<any>, any> = list({
+export const ProjectLog: ListConfig<Lists.ProjectLog.TypeInfo<any>> = list({
   fields: {
     project: relationship({ ref: "Project", many: false }),
     operation: text({ validation: { isRequired: true } }), // "create", "update", "delete"
@@ -74,6 +75,26 @@ export const ProjectLog: ListConfig<Lists.ProjectLog.TypeInfo<any>, any> = list(
       create: ({ session }) => !!session && session.data.isAdmin,
       update: () => false,
       delete: () => false,
+    },
+  },
+});
+
+// ====================
+// ProjectInvitation List (Added)
+// ====================
+export const ProjectInvitation = list({
+  fields: {
+    email: text(),
+    project: relationship({ ref: "Project.invitation" }),
+    user: relationship({ ref: "User.invitation" }),
+    invitationTokens: relationship({ ref: "InvitationToken.project", many: true }),
+  },
+  access: {
+    operation: {
+      query: () => true,
+      create: () => true,
+      update: () => true,
+      delete: () => true,
     },
   },
 });

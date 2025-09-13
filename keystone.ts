@@ -30,6 +30,7 @@ export default withAuth(
         allowedHeaders: ["Content-Type", "Authorization"],
       },
       extendExpressApp: (app, commonContext) => {
+        // bypass for dev testing
         setupPassport();
 
         // Parse JSON and URL-encoded bodies for REST endpoints
