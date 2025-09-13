@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 import { config } from "@keystone-6/core";
 import { lists } from "./models";
+import express from "express";
 
 dotenv.config();
 
@@ -19,13 +20,22 @@ export default withAuth(
     server: {
       port: 8080,
       cors: {
-        origin: "*",
+        origin: [
+          "http://localhost:3000",
+          "http://localhost:5173",
+          "http://localhost:3001",
+        ],
         methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
         credentials: true,
+        allowedHeaders: ["Content-Type", "Authorization"],
       },
       extendExpressApp: (app, commonContext) => {
         // bypass for dev testing
         setupPassport();
+
+        // Parse JSON and URL-encoded bodies for REST endpoints
+        app.use(express.json());
+        app.use(express.urlencoded({ extended: true }));
 
         app.use(
           expressSession({
