@@ -9,7 +9,8 @@ import { text, select, relationship, timestamp } from "@keystone-6/core/fields";
 const isAdmin = (session: any) => session?.data?.isAdmin;
 const isManager = (session: any) => session?.data?.role === "Manager";
 
-export const Milestone: ListConfig<Lists.Milestone.TypeInfo<any>> = list({
+export const Milestone: ListConfig<Lists.Milestone.TypeInfo<any>, any> = list({
+
   // --------------------
   // Fields
   // --------------------
