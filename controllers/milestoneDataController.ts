@@ -40,12 +40,23 @@ export const updateMilestone = async (req: Request, res: Response, context: Cont
   try {
     const { id } = req.params; // Extract milestone id from URL params
     const { milestoneName, status } = req.body; // Extract fields from req.body
-    const updated = await context.query.Milestone.updateOne({ // Update milestone in database using Keystone context
+    if (!id) {
+      return res.status(400).json({ message: "Milestone ID is required" });
+    }
+    if (!milestoneName && !status) {
+      return res.status(400).json({ message: "At least one field must entered" });
+    }
+    const updatedData: any = {};
+    if (milestoneName) updatedData.milestoneName = milestoneName;
+    if (status) updatedData.status = status;
+    const updated = await context.query.Milestone.updateOne({
+      // Update milestone in database using Keystone context
       where: { id },
-      data: { milestoneName, status }, 
-      query: "id milestoneName status", // Return only selected fields
+      data: updatedData,
+      query: "id milestoneName status assignee", // Return only selected fields
     });
-    if (!updated) { // if milestone does not exist
+    if (!updated) {
+      // if milestone does not exist
       return res.status(404).json({ message: "Milestone not found" });
     } else return res.status(200).json(updated); // returns one that updated
   } catch (err) {
