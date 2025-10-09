@@ -47,6 +47,8 @@ model UserLog {
 model Project {
   id                      String              @id @default(uuid())
   name                    String              @default("")
+  subtitle                String              @default("")
+  status                  String              @default("")
   createdAt               DateTime?           @default(now())
   project                 String              @default("")
   isActive                Boolean             @default(false)
@@ -142,4 +144,13 @@ model InvitationTokenLog {
   before    Json?
   after     Json?
   timestamp DateTime? @default(now())
+}
+
+model waitListStudent {
+  id           String    @id @default(uuid())
+  name         String    @default("")
+  email        String    @unique @default("")
+  status       String?   @default("pending")
+  inviteSentAt DateTime?
+  createdAt    DateTime? @default(now())
 }
