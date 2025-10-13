@@ -6,6 +6,7 @@
     "noEmit": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
+      "moduleResolution": "node",
     "types": ["node"]
   },
   "include": ["models", "routes", "controllers", "config", "types", ".keystone"]
