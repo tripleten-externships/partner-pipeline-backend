@@ -13,13 +13,14 @@ import { setupPassport, passport } from "./config/passport";
 import { createMilestoneRouter } from "./routes/milestoneDataRoutes";
 import { createActivityLogRouter } from "./routes/activityLogRoute";
 import { createInvitationsRouter } from "./routes/invitationsRoute";
+import { acceptInvitationSchema } from "./graphql/acceptInvitation";
 
 export default withAuth(
   config({
     server: {
       port: 8080,
       cors: {
-        origin: "*",
+        origin: ['http://localhost:3000'],
         methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
         credentials: true,
       },
@@ -32,6 +33,8 @@ export default withAuth(
             secret: process.env.SESSION_SECRET!,
             resave: false,
             saveUninitialized: false,
+            cookie: { secure: false }, // Set to true if using HTTPS
+            
           })
         );
 
@@ -53,7 +56,6 @@ export default withAuth(
       url: `mysql://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:3306/${process.env.DB_NAME}`,
       enableLogging: true,
       idField: { kind: "uuid" },
-      useMigrations: true,
     },
     telemetry: false,
     graphql: {

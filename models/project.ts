@@ -6,43 +6,47 @@ import { permissions, isSignedIn } from "../utils/access";
 
 export const Project: ListConfig<Lists.Project.TypeInfo<any>> = list({
   access: {
+    // Broad op-level gates
     operation: {
-      query: ({ session }) => isSignedIn({ session }),
+      query: isSignedIn,                                   // must be logged in to see anything
+      create: ({ session }) => permissions.isAdminLike({ session }), // ONLY Admin/Lead Mentor
+      update: isSignedIn,                                   // allowed, but constrained by filter.update
+      delete: ({ session }) => permissions.isAdminLike({ session }),
+    },
 
-      // create: ({ session }) => {
-      //   console.log("Session at create access:", session);
-      //   return permissions.isAdminLike({ session });
-      // },
+    // Field-level filter rules for which items a user can act on
+    filter: {
+      // If admin-like → see all. Otherwise, only projects where you're a member.
+      query: ({ session }) =>
+        permissions.isAdminLike({ session })
+          ? true
+          : { members: { some: { id: { equals: session?.data?.id } } } },
 
-      // create: ({ session }) => permissions.isAdminLike({ session }),
-
-      create: isSignedIn,
-
+      // If admin-like → can update any. Otherwise, only update projects you belong to.
       update: ({ session }) =>
-        permissions.isAdminLike({ session }) || permissions.isProjectMember({ session }),
-      delete: ({ session }) => permissions.isAdminLike({ session }),
+        permissions.isAdminLike({ session })
+          ? true
+          : { members: { some: { id: { equals: session?.data?.id } } } },
+
+      // Only admin-like can delete
+      delete: ({ session }) => (permissions.isAdminLike({ session }) ? true : false),
     },
-    item: {
-      update: ({ session }) => permissions.isAdminLike({ session }),
-      delete: ({ session }) => permissions.isAdminLike({ session }),
-    },
+
+    // You can drop item-level “update/delete” if you’re using filter.* above;
+    // Keystone will AND them together if both exist.
+    // item: { ... }
   },
+
   fields: {
     name: text({ validation: { isRequired: true } }),
-    createdAt: timestamp({
-      defaultValue: { kind: "now" },
-    }),
+    createdAt: timestamp({ defaultValue: { kind: "now" } }),
     project: text({ validation: { isRequired: true } }),
     isActive: checkbox({ defaultValue: false }),
-    lastUpdate: timestamp({
-      defaultValue: { kind: "now" },
-    }),
+    lastUpdate: timestamp({ defaultValue: { kind: "now" } }),
     members: relationship({ ref: "User.projects", many: true }),
-    invitation: relationship({ ref: "ProjectInvitation.project", many: true }), // <-- Added field
-    // milestones field added for reference to milestone schema
-    milestones: relationship({ ref: "Milestone.project", many: true }), // <-- Added field
+    invitation: relationship({ ref: "ProjectInvitation.project", many: true }),
+    milestones: relationship({ ref: "Milestone.project", many: true }),
     activityLogs: relationship({ ref: "ActivityLog.project", many: true }),
-    // invitationTokens: relationship({ ref: "InvitationToken.project", many: true }),
   },
 
   hooks: {
@@ -71,8 +75,8 @@ export const ProjectLog: ListConfig<Lists.ProjectLog.TypeInfo<any>> = list({
   },
   access: {
     operation: {
-      query: ({ session }) => !!session && session.data.isAdmin,
-      create: ({ session }) => !!session && session.data.isAdmin,
+      query: () => true,  
+      create: () => true,
       update: () => false,
       delete: () => false,
     },

@@ -25,10 +25,8 @@ export const User: ListConfig<Lists.User.TypeInfo<any>> = list({
     filter: {
       query: ({ session }) => {
         if (permissions.isAdminLike({ session })) return true;
-        if (permissions.isStudent({ session })) {
-          return { id: { equals: session?.data?.id } };
-        }
-        return false;
+        // everyone else (students, mentors, partners) → only themselves
+        return { id: { equals: session?.data?.id } };
       },
     },
     item: {
@@ -60,7 +58,7 @@ export const User: ListConfig<Lists.User.TypeInfo<any>> = list({
     createdAt: timestamp({
       defaultValue: { kind: "now" },
     }),
-    // project: text({ validation: { isRequired: true } }),
+    project: text({ validation: { isRequired: true } }),
     isActive: checkbox({ defaultValue: false }),
     lastLoginDate: timestamp({
       defaultValue: { kind: "now" },
@@ -97,7 +95,7 @@ export const UserLog: ListConfig<Lists.UserLog.TypeInfo<any>> = list({
   access: {
     operation: {
       query: ({ session }) => !!session && session.data.isAdmin,
-      create: () => false,
+      create: () => true,
       update: () => false,
       delete: () => false,
     },
