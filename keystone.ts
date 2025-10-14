@@ -20,7 +20,7 @@ export default withAuth(
     server: {
       port: 8080,
       cors: {
-        origin: ['http://localhost:3000'],
+        origin: ["http://localhost:3000"],
         methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
         credentials: true,
       },
@@ -34,7 +34,6 @@ export default withAuth(
             resave: false,
             saveUninitialized: false,
             cookie: { secure: false }, // Set to true if using HTTPS
-            
           })
         );
 

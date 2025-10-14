@@ -8,9 +8,9 @@ export const Project: ListConfig<Lists.Project.TypeInfo<any>> = list({
   access: {
     // Broad op-level gates
     operation: {
-      query: isSignedIn,                                   // must be logged in to see anything
+      query: isSignedIn, // must be logged in to see anything
       create: ({ session }) => permissions.isAdminLike({ session }), // ONLY Admin/Lead Mentor
-      update: isSignedIn,                                   // allowed, but constrained by filter.update
+      update: isSignedIn, // allowed, but constrained by filter.update
       delete: ({ session }) => permissions.isAdminLike({ session }),
     },
 
@@ -75,7 +75,7 @@ export const ProjectLog: ListConfig<Lists.ProjectLog.TypeInfo<any>> = list({
   },
   access: {
     operation: {
-      query: () => true,  
+      query: () => true,
       create: () => true,
       update: () => false,
       delete: () => false,

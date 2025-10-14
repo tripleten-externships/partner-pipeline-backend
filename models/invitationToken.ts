@@ -1,7 +1,15 @@
 import { list } from "@keystone-6/core";
 import type { ListConfig } from "@keystone-6/core";
 import type { Lists } from ".keystone/types";
-import { checkbox, relationship, text, timestamp, integer, json, select } from "@keystone-6/core/fields";
+import {
+  checkbox,
+  relationship,
+  text,
+  timestamp,
+  integer,
+  json,
+  select,
+} from "@keystone-6/core/fields";
 import { permissions, isSignedIn } from "../utils/access";
 
 export const InvitationToken: ListConfig<Lists.InvitationToken.TypeInfo<any>> = list({
