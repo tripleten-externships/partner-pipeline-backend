@@ -2,6 +2,7 @@ import { Router } from "express";
 import crypto from "crypto";
 import * as bcrypt from "bcryptjs";
 import type { Context } from ".keystone/types";
+import { sendInvitationEmail } from "../controllers/invitationsController";
 
 export function createInvitationsRouter(commonContext: Context) {
   console.log("[invites] mounting invitations router");
@@ -35,6 +36,8 @@ export function createInvitationsRouter(commonContext: Context) {
           notes,
         },
       });
+
+      await sendInvitationEmail(req, res, context, rawToken);
 
       res.json({ id: created.id, token: rawToken });
     } catch (err: any) {

@@ -11,7 +11,13 @@ type User {
   createdAt: DateTime
   isActive: Boolean
   lastLoginDate: DateTime
-  activityLogs(where: ActivityLogWhereInput! = {}, orderBy: [ActivityLogOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ActivityLogWhereUniqueInput): [ActivityLog!]
+  activityLogs(
+    where: ActivityLogWhereInput! = {}
+    orderBy: [ActivityLogOrderByInput!]! = []
+    take: Int
+    skip: Int! = 0
+    cursor: ActivityLogWhereUniqueInput
+  ): [ActivityLog!]
   activityLogsCount(where: ActivityLogWhereInput! = {}): Int
   projects: Project
 }
@@ -256,13 +262,37 @@ type Project {
   project: String
   isActive: Boolean
   lastUpdate: DateTime
-  members(where: UserWhereInput! = {}, orderBy: [UserOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: UserWhereUniqueInput): [User!]
+  members(
+    where: UserWhereInput! = {}
+    orderBy: [UserOrderByInput!]! = []
+    take: Int
+    skip: Int! = 0
+    cursor: UserWhereUniqueInput
+  ): [User!]
   membersCount(where: UserWhereInput! = {}): Int
-  milestones(where: MilestoneWhereInput! = {}, orderBy: [MilestoneOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: MilestoneWhereUniqueInput): [Milestone!]
+  milestones(
+    where: MilestoneWhereInput! = {}
+    orderBy: [MilestoneOrderByInput!]! = []
+    take: Int
+    skip: Int! = 0
+    cursor: MilestoneWhereUniqueInput
+  ): [Milestone!]
   milestonesCount(where: MilestoneWhereInput! = {}): Int
-  activityLogs(where: ActivityLogWhereInput! = {}, orderBy: [ActivityLogOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ActivityLogWhereUniqueInput): [ActivityLog!]
+  activityLogs(
+    where: ActivityLogWhereInput! = {}
+    orderBy: [ActivityLogOrderByInput!]! = []
+    take: Int
+    skip: Int! = 0
+    cursor: ActivityLogWhereUniqueInput
+  ): [ActivityLog!]
   activityLogsCount(where: ActivityLogWhereInput! = {}): Int
-  invitations(where: InvitationTokenWhereInput! = {}, orderBy: [InvitationTokenOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: InvitationTokenWhereUniqueInput): [InvitationToken!]
+  invitations(
+    where: InvitationTokenWhereInput! = {}
+    orderBy: [InvitationTokenOrderByInput!]! = []
+    take: Int
+    skip: Int! = 0
+    cursor: InvitationTokenWhereUniqueInput
+  ): [InvitationToken!]
   invitationsCount(where: InvitationTokenWhereInput! = {}): Int
 }
 
@@ -431,7 +461,13 @@ input ProjectLogCreateInput {
 type Milestone {
   id: ID!
   project: Project
-  activityLogs(where: ActivityLogWhereInput! = {}, orderBy: [ActivityLogOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ActivityLogWhereUniqueInput): [ActivityLog!]
+  activityLogs(
+    where: ActivityLogWhereInput! = {}
+    orderBy: [ActivityLogOrderByInput!]! = []
+    take: Int
+    skip: Int! = 0
+    cursor: ActivityLogWhereUniqueInput
+  ): [ActivityLog!]
   activityLogsCount(where: ActivityLogWhereInput! = {}): Int
   milestoneName: String
   status: String
@@ -712,7 +748,8 @@ input InvitationTokenLogCreateInput {
 """
 The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
 """
-scalar JSON @specifiedBy(url: "http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf")
+scalar JSON
+  @specifiedBy(url: "http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf")
 
 type Mutation {
   createUser(data: UserCreateInput!): User
@@ -753,22 +790,33 @@ type Mutation {
   deleteActivityLogs(where: [ActivityLogWhereUniqueInput!]!): [ActivityLog]
   createInvitationToken(data: InvitationTokenCreateInput!): InvitationToken
   createInvitationTokens(data: [InvitationTokenCreateInput!]!): [InvitationToken]
-  updateInvitationToken(where: InvitationTokenWhereUniqueInput!, data: InvitationTokenUpdateInput!): InvitationToken
+  updateInvitationToken(
+    where: InvitationTokenWhereUniqueInput!
+    data: InvitationTokenUpdateInput!
+  ): InvitationToken
   updateInvitationTokens(data: [InvitationTokenUpdateArgs!]!): [InvitationToken]
   deleteInvitationToken(where: InvitationTokenWhereUniqueInput!): InvitationToken
   deleteInvitationTokens(where: [InvitationTokenWhereUniqueInput!]!): [InvitationToken]
   createInvitationTokenLog(data: InvitationTokenLogCreateInput!): InvitationTokenLog
   createInvitationTokenLogs(data: [InvitationTokenLogCreateInput!]!): [InvitationTokenLog]
-  updateInvitationTokenLog(where: InvitationTokenLogWhereUniqueInput!, data: InvitationTokenLogUpdateInput!): InvitationTokenLog
+  updateInvitationTokenLog(
+    where: InvitationTokenLogWhereUniqueInput!
+    data: InvitationTokenLogUpdateInput!
+  ): InvitationTokenLog
   updateInvitationTokenLogs(data: [InvitationTokenLogUpdateArgs!]!): [InvitationTokenLog]
   deleteInvitationTokenLog(where: InvitationTokenLogWhereUniqueInput!): InvitationTokenLog
   deleteInvitationTokenLogs(where: [InvitationTokenLogWhereUniqueInput!]!): [InvitationTokenLog]
   endSession: Boolean!
-  authenticateUserWithPassword(email: String!, password: String!): UserAuthenticationWithPasswordResult
+  authenticateUserWithPassword(
+    email: String!
+    password: String!
+  ): UserAuthenticationWithPasswordResult
   createInitialUser(data: CreateInitialUserInput!): UserAuthenticationWithPasswordSuccess!
 }
 
-union UserAuthenticationWithPasswordResult = UserAuthenticationWithPasswordSuccess | UserAuthenticationWithPasswordFailure
+union UserAuthenticationWithPasswordResult =
+    UserAuthenticationWithPasswordSuccess
+  | UserAuthenticationWithPasswordFailure
 
 type UserAuthenticationWithPasswordSuccess {
   sessionToken: String!
@@ -786,28 +834,76 @@ input CreateInitialUserInput {
 }
 
 type Query {
-  users(where: UserWhereInput! = {}, orderBy: [UserOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: UserWhereUniqueInput): [User!]
+  users(
+    where: UserWhereInput! = {}
+    orderBy: [UserOrderByInput!]! = []
+    take: Int
+    skip: Int! = 0
+    cursor: UserWhereUniqueInput
+  ): [User!]
   user(where: UserWhereUniqueInput!): User
   usersCount(where: UserWhereInput! = {}): Int
-  userLogs(where: UserLogWhereInput! = {}, orderBy: [UserLogOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: UserLogWhereUniqueInput): [UserLog!]
+  userLogs(
+    where: UserLogWhereInput! = {}
+    orderBy: [UserLogOrderByInput!]! = []
+    take: Int
+    skip: Int! = 0
+    cursor: UserLogWhereUniqueInput
+  ): [UserLog!]
   userLog(where: UserLogWhereUniqueInput!): UserLog
   userLogsCount(where: UserLogWhereInput! = {}): Int
-  projects(where: ProjectWhereInput! = {}, orderBy: [ProjectOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ProjectWhereUniqueInput): [Project!]
+  projects(
+    where: ProjectWhereInput! = {}
+    orderBy: [ProjectOrderByInput!]! = []
+    take: Int
+    skip: Int! = 0
+    cursor: ProjectWhereUniqueInput
+  ): [Project!]
   project(where: ProjectWhereUniqueInput!): Project
   projectsCount(where: ProjectWhereInput! = {}): Int
-  projectLogs(where: ProjectLogWhereInput! = {}, orderBy: [ProjectLogOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ProjectLogWhereUniqueInput): [ProjectLog!]
+  projectLogs(
+    where: ProjectLogWhereInput! = {}
+    orderBy: [ProjectLogOrderByInput!]! = []
+    take: Int
+    skip: Int! = 0
+    cursor: ProjectLogWhereUniqueInput
+  ): [ProjectLog!]
   projectLog(where: ProjectLogWhereUniqueInput!): ProjectLog
   projectLogsCount(where: ProjectLogWhereInput! = {}): Int
-  milestones(where: MilestoneWhereInput! = {}, orderBy: [MilestoneOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: MilestoneWhereUniqueInput): [Milestone!]
+  milestones(
+    where: MilestoneWhereInput! = {}
+    orderBy: [MilestoneOrderByInput!]! = []
+    take: Int
+    skip: Int! = 0
+    cursor: MilestoneWhereUniqueInput
+  ): [Milestone!]
   milestone(where: MilestoneWhereUniqueInput!): Milestone
   milestonesCount(where: MilestoneWhereInput! = {}): Int
-  activityLogs(where: ActivityLogWhereInput! = {}, orderBy: [ActivityLogOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ActivityLogWhereUniqueInput): [ActivityLog!]
+  activityLogs(
+    where: ActivityLogWhereInput! = {}
+    orderBy: [ActivityLogOrderByInput!]! = []
+    take: Int
+    skip: Int! = 0
+    cursor: ActivityLogWhereUniqueInput
+  ): [ActivityLog!]
   activityLog(where: ActivityLogWhereUniqueInput!): ActivityLog
   activityLogsCount(where: ActivityLogWhereInput! = {}): Int
-  invitationTokens(where: InvitationTokenWhereInput! = {}, orderBy: [InvitationTokenOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: InvitationTokenWhereUniqueInput): [InvitationToken!]
+  invitationTokens(
+    where: InvitationTokenWhereInput! = {}
+    orderBy: [InvitationTokenOrderByInput!]! = []
+    take: Int
+    skip: Int! = 0
+    cursor: InvitationTokenWhereUniqueInput
+  ): [InvitationToken!]
   invitationToken(where: InvitationTokenWhereUniqueInput!): InvitationToken
   invitationTokensCount(where: InvitationTokenWhereInput! = {}): Int
-  invitationTokenLogs(where: InvitationTokenLogWhereInput! = {}, orderBy: [InvitationTokenLogOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: InvitationTokenLogWhereUniqueInput): [InvitationTokenLog!]
+  invitationTokenLogs(
+    where: InvitationTokenLogWhereInput! = {}
+    orderBy: [InvitationTokenLogOrderByInput!]! = []
+    take: Int
+    skip: Int! = 0
+    cursor: InvitationTokenLogWhereUniqueInput
+  ): [InvitationTokenLog!]
   invitationTokenLog(where: InvitationTokenLogWhereUniqueInput!): InvitationTokenLog
   invitationTokenLogsCount(where: InvitationTokenLogWhereInput! = {}): Int
   keystone: KeystoneMeta!
