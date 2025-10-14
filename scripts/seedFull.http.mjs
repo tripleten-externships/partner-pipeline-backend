@@ -1,7 +1,10 @@
 // Run while backend is running:  node scripts/seedFull.http.mjs
 const ENDPOINT = process.env.GQL || 'http://localhost:8080/api/graphql';
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'atlankinlogs@gmail.com  ';
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'testpass123';
+
+//These credentials should match whatever user you created for the localhost:8080 Admin UI
+//If you haven't created one yet, do so now - and then uncomment the fields in the access.ts file
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'localhost8080@email.com';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'localhost8080pw';
 
 
 async function gql(query, vars = {}, cookie = '') {
@@ -173,7 +176,7 @@ async function ensureInvitationToken(cookie, { invitationId, tokenHash, role, op
   // Users
   const kate   = await ensureUser(cookie, { name:'Dr. Kate Mangubat', email:'kate@example.com',   password:'password123', role:'Lead Mentor',   isAdmin:true,  isActive:true,  project:'partner-pipeline-platform' });
   const andrew = await ensureUser(cookie, { name:'Andrew Thomas',      email:'andrew@example.com', password:'password123', role:'Project Mentor', isAdmin:false, isActive:true,  project:'partner-pipeline-platform' });
-  const victor    = await ensureUser(cookie, { name:'Victor Perez',      email:'victor@example.com',    password:'password123', role:'Student',        isAdmin:false, isActive:true,  project:'partner-pipeline-platform' });
+  const vic    = await ensureUser(cookie, { name:'Victor Perez',      email:'victor@example.com',    password:'password123', role:'Student',        isAdmin:false, isActive:true,  project:'partner-pipeline-platform' });
   const divya  = await ensureUser(cookie, { name:'Divya Patel',        email:'divya@example.com',  password:'password123', role:'Student',        isAdmin:false, isActive:true,  project:'mentor-dashboard-revamp' });
   console.log('✅ Users ready');
 
@@ -183,7 +186,7 @@ async function ensureInvitationToken(cookie, { invitationId, tokenHash, role, op
     project: 'partner-pipeline-platform',
     isActive: true,
     lastUpdate: new Date().toISOString(),
-    members: { connect: [{ id: kate.id }, { id: andrew.id }, { id: val.id }, { id: divya.id }] },
+    members: { connect: [{ id: kate.id }, { id: andrew.id }, { id: vic.id }, { id: divya.id }] },
   });
   const projB = await ensureProject(cookie, {
     name: 'Mentor Dashboard Revamp',
@@ -202,8 +205,8 @@ async function ensureInvitationToken(cookie, { invitationId, tokenHash, role, op
   });
   const mA2 = await ensureMilestone(cookie, projA.id, 'Integrate Frontend & GraphQL', {
     status: 'in_progress',
-    assignee: val.name,
-    updatedBy: { connect: { id: val.id } },
+    assignee: vic.name,
+    updatedBy: { connect: { id: vic.id } },
   });
   const mB1 = await ensureMilestone(cookie, projB.id, 'UI Design Prototype', {
     status: 'not_started',
@@ -213,7 +216,7 @@ async function ensureInvitationToken(cookie, { invitationId, tokenHash, role, op
   console.log('✅ Milestones ready');
 
   await createActivity(cookie, projA.id, mA1.id, andrew.id, 'not_started', 'completed');
-  await createActivity(cookie, projA.id, mA2.id, val.id,    'not_started', 'in_progress');
+  await createActivity(cookie, projA.id, mA2.id, vic.id,    'not_started', 'in_progress');
   console.log('✅ Activity logs added');
 
   const invA = await ensureProjectInvitation(cookie, { email:'invite+students@example.com', projectId:projA.id, userId:kate.id });
