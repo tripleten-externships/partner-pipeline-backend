@@ -8,10 +8,10 @@ export const sendInvitationEmail = async (req: Request, res: Response, context: 
 
     const transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST, //smtp.gmail.com for gmail, use whatever tripleten.com uses
-      port: Number(process.env.SMTP_PORT),// 587
+      port: Number(process.env.SMTP_PORT), // 587
       auth: {
         user: process.env.SMTP_USER, // hello@tripleten.com
-        pass: process.env.SMTP_PASS,  // idk wasn't given
+        pass: process.env.SMTP_PASS, // idk wasn't given
       },
     });
 
