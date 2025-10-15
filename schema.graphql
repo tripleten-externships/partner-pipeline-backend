@@ -9,6 +9,7 @@ type User {
   role: String
   isAdmin: Boolean
   createdAt: DateTime
+  project: String
   isActive: Boolean
   lastLoginDate: DateTime
   activityLogs(where: ActivityLogWhereInput! = {}, orderBy: [ActivityLogOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ActivityLogWhereUniqueInput): [ActivityLog!]
@@ -39,6 +40,7 @@ input UserWhereInput {
   role: StringNullableFilter
   isAdmin: BooleanFilter
   createdAt: DateTimeNullableFilter
+  project: StringFilter
   isActive: BooleanFilter
   lastLoginDate: DateTimeNullableFilter
   activityLogs: ActivityLogManyRelationFilter
@@ -134,6 +136,7 @@ input UserOrderByInput {
   role: OrderDirection
   isAdmin: OrderDirection
   createdAt: OrderDirection
+  project: OrderDirection
   isActive: OrderDirection
   lastLoginDate: OrderDirection
 }
@@ -150,6 +153,7 @@ input UserUpdateInput {
   role: String
   isAdmin: Boolean
   createdAt: DateTime
+  project: String
   isActive: Boolean
   lastLoginDate: DateTime
   activityLogs: ActivityLogRelateToManyForUpdateInput
@@ -189,6 +193,7 @@ input UserCreateInput {
   role: String
   isAdmin: Boolean
   createdAt: DateTime
+  project: String
   isActive: Boolean
   lastLoginDate: DateTime
   activityLogs: ActivityLogRelateToManyForCreateInput
@@ -660,7 +665,7 @@ input InvitationTokenWhereInput {
   id: IDFilter
   tokenHash: StringFilter
   project: ProjectInvitationWhereInput
-  roleToGrant: StringFilter
+  roleToGrant: StringNullableFilter
   expiresAt: DateTimeFilter
   maxUses: IntNullableFilter
   usedCount: IntNullableFilter
