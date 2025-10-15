@@ -47,8 +47,6 @@ model UserLog {
 model Project {
   id                      String              @id @default(uuid())
   name                    String              @default("")
-  subtitle                String              @default("")
-  status                  String              @default("")
   createdAt               DateTime?           @default(now())
   project                 String              @default("")
   isActive                Boolean             @default(false)

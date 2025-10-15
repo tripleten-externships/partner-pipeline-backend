@@ -275,8 +275,6 @@ input UserRelateToOneForCreateInput {
 type Project {
   id: ID!
   name: String
-  subtitle: String
-  status: String
   createdAt: DateTime
   project: String
   isActive: Boolean
@@ -301,8 +299,6 @@ input ProjectWhereInput {
   NOT: [ProjectWhereInput!]
   id: IDFilter
   name: StringFilter
-  subtitle: StringFilter
-  status: StringFilter
   createdAt: DateTimeNullableFilter
   project: StringFilter
   isActive: BooleanFilter
@@ -328,8 +324,6 @@ input MilestoneManyRelationFilter {
 input ProjectOrderByInput {
   id: OrderDirection
   name: OrderDirection
-  subtitle: OrderDirection
-  status: OrderDirection
   createdAt: OrderDirection
   project: OrderDirection
   isActive: OrderDirection
@@ -338,8 +332,6 @@ input ProjectOrderByInput {
 
 input ProjectUpdateInput {
   name: String
-  subtitle: String
-  status: String
   createdAt: DateTime
   project: String
   isActive: Boolean
@@ -371,8 +363,6 @@ input ProjectUpdateArgs {
 
 input ProjectCreateInput {
   name: String
-  subtitle: String
-  status: String
   createdAt: DateTime
   project: String
   isActive: Boolean

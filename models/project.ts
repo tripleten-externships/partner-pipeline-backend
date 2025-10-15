@@ -29,6 +29,7 @@ export const Project: ListConfig<Lists.Project.TypeInfo<any>> = list({
   },
   fields: {
     name: text({ validation: { isRequired: true } }),
+    // Field added for front-end display purposes
     subtitle: text(),
     status: text(),
     createdAt: timestamp({
