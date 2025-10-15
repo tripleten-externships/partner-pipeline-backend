@@ -19,6 +19,7 @@ model User {
   role                           String?             @default("Student")
   isAdmin                        Boolean             @default(true)
   createdAt                      DateTime?           @default(now())
+  project                        String              @default("")
   isActive                       Boolean             @default(false)
   lastLoginDate                  DateTime?           @default(now())
   activityLogs                   ActivityLog[]       @relation("ActivityLog_updatedBy")
@@ -125,7 +126,7 @@ model InvitationToken {
   tokenHash   String             @unique @default("")
   project     ProjectInvitation? @relation("InvitationToken_project", fields: [projectId], references: [id])
   projectId   String?            @map("project")
-  roleToGrant String             @default("Student")
+  roleToGrant String?            @default("Student")
   expiresAt   DateTime
   maxUses     Int?               @default(1)
   usedCount   Int?               @default(0)
