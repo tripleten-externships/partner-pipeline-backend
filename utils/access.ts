@@ -2,12 +2,13 @@ type Session = {
   data: {
     role?: string;
     id: string;
-    project?: string;
+    project?: string; // (slug or name you store on the User)
   };
 };
 
 export const isSignedIn = ({ session }: { session?: Session }) => !!session;
 
+// Granular helpers
 export const permissions = {
   // isStudent: ({ session }: { session?: Session }) => session?.data.role === "Student",
 
@@ -22,7 +23,7 @@ export const permissions = {
   //["Admin", "Lead Mentor", "Project Mentor"].includes(session?.data.role ?? ""),
   //isProjectMember: ({ session }: { session?: Session }) => session?.data.project === "",
 
-  // UNCOMMENT FOR TESTING PURPOSES
+  // UNCOMMENT FOR SEEDING PURPOSES
 
   isStudent: () => true,
   isProjectMentor: () => true,

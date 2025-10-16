@@ -27,10 +27,8 @@ export const User: ListConfig<Lists.User.TypeInfo<any>> = list({
       query: ({ session }) => {
         if (process.env.NODE_ENV !== "production") return true;
         if (permissions.isAdminLike({ session })) return true;
-        if (permissions.isStudent({ session })) {
-          return { id: { equals: session?.data?.id } };
-        }
-        return false;
+        // everyone else (students, mentors, partners) → only themselves
+        return { id: { equals: session?.data?.id } };
       },
     },
     item: {
@@ -65,6 +63,7 @@ export const User: ListConfig<Lists.User.TypeInfo<any>> = list({
     }),
     isAdmin: checkbox({ defaultValue: true }),
     createdAt: timestamp({ defaultValue: { kind: "now" } }),
+    project: text({ validation: { isRequired: true } }),
     isActive: checkbox({ defaultValue: false }),
     lastLoginDate: timestamp({ defaultValue: { kind: "now" } }),
     activityLogs: relationship({ ref: "ActivityLog.updatedBy", many: true }),
