@@ -1,9 +1,8 @@
 import dotenv from "dotenv";
-import { config } from "@keystone-6/core";
-import { lists } from "./models";
-
 dotenv.config();
 
+import { config } from "@keystone-6/core";
+import { lists } from "./models";
 import expressSession from "express-session";
 import { keystoneSession } from "./config/keystoneSession";
 import { withAuth } from "./auth";
@@ -13,6 +12,11 @@ import { setupPassport, passport } from "./config/passport";
 import { createMilestoneRouter } from "./routes/milestoneDataRoutes";
 import { createActivityLogRouter } from "./routes/activityLogRoute";
 import { createInvitationsRouter } from "./routes/invitationsRoute";
+import { sendReminder } from "./controllers/reminderController";
+
+import express from "express";
+
+const { graphqlUploadExpress } = require("graphql-upload");
 import { acceptInvitationSchema } from "./graphql/acceptInvitation";
 
 export default withAuth(
@@ -25,9 +29,19 @@ export default withAuth(
         credentials: true,
       },
       extendExpressApp: (app, commonContext) => {
-        // bypass for dev testing
+        // 🔁 Apply graphql-upload middleware conditionally
+        app.use((req, res, next) => {
+          if (req.path === "/api/graphql") {
+            graphqlUploadExpress({ maxFileSize: 10000000, maxFiles: 10 })(req, res, next);
+          } else {
+            next();
+          }
+        });
+
+        // 🛡️ Setup Passport strategies
         setupPassport();
 
+        // 🧠 Session middleware
         app.use(
           expressSession({
             secret: process.env.SESSION_SECRET!,
@@ -37,22 +51,45 @@ export default withAuth(
           })
         );
 
+        // 🧭 Passport middleware
         app.use(passport.initialize());
         app.use(passport.session());
 
+        // 📦 Optional: JSON body parsing (comment out if Keystone handles it internally)
+        // app.use(express.json());
+
+        // ✅ Health check route
         app.get("/api/_root_health", (_req, res) => res.send("ok-root"));
 
+        // 🔐 Auth routes
         app.use(authRoutes);
-        // milestone api endpoint with keystone context
+
+        // 🧩 Keystone context-aware routes
         app.use(createMilestoneRouter(commonContext));
-        // activity log api endpoint with keystone context
         app.use(createActivityLogRouter(commonContext));
         app.use(createInvitationsRouter(commonContext));
+
+        // ⏰ Reminder API
+        app.post("/api/send", express.json(), async (req, res) => {
+          const context = await commonContext.withRequest(req, res);
+
+          // ✅ Bypass session check for public access
+          if (!context.session) {
+            console.log("⚠️ No session found — allowing public access to /api/send");
+          }
+
+          await sendReminder(req, res, context);
+        });
+
+        app.get("/api/test", (_req, res) => {
+          console.log("✅ /api/test route hit");
+          res.send("Test route working");
+        });
       },
     },
     db: {
       provider: "mysql",
-      url: `mysql://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:3306/${process.env.DB_NAME}`,
+      url: `mysql://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`,
       enableLogging: true,
       idField: { kind: "uuid" },
     },

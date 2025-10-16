@@ -7,6 +7,8 @@ type User {
   email: String
   password: PasswordState
   role: String
+  reminder_count: Int
+  status: String
   isAdmin: Boolean
   createdAt: DateTime
   project: String
@@ -38,6 +40,8 @@ input UserWhereInput {
   name: StringFilter
   email: StringFilter
   role: StringNullableFilter
+  reminder_count: IntNullableFilter
+  status: StringNullableFilter
   isAdmin: BooleanFilter
   createdAt: DateTimeNullableFilter
   project: StringFilter
@@ -101,6 +105,17 @@ input StringNullableFilter {
   not: StringNullableFilter
 }
 
+input IntNullableFilter {
+  equals: Int
+  in: [Int!]
+  notIn: [Int!]
+  lt: Int
+  lte: Int
+  gt: Int
+  gte: Int
+  not: IntNullableFilter
+}
+
 input BooleanFilter {
   equals: Boolean
   not: BooleanFilter
@@ -134,6 +149,8 @@ input UserOrderByInput {
   name: OrderDirection
   email: OrderDirection
   role: OrderDirection
+  reminder_count: OrderDirection
+  status: OrderDirection
   isAdmin: OrderDirection
   createdAt: OrderDirection
   project: OrderDirection
@@ -151,6 +168,8 @@ input UserUpdateInput {
   email: String
   password: String
   role: String
+  reminder_count: Int
+  status: String
   isAdmin: Boolean
   createdAt: DateTime
   project: String
@@ -191,6 +210,8 @@ input UserCreateInput {
   email: String
   password: String
   role: String
+  reminder_count: Int
+  status: String
   isAdmin: Boolean
   createdAt: DateTime
   project: String
@@ -683,17 +704,6 @@ input DateTimeFilter {
   gt: DateTime
   gte: DateTime
   not: DateTimeFilter
-}
-
-input IntNullableFilter {
-  equals: Int
-  in: [Int!]
-  notIn: [Int!]
-  lt: Int
-  lte: Int
-  gt: Int
-  gte: Int
-  not: IntNullableFilter
 }
 
 input InvitationTokenOrderByInput {

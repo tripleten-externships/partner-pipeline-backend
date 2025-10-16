@@ -6,6 +6,7 @@ import {
   text,
   password,
   timestamp,
+  integer,
   select,
   relationship,
   json,
@@ -16,7 +17,7 @@ import { permissions, isSignedIn } from "../utils/access";
 export const User: ListConfig<Lists.User.TypeInfo<any>> = list({
   access: {
     operation: {
-      query: ({ session }) => isSignedIn({ session }),
+      query: () => true,
       create: ({ session }) => permissions.isAdminLike({ session }),
       update: ({ session }) =>
         permissions.isAdminLike({ session }) || permissions.isStudent({ session }),
@@ -24,6 +25,7 @@ export const User: ListConfig<Lists.User.TypeInfo<any>> = list({
     },
     filter: {
       query: ({ session }) => {
+        if (process.env.NODE_ENV !== "production") return true;
         if (permissions.isAdminLike({ session })) return true;
         // everyone else (students, mentors, partners) → only themselves
         return { id: { equals: session?.data?.id } };
@@ -37,10 +39,7 @@ export const User: ListConfig<Lists.User.TypeInfo<any>> = list({
   },
   fields: {
     name: text({ validation: { isRequired: true } }),
-    email: text({
-      validation: { isRequired: true },
-      isIndexed: "unique",
-    }),
+    email: text({ validation: { isRequired: true }, isIndexed: "unique" }),
     password: password({
       validation: {
         length: { min: 10, max: 100 },
@@ -52,22 +51,62 @@ export const User: ListConfig<Lists.User.TypeInfo<any>> = list({
     role: select({
       options: UserRoleValues.map((value) => ({ label: value, value })),
       defaultValue: "Student",
-      //  validation: { isRequired: true },
+    }),
+    reminder_count: integer({ defaultValue: 0 }),
+    status: select({
+      options: [
+        { label: "Active", value: "Active" },
+        { label: "Unresponsive", value: "Unresponsive" },
+      ],
+      defaultValue: "Active",
+      ui: { displayMode: "segmented-control" },
     }),
     isAdmin: checkbox({ defaultValue: true }),
-    createdAt: timestamp({
-      defaultValue: { kind: "now" },
-    }),
+    createdAt: timestamp({ defaultValue: { kind: "now" } }),
     project: text({ validation: { isRequired: true } }),
     isActive: checkbox({ defaultValue: false }),
-    lastLoginDate: timestamp({
-      defaultValue: { kind: "now" },
-    }),
-    activityLogs: relationship({ ref: "ActivityLog.updatedBy", many: true }), // backlink for all Activitylog.updatedBy entries
+    lastLoginDate: timestamp({ defaultValue: { kind: "now" } }),
+    activityLogs: relationship({ ref: "ActivityLog.updatedBy", many: true }),
     projects: relationship({ ref: "Project.members" }),
-    invitation: relationship({ ref: "ProjectInvitation.user", many: true }), // <-- NEW FIELD
+    invitation: relationship({ ref: "ProjectInvitation.user", many: true }),
   },
   hooks: {
+    resolveInput: async (args: {
+      resolvedData: Record<string, any>;
+      operation: "create" | "update";
+      existingItem?: Record<string, any>;
+    }) => {
+      const { resolvedData, operation } = args;
+
+      let incomingCount = 0;
+
+      if (typeof resolvedData.reminder_count === "number") {
+        incomingCount = resolvedData.reminder_count;
+      } else if (
+        resolvedData.reminder_count &&
+        typeof resolvedData.reminder_count.set === "number"
+      ) {
+        incomingCount = resolvedData.reminder_count.set;
+      }
+
+      let currentCount = 0;
+
+      if (operation === "update" && args.existingItem) {
+        currentCount = args.existingItem.reminder_count || 0;
+      }
+
+      const newCount = currentCount + incomingCount;
+
+      // Flip status based on newCount
+      if (newCount > 2) {
+        resolvedData.status = "Unresponsive";
+      } else {
+        resolvedData.status = "Active";
+      }
+
+      return resolvedData;
+    },
+
     async afterOperation({ operation, item, originalItem, context }) {
       if (operation === "create" || operation === "update" || operation === "delete") {
         await context.db.UserLog.createOne({
@@ -96,8 +135,8 @@ export const UserLog: ListConfig<Lists.UserLog.TypeInfo<any>> = list({
     operation: {
       query: ({ session }) => !!session && session.data.isAdmin,
       create: () => true,
-      update: () => false,
-      delete: () => false,
+      update: () => true,
+      delete: () => true,
     },
   },
 });
