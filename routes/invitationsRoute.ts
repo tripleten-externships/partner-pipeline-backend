@@ -43,5 +43,36 @@ export function createInvitationsRouter(commonContext: Context) {
     }
   });
 
+  // router.post("/api/projects/:projectId/invitationTokens/send", async (req, res) => {
+  //   const context = await commonContext.withRequest(req, res);
+  //   if (!context) return res.status(500).send("Failed to get context");
+
+  //   const session = (context.session as any)?.data as { id: string; isAdmin?: boolean } | undefined;
+  //   if (!session?.isAdmin) return res.status(403).send("Not authorized");
+
+  //   const { email } = req.body ?? {};
+  //   if (!email) return res.status(400).send("Email is required");
+
+  //   try {
+  //     // Find the invitation token for the project and email
+  //     const token = await context.db.InvitationToken.findFirst({
+  //       where: {
+  //         project: { id: req.params.projectId },
+  //         email,
+  //       },
+  //     });
+
+  //     if (!token) return res.status(404).send("Invitation token not found");
+
+  //     // Send the invitation email (implementation not shown)
+  //     await sendInvitationEmail(email, token);
+
+  //     res.send("Invitation email sent");
+  //   } catch (err: any) {
+  //     console.error(err);
+  //     res.status(500).send(err?.message || "Failed to send invitation");
+  //   }
+  // });
+
   return router;
 }
