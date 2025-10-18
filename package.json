@@ -29,6 +29,7 @@
     "graphql-upload": "^13.0.0",
     "keystone": "^0.3.22",
     "lodash": "^4.17.21",
+    "nodemailer": "^7.0.9",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0"
   },
@@ -38,6 +39,7 @@
     "@types/express-session": "^1.18.2",
     "@types/graphql-upload": "^17.0.0",
     "@types/jest": "^30.0.0",
+    "@types/nodemailer": "^7.0.2",
     "@types/passport": "^1.0.17",
     "@types/passport-google-oauth20": "^2.0.16",
     "axios": "^1.6.2",
