@@ -12,12 +12,13 @@ import { setupPassport, passport } from "./config/passport";
 import { createMilestoneRouter } from "./routes/milestoneDataRoutes";
 import { createActivityLogRouter } from "./routes/activityLogRoute";
 import { createInvitationsRouter } from "./routes/invitationsRoute";
+import { createCsvImportRouter } from "./routes/csvImportRoute"; // ✅ Add this import
+
 import { sendReminder } from "./controllers/reminderController";
 
 import express from "express";
 
 const { graphqlUploadExpress } = require("graphql-upload");
-import { acceptInvitationSchema } from "./graphql/acceptInvitation";
 
 export default withAuth(
   config({
@@ -68,6 +69,7 @@ export default withAuth(
         app.use(createMilestoneRouter(commonContext));
         app.use(createActivityLogRouter(commonContext));
         app.use(createInvitationsRouter(commonContext));
+        app.use(createCsvImportRouter(commonContext)); // ✅ Add this line
 
         // ⏰ Reminder API
         app.post("/api/send", express.json(), async (req, res) => {

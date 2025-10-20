@@ -803,6 +803,57 @@ input InvitationTokenLogCreateInput {
   timestamp: DateTime
 }
 
+type WaitlistEntry {
+  id: ID!
+  name: String
+  email: String
+  status: String
+  createdAt: DateTime
+}
+
+input WaitlistEntryWhereUniqueInput {
+  id: ID
+  email: String
+}
+
+input WaitlistEntryWhereInput {
+  AND: [WaitlistEntryWhereInput!]
+  OR: [WaitlistEntryWhereInput!]
+  NOT: [WaitlistEntryWhereInput!]
+  id: IDFilter
+  name: StringFilter
+  email: StringFilter
+  status: StringNullableFilter
+  createdAt: DateTimeNullableFilter
+}
+
+input WaitlistEntryOrderByInput {
+  id: OrderDirection
+  name: OrderDirection
+  email: OrderDirection
+  status: OrderDirection
+  createdAt: OrderDirection
+}
+
+input WaitlistEntryUpdateInput {
+  name: String
+  email: String
+  status: String
+  createdAt: DateTime
+}
+
+input WaitlistEntryUpdateArgs {
+  where: WaitlistEntryWhereUniqueInput!
+  data: WaitlistEntryUpdateInput!
+}
+
+input WaitlistEntryCreateInput {
+  name: String
+  email: String
+  status: String
+  createdAt: DateTime
+}
+
 """
 The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
 """
@@ -863,6 +914,12 @@ type Mutation {
   updateInvitationTokenLogs(data: [InvitationTokenLogUpdateArgs!]!): [InvitationTokenLog]
   deleteInvitationTokenLog(where: InvitationTokenLogWhereUniqueInput!): InvitationTokenLog
   deleteInvitationTokenLogs(where: [InvitationTokenLogWhereUniqueInput!]!): [InvitationTokenLog]
+  createWaitlistEntry(data: WaitlistEntryCreateInput!): WaitlistEntry
+  createWaitlistEntries(data: [WaitlistEntryCreateInput!]!): [WaitlistEntry]
+  updateWaitlistEntry(where: WaitlistEntryWhereUniqueInput!, data: WaitlistEntryUpdateInput!): WaitlistEntry
+  updateWaitlistEntries(data: [WaitlistEntryUpdateArgs!]!): [WaitlistEntry]
+  deleteWaitlistEntry(where: WaitlistEntryWhereUniqueInput!): WaitlistEntry
+  deleteWaitlistEntries(where: [WaitlistEntryWhereUniqueInput!]!): [WaitlistEntry]
   endSession: Boolean!
   authenticateUserWithPassword(email: String!, password: String!): UserAuthenticationWithPasswordResult
   createInitialUser(data: CreateInitialUserInput!): UserAuthenticationWithPasswordSuccess!
@@ -913,6 +970,9 @@ type Query {
   invitationTokenLog(where: InvitationTokenLogWhereUniqueInput!): InvitationTokenLog
   invitationTokenLogs(where: InvitationTokenLogWhereInput! = {}, orderBy: [InvitationTokenLogOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: InvitationTokenLogWhereUniqueInput): [InvitationTokenLog!]
   invitationTokenLogsCount(where: InvitationTokenLogWhereInput! = {}): Int
+  waitlistEntry(where: WaitlistEntryWhereUniqueInput!): WaitlistEntry
+  waitlistEntries(where: WaitlistEntryWhereInput! = {}, orderBy: [WaitlistEntryOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: WaitlistEntryWhereUniqueInput): [WaitlistEntry!]
+  waitlistEntriesCount(where: WaitlistEntryWhereInput! = {}): Int
   keystone: KeystoneMeta!
   authenticatedItem: AuthenticatedItem
 }
