@@ -10,7 +10,6 @@ export function createInvitationsRouter(commonContext: Context) {
 
   router.get("/api/_invites/health", (_req, res) => res.send("ok-invites"));
 
-  
   router.post("/api/projects/:projectId/invitationTokens", async (req, res) => {
     const context = await commonContext.withRequest(req, res);
     if (!context) return res.status(500).send("Failed to get context");
@@ -51,23 +50,30 @@ export function createInvitationsRouter(commonContext: Context) {
     const session = (context.session as any)?.data as { id: string; isAdmin?: boolean } | undefined;
     if (!session?.isAdmin) return res.status(403).send("Not authorized");
 
-    const { roleToGrant = "Student", expiresAt, maxUses = 1, createdBy, notes = "", studentId = "" } = req.body ?? {};
+    const {
+      roleToGrant = "Student",
+      expiresAt,
+      maxUses = 1,
+      createdBy,
+      notes = "",
+      studentId = "",
+    } = req.body ?? {};
     if (!expiresAt) return res.status(400).send("expiresAt is required");
 
-    const student_record =  await context.db.User.findMany({
-          where: {
-            id: { equals: studentId },
-          },
-        });
+    const student_record = await context.db.User.findMany({
+      where: {
+        id: { equals: studentId },
+      },
+    });
 
     const studentName = student_record[0]?.name ?? "Student";
     const studentEmail = student_record[0]?.email ?? "";
 
-    const sender_record =  await context.db.User.findMany({
-          where: {
-            id: { equals: session?.id },
-          },
-        });
+    const sender_record = await context.db.User.findMany({
+      where: {
+        id: { equals: session?.id },
+      },
+    });
 
     const senderName = sender_record[0]?.name ?? "Sender";
     const senderEmail = sender_record[0]?.email ?? "";
@@ -78,13 +84,13 @@ export function createInvitationsRouter(commonContext: Context) {
 
       const records = await context.db.InvitationToken.findMany({
         where: {
-          project: { id: { equals: req.params.projectId } }
+          project: { id: { equals: req.params.projectId } },
         },
-        orderBy: { expiresAt: 'desc' },
-        take: 1
+        orderBy: { expiresAt: "desc" },
+        take: 1,
       });
 
-  const record = records[0] ?? null;
+      const record = records[0] ?? null;
 
       const canUpdate =
         !!record &&
@@ -100,24 +106,17 @@ export function createInvitationsRouter(commonContext: Context) {
             usedCount: usedCount + 1,
           },
         });
-      
+
         if (studentEmail && senderEmail && record?.tokenHash) {
-          await inviteEmail(
-            studentName,
-            studentEmail,
-            senderName,
-            senderEmail,
-            record.tokenHash
-          );
-          
+          await inviteEmail(studentName, studentEmail, senderName, senderEmail, record.tokenHash);
         }
         const createdProjectInvitation = await context.db.ProjectInvitation.createOne({
-        data: {
-          email: studentEmail,
-          user: { connect: { id: studentId } },
-          project: { connect: { id: req.params.projectId } },
-        },
-      });
+          data: {
+            email: studentEmail,
+            user: { connect: { id: studentId } },
+            project: { connect: { id: req.params.projectId } },
+          },
+        });
         return res.json({ message: "Invitation token updated", tokenId: record!.id });
       }
 
@@ -142,22 +141,15 @@ export function createInvitationsRouter(commonContext: Context) {
           project: { connect: { id: req.params.projectId } },
         },
       });
-      
+
       if (studentEmail && senderEmail && created?.tokenHash) {
-        await inviteEmail(
-          studentName,
-          studentEmail,
-          senderName,
-          senderEmail,
-          created.tokenHash
-        );
+        await inviteEmail(studentName, studentEmail, senderName, senderEmail, created.tokenHash);
       }
       return res.json({ message: "New invitation token created", tokenId: created.id });
     } catch (err: any) {
       console.error(err);
       res.status(500).send(err?.message || "Failed to process invitation");
     }
-
   });
 
   return router;
