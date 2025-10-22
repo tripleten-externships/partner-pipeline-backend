@@ -143,3 +143,20 @@ model InvitationTokenLog {
   after     Json?
   timestamp DateTime? @default(now())
 }
+
+model Waitlist {
+  id        String              @id @default(uuid())
+  email     String              @unique @default("")
+  name      String              @default("")
+  status    WaitlistStatusType? @default(PENDING)
+  source    String              @default("")
+  notes     String              @default("")
+  createdAt DateTime?           @default(now())
+}
+
+enum WaitlistStatusType {
+  PENDING
+  CONTACTED
+  INVITED
+  JOINED
+}
