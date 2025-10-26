@@ -10,7 +10,7 @@ export const lists = {
   UserLog,
   Project,
   ProjectLog,
-  ProjectInvitation, // <-- Added field
+  ProjectInvitation,
   Milestone,
   ActivityLog,
   InvitationToken,
