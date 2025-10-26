@@ -1,2 +1,0 @@
--- AlterTable
-ALTER TABLE `user` ADD COLUMN `project` VARCHAR(191) NOT NULL DEFAULT '';

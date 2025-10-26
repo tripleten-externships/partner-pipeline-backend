@@ -3,7 +3,7 @@ import { Project, ProjectLog, ProjectInvitation } from "./project";
 import { Milestone } from "./milestone";
 import { ActivityLog } from "./activityLog";
 import { InvitationToken, InvitationTokenLog } from "./invitationToken";
-import { waitListStudent } from "./waitListStudent";
+import { WaitlistEntry } from "./WaitlistEntry"; // Add this import
 
 export const lists = {
   User,
@@ -15,5 +15,5 @@ export const lists = {
   ActivityLog,
   InvitationToken,
   InvitationTokenLog,
-  waitListStudent,
+  WaitlistEntry, // Added this
 };

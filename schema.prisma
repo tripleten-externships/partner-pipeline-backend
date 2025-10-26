@@ -17,6 +17,8 @@ model User {
   email                          String              @unique @default("")
   password                       String
   role                           String?             @default("Student")
+  reminder_count                 Int?                @default(0)
+  status                         String?             @default("Active")
   isAdmin                        Boolean             @default(true)
   createdAt                      DateTime?           @default(now())
   project                        String              @default("")
@@ -145,11 +147,10 @@ model InvitationTokenLog {
   timestamp DateTime? @default(now())
 }
 
-model waitListStudent {
-  id           String    @id @default(uuid())
-  name         String    @default("")
-  email        String    @unique @default("")
-  status       String?   @default("pending")
-  inviteSentAt DateTime?
-  createdAt    DateTime? @default(now())
+model WaitlistEntry {
+  id        String    @id @default(uuid())
+  name      String    @default("")
+  email     String    @unique @default("")
+  status    String?   @default("pending")
+  createdAt DateTime? @default(now())
 }
