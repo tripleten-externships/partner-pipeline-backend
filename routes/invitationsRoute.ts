@@ -37,7 +37,7 @@ export function createInvitationsRouter(commonContext: Context) {
         },
       });
 
-      await sendInvitationEmail(req, res, context, rawToken);
+      await sendInvitationEmail(req, res, rawToken);
 
       res.json({ id: created.id, token: rawToken });
     } catch (err: any) {
