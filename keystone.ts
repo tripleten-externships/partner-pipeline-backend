@@ -3,12 +3,12 @@ dotenv.config();
 
 import { config } from "@keystone-6/core";
 import { lists } from "./models";
-import expressSession from "express-session";
+//import expressSession from "express-session";
 import { keystoneSession } from "./config/keystoneSession";
 import { withAuth } from "./auth";
 import * as Models from "./models";
 import authRoutes from "./routes/authRoutes";
-import { setupPassport, passport } from "./config/passport";
+//import { setupPassport, passport } from "./config/passport";
 import { createMilestoneRouter } from "./routes/milestoneDataRoutes";
 import { createActivityLogRouter } from "./routes/activityLogRoute";
 import { createInvitationsRouter } from "./routes/invitationsRoute";
@@ -22,73 +22,52 @@ const { graphqlUploadExpress } = require("graphql-upload");
 
 export default withAuth(
   config({
-    server: {
-      port: 8080,
-      cors: {
-        origin: ["http://localhost:3000"],
-        methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-        credentials: true,
-      },
-      extendExpressApp: (app, commonContext) => {
-        // 🔁 Apply graphql-upload middleware conditionally
-        app.use((req, res, next) => {
-          if (req.path === "/api/graphql") {
-            graphqlUploadExpress({ maxFileSize: 10000000, maxFiles: 10 })(req, res, next);
-          } else {
-            next();
-          }
-        });
+   server: {
+  port: 4000,
+  cors: {
+    origin: ["http://localhost:3000"],
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    credentials: true,
+  },
+extendExpressApp: (app, commonContext) => {
+  // ✅ GraphQL upload middleware — must come first
+  app.use((req, res, next) => {
+    if (req.path === "/api/graphql") {
+      graphqlUploadExpress({ maxFileSize: 10000000, maxFiles: 10 })(req, res, next);
+    } else {
+      next();
+    }
+  });
 
-        // 🛡️ Setup Passport strategies
-        setupPassport();
+  // ✅ Create a scoped router for /api
+  const apiRouter = express.Router();
 
-        // 🧠 Session middleware
-        app.use(
-          expressSession({
-            secret: process.env.SESSION_SECRET!,
-            resave: false,
-            saveUninitialized: false,
-            cookie: { secure: false }, // Set to true if using HTTPS
-          })
-        );
+  // ✅ Mount your custom routers
+  apiRouter.use("/invitations", createInvitationsRouter(commonContext));
+  apiRouter.use("/projects", createInvitationsRouter(commonContext));
+  apiRouter.use("/milestones", createMilestoneRouter(commonContext));
+  apiRouter.use("/activity", createActivityLogRouter(commonContext));
+  apiRouter.use("/import", createCsvImportRouter(commonContext));
 
-        // 🧭 Passport middleware
-        app.use(passport.initialize());
-        app.use(passport.session());
+  // ✅ Mount the /api router once
+  app.use("/api", apiRouter);
 
-        // 📦 Optional: JSON body parsing (comment out if Keystone handles it internally)
-        // app.use(express.json());
+  // ✅ Keystone Auth routes
+  app.use(authRoutes);
 
-        // ✅ Health check route
-        app.get("/api/_root_health", (_req, res) => res.send("ok-root"));
-
-        // 🔐 Auth routes
-        app.use(authRoutes);
-
-        // 🧩 Keystone context-aware routes
-        app.use(createMilestoneRouter(commonContext));
-        app.use(createActivityLogRouter(commonContext));
-        app.use(createInvitationsRouter(commonContext));
-        app.use(createCsvImportRouter(commonContext)); // ✅ Add this line
-
-        // ⏰ Reminder API
-        app.post("/api/send", express.json(), async (req, res) => {
-          const context = await commonContext.withRequest(req, res);
-
-          // ✅ Bypass session check for public access
-          if (!context.session) {
-            console.log("⚠️ No session found — allowing public access to /api/send");
-          }
-
-          await sendReminder(req, res, context);
-        });
-
-        app.get("/api/test", (_req, res) => {
-          console.log("✅ /api/test route hit");
-          res.send("Test route working");
-        });
-      },
-    },
+  // ✅ Custom endpoints
+  apiRouter.post("/test", (req, res) => {
+  console.log("Received test request:", req.body);
+  res.json({ message: "Backend is working!" });
+});
+  app.get("/api/_root_health", (_req, res) => res.send("ok-root"));
+  app.get("/api/test", (_req, res) => res.send("Test route working"));
+  app.post("/api/send", async (req, res) => {
+    const context = await commonContext.withRequest(req, res);
+    await sendReminder(context.req, res, context);
+  });
+},
+   },
     db: {
       provider: "mysql",
       url: `mysql://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`,
