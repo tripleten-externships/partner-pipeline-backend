@@ -8,7 +8,7 @@ import type { Request } from "express";
 
 export function createInvitationsRouter(commonContext: Context) {
   const router = express.Router();
-  router.use(express.json()); 
+  router.use(express.json());
 
   // Health check
   router.get("/api/_invites/health", (_req, res) => res.send("ok-invites"));
@@ -18,7 +18,6 @@ export function createInvitationsRouter(commonContext: Context) {
     const context = await commonContext.withRequest(req, res);
     const session = (context.session as any)?.data;
     const body = (context.req as Request).body;
-
 
     if (!session?.isAdmin) return res.status(403).send("Not authorized");
     //console.log("Session:", session);
@@ -56,34 +55,34 @@ export function createInvitationsRouter(commonContext: Context) {
   });
 
   // Create or update invitation and send email
- router.post("/api/projects/:projectId/invitation", async (req, res) => {
-  const context = await commonContext.withRequest(req, res);
-  const session = (context.session as any)?.data;
+  router.post("/api/projects/:projectId/invitation", async (req, res) => {
+    const context = await commonContext.withRequest(req, res);
+    const session = (context.session as any)?.data;
 
-const body = ((context.req as Request)?.body ?? {}) as {
-    roleToGrant?: string;
-    expiresAt?: string;
-    maxUses?: number;
-    notes?: string;
-    studentId?: string;
-    token?: string;
-  };
+    const body = ((context.req as Request)?.body ?? {}) as {
+      roleToGrant?: string;
+      expiresAt?: string;
+      maxUses?: number;
+      notes?: string;
+      studentId?: string;
+      token?: string;
+    };
 
-  if (!session?.isAdmin) return res.status(403).send("Not authorized");
+    if (!session?.isAdmin) return res.status(403).send("Not authorized");
 
-  const {
-    roleToGrant = "Student",
-    expiresAt,
-    maxUses = 1,
-    notes = "",
-    studentId = "",
-    token,
-  } = body;
+    const {
+      roleToGrant = "Student",
+      expiresAt,
+      maxUses = 1,
+      notes = "",
+      studentId = "",
+      token,
+    } = body;
 
-  console.log("expiresAt received:", expiresAt);
-  if (!expiresAt || isNaN(Date.parse(expiresAt))) {
-    return res.status(400).send("expiresAt is required and must be valid");
-  }
+    console.log("expiresAt received:", expiresAt);
+    if (!expiresAt || isNaN(Date.parse(expiresAt))) {
+      return res.status(400).send("expiresAt is required and must be valid");
+    }
     const expirationDate = new Date(expiresAt);
     const currentDate = new Date();
 
@@ -148,81 +147,84 @@ const body = ((context.req as Request)?.body ?? {}) as {
         await inviteEmail(studentName, studentEmail, senderName, senderEmail, tokenHash);
       }
 
-      res.json({ message: canUpdate ? "Invitation token updated" : "New invitation token created", tokenId });
+      res.json({
+        message: canUpdate ? "Invitation token updated" : "New invitation token created",
+        tokenId,
+      });
     } catch (err: any) {
       console.error(err);
       res.status(500).send(err?.message || "Failed to process invitation");
     }
   });
 
- // Accept invitation
-router.post("/accept", async (req, res) => {
-  const context = await commonContext.withRequest(req, res);
-  const session = (context.session as any)?.data;
-  const { token } = (context.req as Request)?.body ?? {};
+  // Accept invitation
+  router.post("/accept", async (req, res) => {
+    const context = await commonContext.withRequest(req, res);
+    const session = (context.session as any)?.data;
+    const { token } = (context.req as Request)?.body ?? {};
 
-  //console.log("Session:", session);
-  //console.log("Token received:", token);
+    //console.log("Session:", session);
+    //console.log("Token received:", token);
 
-  if (!session?.id) return res.status(401).send("Not authenticated");
-  if (!token) return res.status(400).send("Missing token");
+    if (!session?.id) return res.status(401).send("Not authenticated");
+    if (!token) return res.status(400).send("Missing token");
 
-  try {
-    // Fetch all non-expired tokens
-    const tokens = await context.db.InvitationToken.findMany({
-      where: {
-        expiresAt: { gt: new Date().toISOString() },
-        revoked: { equals: false },
-      },
-    });
+    try {
+      // Fetch all non-expired tokens
+      const tokens = await context.db.InvitationToken.findMany({
+        where: {
+          expiresAt: { gt: new Date().toISOString() },
+          revoked: { equals: false },
+        },
+      });
 
-    //console.log("Fetched tokens:", tokens.length);
+      //console.log("Fetched tokens:", tokens.length);
 
-    // Find matching token
-    const match = tokens.find((t) => {
-      const isMatch = bcrypt.compareSync(token, t.tokenHash);
-      //console.log("Token ID:", t.id);
-      //console.log("Hash:", t.tokenHash);
-      //console.log("Match:", isMatch);
-      return isMatch;
-    });
+      // Find matching token
+      const match = tokens.find((t) => {
+        const isMatch = bcrypt.compareSync(token, t.tokenHash);
+        //console.log("Token ID:", t.id);
+        //console.log("Hash:", t.tokenHash);
+        //console.log("Match:", isMatch);
+        return isMatch;
+      });
 
-    //console.log("Match found:", !!match);
-    if (!match) return res.status(404).send("Invalid or expired token");
-    if ((match.usedCount ?? 0) >= (match.maxUses ?? 1)) {
-      return res.status(400).send("Token usage exceeded");
+      //console.log("Match found:", !!match);
+      if (!match) return res.status(404).send("Invalid or expired token");
+      if ((match.usedCount ?? 0) >= (match.maxUses ?? 1)) {
+        return res.status(400).send("Token usage exceeded");
+      }
+
+      const invitationId = match.projectId;
+      if (!invitationId) return res.status(404).send("Invitation not linked to a project");
+
+      // Fetch the ProjectInvitation
+      const invitation = await context.sudo().db.ProjectInvitation.findOne({
+        where: { id: invitationId },
+      });
+
+      //console.log("Resolved invitation:", invitation);
+      const projectId = invitation?.projectId;
+      if (!projectId) return res.status(404).send("Project not found");
+
+      // Add user to the project
+      await context.sudo().db.Project.updateOne({
+        where: { id: projectId },
+        data: { members: { connect: { id: session.id } } },
+      });
+
+      // Increment usedCount
+      await context.sudo().db.InvitationToken.updateOne({
+        where: { id: match.id },
+        data: { usedCount: (match.usedCount ?? 0) + 1 },
+      });
+
+      res.json({ message: "Invitation accepted", projectId });
+    } catch (err: any) {
+      console.error("Error accepting invitation:", err);
+      res.status(500).send(err?.message || "Failed to accept invitation");
     }
+  });
 
-    const invitationId = match.projectId;
-    if (!invitationId) return res.status(404).send("Invitation not linked to a project");
-
-    // Fetch the ProjectInvitation
-    const invitation = await context.sudo().db.ProjectInvitation.findOne({
-      where: { id: invitationId },
-    });
-
-    //console.log("Resolved invitation:", invitation);
-    const projectId = invitation?.projectId;
-    if (!projectId) return res.status(404).send("Project not found");
-
-    // Add user to the project
-    await context.sudo().db.Project.updateOne({
-      where: { id: projectId },
-      data: { members: { connect: { id: session.id } } },
-    });
-
-    // Increment usedCount
-    await context.sudo().db.InvitationToken.updateOne({
-      where: { id: match.id },
-      data: { usedCount: (match.usedCount ?? 0) + 1 },
-    });
-
-    res.json({ message: "Invitation accepted", projectId });
-  } catch (err: any) {
-    console.error("Error accepting invitation:", err);
-    res.status(500).send(err?.message || "Failed to accept invitation");
-  }
-});
-
-return router;
+  return router;
 }

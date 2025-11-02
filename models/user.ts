@@ -64,9 +64,9 @@ export const User: ListConfig<Lists.User.TypeInfo<any>> = list({
     isAdmin: checkbox({ defaultValue: true }),
     createdAt: timestamp({ defaultValue: { kind: "now" } }),
     project: text({
-  validation: { isRequired: false }, // ✅ allows empty
-  ui: { displayMode: "input" },      // optional: improves Admin UI
-}),
+      validation: { isRequired: false }, // ✅ allows empty
+      ui: { displayMode: "input" }, // optional: improves Admin UI
+    }),
     isActive: checkbox({ defaultValue: false }),
     lastLoginDate: timestamp({ defaultValue: { kind: "now" } }),
     activityLogs: relationship({ ref: "ActivityLog.updatedBy", many: true }),
