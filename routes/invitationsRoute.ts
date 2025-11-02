@@ -4,9 +4,9 @@ import * as bcrypt from "bcryptjs";
 import type { Context } from ".keystone/types";
 import { inviteEmail } from "../controllers/sendInviteController";
 import express from "express";
+import type { Request } from "express";
 
 export function createInvitationsRouter(commonContext: Context) {
-  console.log("[invites] mounting invitations router");
   const router = express.Router();
   router.use(express.json()); 
 
@@ -17,23 +17,24 @@ export function createInvitationsRouter(commonContext: Context) {
   router.post("/:projectId/invitationTokens", async (req, res) => {
     const context = await commonContext.withRequest(req, res);
     const session = (context.session as any)?.data;
-    const body = context.req.body;
+    const body = (context.req as Request).body;
+
 
     if (!session?.isAdmin) return res.status(403).send("Not authorized");
-    console.log("🧪 Session:", session);
-console.log("🧪 Raw body:", body);
+    //console.log("Session:", session);
+    //console.log("Raw body:", body);
 
     const { roleToGrant = "Student", expiresAt, maxUses = 1, notes = "" } = body ?? {};
-    console.log("🧪 Raw expiresAt:", body.expiresAt);
+    console.log("Raw expiresAt:", body.expiresAt);
     if (!expiresAt || isNaN(Date.parse(expiresAt))) {
-      console.log("🧪 Missing expiresAt. Full body:", body);
+      //console.log("Missing expiresAt. Full body:", body);
       return res.status(400).send("expiresAt (ISO) is required and must be valid");
     }
 
     try {
       const rawToken = crypto.randomBytes(32).toString("base64url");
       const tokenHash = await bcrypt.hash(rawToken, 10);
-      console.log("🧪 Raw expiresAt:", body.expiresAt);
+      //console.log("Raw expiresAt:", body.expiresAt);
 
       const created = await context.db.InvitationToken.createOne({
         data: {
@@ -59,7 +60,7 @@ console.log("🧪 Raw body:", body);
   const context = await commonContext.withRequest(req, res);
   const session = (context.session as any)?.data;
 
-  const body = (context.req.body ?? {}) as {
+const body = ((context.req as Request)?.body ?? {}) as {
     roleToGrant?: string;
     expiresAt?: string;
     maxUses?: number;
@@ -68,7 +69,6 @@ console.log("🧪 Raw body:", body);
     token?: string;
   };
 
-  console.log("🧪 Full req.body:", body);
   if (!session?.isAdmin) return res.status(403).send("Not authorized");
 
   const {
@@ -159,10 +159,10 @@ console.log("🧪 Raw body:", body);
 router.post("/accept", async (req, res) => {
   const context = await commonContext.withRequest(req, res);
   const session = (context.session as any)?.data;
-  const { token } = context.req.body;
+  const { token } = (context.req as Request)?.body ?? {};
 
-  console.log("Session:", session);
-  console.log("Token received:", token);
+  //console.log("Session:", session);
+  //console.log("Token received:", token);
 
   if (!session?.id) return res.status(401).send("Not authenticated");
   if (!token) return res.status(400).send("Missing token");
@@ -174,7 +174,6 @@ router.post("/accept", async (req, res) => {
         expiresAt: { gt: new Date().toISOString() },
         revoked: { equals: false },
       },
-      query: "id tokenHash usedCount maxUses projectId",
     });
 
     //console.log("Fetched tokens:", tokens.length);
@@ -182,9 +181,9 @@ router.post("/accept", async (req, res) => {
     // Find matching token
     const match = tokens.find((t) => {
       const isMatch = bcrypt.compareSync(token, t.tokenHash);
-      //console.log("🔍 Token ID:", t.id);
-      //console.log("🔍 Hash:", t.tokenHash);
-      //console.log("🔍 Match:", isMatch);
+      //console.log("Token ID:", t.id);
+      //console.log("Hash:", t.tokenHash);
+      //console.log("Match:", isMatch);
       return isMatch;
     });
 
@@ -200,7 +199,6 @@ router.post("/accept", async (req, res) => {
     // Fetch the ProjectInvitation
     const invitation = await context.sudo().db.ProjectInvitation.findOne({
       where: { id: invitationId },
-      query: "id email projectId",
     });
 
     //console.log("Resolved invitation:", invitation);

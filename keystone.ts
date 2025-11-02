@@ -12,7 +12,7 @@ import authRoutes from "./routes/authRoutes";
 import { createMilestoneRouter } from "./routes/milestoneDataRoutes";
 import { createActivityLogRouter } from "./routes/activityLogRoute";
 import { createInvitationsRouter } from "./routes/invitationsRoute";
-import { createCsvImportRouter } from "./routes/csvImportRoute"; // ✅ Add this import
+import { createCsvImportRouter } from "./routes/csvImportRoute"; 
 
 import { sendReminder } from "./controllers/reminderController";
 
@@ -23,14 +23,14 @@ const { graphqlUploadExpress } = require("graphql-upload");
 export default withAuth(
   config({
    server: {
-  port: 4000,
+  port: 8080,
   cors: {
     origin: ["http://localhost:3000"],
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     credentials: true,
   },
 extendExpressApp: (app, commonContext) => {
-  // ✅ GraphQL upload middleware — must come first
+  //GraphQL upload middleware — must come first
   app.use((req, res, next) => {
     if (req.path === "/api/graphql") {
       graphqlUploadExpress({ maxFileSize: 10000000, maxFiles: 10 })(req, res, next);
@@ -39,23 +39,23 @@ extendExpressApp: (app, commonContext) => {
     }
   });
 
-  // ✅ Create a scoped router for /api
+  //Create a scoped router for /api
   const apiRouter = express.Router();
 
-  // ✅ Mount your custom routers
+  //Mount custom routers
   apiRouter.use("/invitations", createInvitationsRouter(commonContext));
   apiRouter.use("/projects", createInvitationsRouter(commonContext));
   apiRouter.use("/milestones", createMilestoneRouter(commonContext));
   apiRouter.use("/activity", createActivityLogRouter(commonContext));
   apiRouter.use("/import", createCsvImportRouter(commonContext));
 
-  // ✅ Mount the /api router once
+  //Mount the /api router once
   app.use("/api", apiRouter);
 
-  // ✅ Keystone Auth routes
+  //Keystone Auth routes
   app.use(authRoutes);
 
-  // ✅ Custom endpoints
+  //Custom endpoints
   apiRouter.post("/test", (req, res) => {
   console.log("Received test request:", req.body);
   res.json({ message: "Backend is working!" });
