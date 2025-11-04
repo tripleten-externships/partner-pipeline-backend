@@ -3,10 +3,11 @@
     "target": "esnext",
     "module": "commonjs",
     "strict": true,
-    "noEmit": true,
+    "noEmit": false,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "moduleResolution": "node",
+    "outDir": "dist",
     "types": ["node", "jest"]
   },
   "include": ["models", "routes", "controllers", "config", "types", ".keystone"]
