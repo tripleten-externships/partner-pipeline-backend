@@ -25,9 +25,9 @@ export const permissions = {
 
   // UNCOMMENT FOR SEEDING PURPOSES
 
-  isStudent: () => true,
+  isStudent: (p0: { session: any }) => true,
   isProjectMentor: () => true,
   isLeadMentor: () => true,
   isExternalPartner: () => true,
-  isAdminLike: () => true,
+  isAdminLike: (p0: { session: any }) => true,
 };
