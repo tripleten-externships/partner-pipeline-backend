@@ -279,9 +279,11 @@ export function createInvitationsRouter(commonContext: Context) {
     }
 
     // Get sender info from session (already validated above)
-    const [sender] = await context.db.User.findMany({ where: { id: { equals: session.id } } });
-    const senderName = sender?.name ?? "Sender";
-    const senderEmail = sender?.email ?? "";
+    const [sender] = session?.id
+      ? await context.db.User.findMany({ where: { id: { equals: session.id } } })
+      : [];
+    const senderName = sender?.name ?? "System";
+    const senderEmail = sender?.email ?? "noreply@system.com";
 
     try {
       // STEP 1: Check for existing ProjectInvitation for this email and project
@@ -335,9 +337,17 @@ export function createInvitationsRouter(commonContext: Context) {
       const frontendUrl = process.env.FRONTEND_URL || DEFAULT_FRONTEND_URL;
       const inviteLink = `${frontendUrl}/accept-invitation?token=${rawToken}&invitationId=${tokenId}`;
 
-      // Send email with RAW token instead of hash
+      // Send email with RAW token instead of hash (non-blocking, errors logged but don't fail request)
       if (studentEmail && senderEmail && rawToken) {
-        await inviteEmail(studentName, studentEmail, senderName, senderEmail, inviteLink);
+        inviteEmail(studentName, studentEmail, senderName, senderEmail, inviteLink).catch(
+          (emailErr) => {
+            console.error("Failed to send invitation email:", emailErr);
+            console.log(
+              "Invitation created successfully, but email failed. Share link manually:",
+              inviteLink
+            );
+          }
+        );
       }
 
       res.json({
