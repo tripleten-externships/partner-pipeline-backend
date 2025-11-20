@@ -22,4 +22,6 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - run: npm ci
+      - name: Keystone build (codegen)
+        run: npx keystone build
       - run: npm run test
