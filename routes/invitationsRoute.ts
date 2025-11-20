@@ -5,6 +5,48 @@ import type { Context } from ".keystone/types";
 import { inviteEmail } from "../controllers/sendInviteController";
 import express from "express";
 import type { Request } from "express";
+import { permissions } from "../utils/access";
+
+// Validation constants
+const ALLOWED_ROLES = ["Student", "Project Mentor", "Mentor", "Admin"] as const;
+const MAX_USES_MIN = 1;
+const MAX_USES_MAX = 100;
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const MAX_NAME_LENGTH = 255;
+const MAX_NOTES_LENGTH = 1000;
+
+// Security constants
+const TOKEN_BYTE_SIZE = 32; // Size in bytes for crypto.randomBytes
+const BCRYPT_SALT_ROUNDS = 10; // Number of rounds for bcrypt hashing
+const DEFAULT_FRONTEND_URL = "http://localhost:3000"; // Fallback frontend URL
+
+// Error response helpers
+interface ErrorResponse {
+  error: string;
+  code: string;
+  details?: any;
+}
+
+function createErrorResponse(code: string, message: string, details?: any): ErrorResponse {
+  return {
+    error: message,
+    code,
+    ...(details && { details }),
+  };
+}
+
+// Validation helpers
+function isValidEmail(email: string): boolean {
+  return EMAIL_REGEX.test(email);
+}
+
+function isValidRole(role: string): boolean {
+  return ALLOWED_ROLES.includes(role as any);
+}
+
+function isValidMaxUses(maxUses: number): boolean {
+  return Number.isInteger(maxUses) && maxUses >= MAX_USES_MIN && maxUses <= MAX_USES_MAX;
+}
 
 export function createInvitationsRouter(commonContext: Context) {
   const router = express.Router();
@@ -13,27 +55,72 @@ export function createInvitationsRouter(commonContext: Context) {
   // Health check
   router.get("/api/_invites/health", (_req, res) => res.send("ok-invites"));
 
-  // Create raw token
+  // Create raw token and return followable link
   router.post("/:projectId/invitationTokens", async (req, res) => {
     const context = await commonContext.withRequest(req, res);
     const session = (context.session as any)?.data;
     const body = (context.req as Request).body;
 
-    if (!session?.isAdmin) return res.status(403).send("Not authorized");
-    //console.log("Session:", session);
-    //console.log("Raw body:", body);
+    // Check authentication
+    if (!session?.id) {
+      return res.status(401).json(createErrorResponse("UNAUTHORIZED", "Authentication required"));
+    }
+
+    // Check authorization - only admins can create invitations
+    if (!permissions.isAdminLike()) {
+      return res.status(403).json(createErrorResponse("FORBIDDEN", "Admin access required"));
+    }
 
     const { roleToGrant = "Student", expiresAt, maxUses = 1, notes = "" } = body ?? {};
-    console.log("Raw expiresAt:", body.expiresAt);
+
+    // Validate expiresAt
     if (!expiresAt || isNaN(Date.parse(expiresAt))) {
-      //console.log("Missing expiresAt. Full body:", body);
-      return res.status(400).send("expiresAt (ISO) is required and must be valid");
+      return res.status(400).json(
+        createErrorResponse("VALIDATION_ERROR", "expiresAt (ISO) is required and must be valid", {
+          field: "expiresAt",
+          value: expiresAt,
+        })
+      );
+    }
+
+    // Validate roleToGrant
+    if (!isValidRole(roleToGrant)) {
+      return res.status(400).json(
+        createErrorResponse("VALIDATION_ERROR", "Invalid role", {
+          field: "roleToGrant",
+          value: roleToGrant,
+          allowedValues: ALLOWED_ROLES,
+        })
+      );
+    }
+
+    // Validate maxUses
+    const maxUsesNum = Number(maxUses);
+    if (!isValidMaxUses(maxUsesNum)) {
+      return res.status(400).json(
+        createErrorResponse("VALIDATION_ERROR", "Invalid maxUses value", {
+          field: "maxUses",
+          value: maxUses,
+          min: MAX_USES_MIN,
+          max: MAX_USES_MAX,
+        })
+      );
+    }
+
+    // Validate notes length
+    if (notes.length > MAX_NOTES_LENGTH) {
+      return res.status(400).json(
+        createErrorResponse("VALIDATION_ERROR", "Notes too long", {
+          field: "notes",
+          currentLength: notes.length,
+          maxLength: MAX_NOTES_LENGTH,
+        })
+      );
     }
 
     try {
-      const rawToken = crypto.randomBytes(32).toString("base64url");
-      const tokenHash = await bcrypt.hash(rawToken, 10);
-      //console.log("Raw expiresAt:", body.expiresAt);
+      const rawToken = crypto.randomBytes(TOKEN_BYTE_SIZE).toString("base64url");
+      const tokenHash = await bcrypt.hash(rawToken, BCRYPT_SALT_ROUNDS);
 
       const created = await context.db.InvitationToken.createOne({
         data: {
@@ -41,21 +128,33 @@ export function createInvitationsRouter(commonContext: Context) {
           project: { connect: { id: req.params.projectId } },
           roleToGrant,
           expiresAt: new Date(expiresAt).toISOString(),
-          maxUses: Number(maxUses),
+          maxUses: maxUsesNum,
           createdBy: { connect: { id: session.id } },
           notes,
         },
       });
+      // Generate followable invite link
+      const frontendUrl = process.env.FRONTEND_URL || DEFAULT_FRONTEND_URL;
+      const inviteLink = `${frontendUrl}/accept-invitation?token=${rawToken}&invitationId=${created.id}`;
 
-      res.json({ id: created.id, token: rawToken });
+      res.json({
+        id: created.id,
+        token: rawToken, // Raw token (send this via email)
+        inviteLink, // Followable link
+        expiresAt: created.expiresAt,
+      });
     } catch (err: any) {
       console.error(err);
-      res.status(500).send(err?.message || "Failed to create invitation");
+      res.status(500).json(
+        createErrorResponse("SERVER_ERROR", "Failed to create invitation token", {
+          message: err?.message,
+        })
+      );
     }
   });
 
   // Create or update invitation and send email
-  router.post("/api/projects/:projectId/invitation", async (req, res) => {
+  router.post("/:projectId/invitations", async (req, res) => {
     const context = await commonContext.withRequest(req, res);
     const session = (context.session as any)?.data;
 
@@ -65,10 +164,20 @@ export function createInvitationsRouter(commonContext: Context) {
       maxUses?: number;
       notes?: string;
       studentId?: string;
+      recipientEmail?: string;
+      recipientName?: string;
       token?: string;
     };
 
-    if (!session?.isAdmin) return res.status(403).send("Not authorized");
+    // Check authentication
+    if (!session?.id) {
+      return res.status(401).json(createErrorResponse("UNAUTHORIZED", "Authentication required"));
+    }
+
+    // Check authorization - only admins can create invitations
+    if (!permissions.isAdminLike()) {
+      return res.status(403).json(createErrorResponse("FORBIDDEN", "Admin access required"));
+    }
 
     const {
       roleToGrant = "Student",
@@ -76,84 +185,184 @@ export function createInvitationsRouter(commonContext: Context) {
       maxUses = 1,
       notes = "",
       studentId = "",
-      token,
+      recipientEmail = "",
+      recipientName = "",
     } = body;
 
-    console.log("expiresAt received:", expiresAt);
-    if (!expiresAt || isNaN(Date.parse(expiresAt))) {
-      return res.status(400).send("expiresAt is required and must be valid");
+    // Validate recipientEmail
+    if (recipientEmail && !isValidEmail(recipientEmail)) {
+      return res.status(400).json(
+        createErrorResponse("VALIDATION_ERROR", "Invalid email format", {
+          field: "recipientEmail",
+          value: recipientEmail,
+        })
+      );
     }
+
+    // Validate recipientName length
+    if (recipientName && recipientName.length > MAX_NAME_LENGTH) {
+      return res.status(400).json(
+        createErrorResponse("VALIDATION_ERROR", "Recipient name too long", {
+          field: "recipientName",
+          currentLength: recipientName.length,
+          maxLength: MAX_NAME_LENGTH,
+        })
+      );
+    }
+
+    // Validate notes length
+    if (notes.length > MAX_NOTES_LENGTH) {
+      return res.status(400).json(
+        createErrorResponse("VALIDATION_ERROR", "Notes too long", {
+          field: "notes",
+          currentLength: notes.length,
+          maxLength: MAX_NOTES_LENGTH,
+        })
+      );
+    }
+
+    // Validate expiresAt
+    if (!expiresAt || isNaN(Date.parse(expiresAt))) {
+      return res.status(400).json(
+        createErrorResponse("VALIDATION_ERROR", "expiresAt is required and must be valid", {
+          field: "expiresAt",
+          value: expiresAt,
+        })
+      );
+    }
+
+    // Validate maxUses
+    const maxUsesNum = Number(maxUses);
+    if (!isValidMaxUses(maxUsesNum)) {
+      return res.status(400).json(
+        createErrorResponse("VALIDATION_ERROR", "Invalid maxUses value", {
+          field: "maxUses",
+          value: maxUses,
+          min: MAX_USES_MIN,
+          max: MAX_USES_MAX,
+        })
+      );
+    }
+
+    // Normalize roleToGrant to match the expected format
+    // For single word roles like "student", capitalize first letter
+    // For multi-word roles like "project mentor", capitalize each word
+    const normalizedRole = roleToGrant
+      .split(" ")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(" ");
+
+    // Validate role after normalization
+    if (!isValidRole(normalizedRole)) {
+      return res.status(400).json(
+        createErrorResponse("VALIDATION_ERROR", "Invalid role", {
+          field: "roleToGrant",
+          value: roleToGrant,
+          normalizedValue: normalizedRole,
+          allowedValues: ALLOWED_ROLES,
+        })
+      );
+    }
+
     const expirationDate = new Date(expiresAt);
     const currentDate = new Date();
 
-    const [student] = await context.db.User.findMany({ where: { id: { equals: studentId } } });
-    const [sender] = await context.db.User.findMany({ where: { id: { equals: session.id } } });
+    // Handle both existing user invitations and email-based invitations
+    let student = null;
+    let studentEmail = recipientEmail;
+    let studentName = recipientName;
 
-    const studentName = student?.name ?? "Student";
-    const studentEmail = student?.email ?? "";
-    const senderName = sender?.name ?? "Sender";
-    const senderEmail = sender?.email ?? "";
+    if (studentId) {
+      [student] = await context.db.User.findMany({ where: { id: { equals: studentId } } });
+      studentName = student?.name ?? "Student";
+      studentEmail = student?.email ?? "";
+    }
+
+    // Get sender info from session (already validated above)
+    const [sender] = session?.id
+      ? await context.db.User.findMany({ where: { id: { equals: session.id } } })
+      : [];
+    const senderName = sender?.name ?? "System";
+    const senderEmail = sender?.email ?? "noreply@system.com";
 
     try {
-      const [existingToken] = await context.db.InvitationToken.findMany({
-        where: { project: { id: { equals: req.params.projectId } } },
-        orderBy: { expiresAt: "desc" },
+      // STEP 1: Check for existing ProjectInvitation for this email and project
+      const [existingProjectInvitation] = await context.sudo().db.ProjectInvitation.findMany({
+        where: {
+          email: { equals: studentEmail },
+          project: { id: { equals: req.params.projectId } },
+        },
         take: 1,
       });
 
-      const canUpdate =
-        existingToken &&
-        new Date(existingToken.expiresAt) > currentDate &&
-        (existingToken.usedCount ?? 0) < (existingToken.maxUses ?? 1);
-
-      let tokenId: string;
-      let tokenHash: string;
-
-      if (canUpdate) {
-        await context.db.InvitationToken.updateOne({
-          where: { id: existingToken.id },
-          data: { usedCount: (existingToken.usedCount ?? 0) + 1 },
-        });
-        tokenId = existingToken.id;
-        tokenHash = existingToken.tokenHash;
+      let projectInvitation;
+      if (existingProjectInvitation) {
+        projectInvitation = existingProjectInvitation;
       } else {
-        const rawToken = crypto.randomBytes(32).toString("base64url");
-        tokenHash = await bcrypt.hash(rawToken, 10);
+        // Create new ProjectInvitation if none exists
+        const invitationData: any = {
+          email: studentEmail,
+          project: { connect: { id: req.params.projectId } },
+        };
 
-        const created = await context.db.InvitationToken.createOne({
-          data: {
-            tokenHash,
-            project: { connect: { id: req.params.projectId } },
-            roleToGrant,
-            expiresAt: expirationDate.toISOString(),
-            maxUses: Number(maxUses),
-            createdBy: { connect: { id: session.id } },
-            notes,
-          },
+        if (studentId && student) {
+          invitationData.user = { connect: { id: studentId } };
+        }
+
+        // Use sudo() to bypass access controls since we don't have a valid session
+        projectInvitation = await context.sudo().db.ProjectInvitation.createOne({
+          data: invitationData,
         });
-
-        tokenId = created.id;
       }
 
-      await context.db.ProjectInvitation.createOne({
+      // STEP 2: Always create a new token (no reuse - simpler and more secure)
+      // Old tokens can expire naturally or be revoked if needed
+      const rawToken = crypto.randomBytes(TOKEN_BYTE_SIZE).toString("base64url");
+      const tokenHash = await bcrypt.hash(rawToken, BCRYPT_SALT_ROUNDS);
+
+      const created = await context.sudo().db.InvitationToken.createOne({
         data: {
-          email: studentEmail,
-          user: { connect: { id: studentId } },
-          project: { connect: { id: req.params.projectId } },
+          tokenHash,
+          project: { connect: { id: projectInvitation.id } }, // Connect to ProjectInvitation
+          roleToGrant: normalizedRole,
+          expiresAt: expirationDate.toISOString(),
+          maxUses: maxUsesNum,
+          notes,
         },
       });
 
-      if (studentEmail && senderEmail && tokenHash) {
-        await inviteEmail(studentName, studentEmail, senderName, senderEmail, tokenHash);
+      const tokenId = created.id;
+
+      // Generate followable invite link with RAW token
+      const frontendUrl = process.env.FRONTEND_URL || DEFAULT_FRONTEND_URL;
+      const inviteLink = `${frontendUrl}/accept-invitation?token=${rawToken}&invitationId=${tokenId}`;
+
+      // Send email with RAW token instead of hash (non-blocking, errors logged but don't fail request)
+      if (studentEmail && senderEmail && rawToken) {
+        inviteEmail(studentName, studentEmail, senderName, senderEmail, inviteLink).catch(
+          (emailErr) => {
+            console.error("Failed to send invitation email:", emailErr);
+            console.log(
+              "Invitation created successfully, but email failed. Share link manually:",
+              inviteLink
+            );
+          }
+        );
       }
 
       res.json({
-        message: canUpdate ? "Invitation token updated" : "New invitation token created",
+        message: "New invitation token created",
         tokenId,
+        inviteLink, // Return the followable link
+        expiresAt: expirationDate.toISOString(),
       });
     } catch (err: any) {
       console.error(err);
-      res.status(500).send(err?.message || "Failed to process invitation");
+      res.status(500).json(
+        createErrorResponse("SERVER_ERROR", "Failed to process invitation", {
+          message: err?.message,
+        })
+      );
     }
   });
 
@@ -161,51 +370,85 @@ export function createInvitationsRouter(commonContext: Context) {
   router.post("/accept", async (req, res) => {
     const context = await commonContext.withRequest(req, res);
     const session = (context.session as any)?.data;
-    const { token } = (context.req as Request)?.body ?? {};
+    const { token, invitationId } = (context.req as Request)?.body ?? {};
 
-    //console.log("Session:", session);
-    //console.log("Token received:", token);
-
-    if (!session?.id) return res.status(401).send("Not authenticated");
-    if (!token) return res.status(400).send("Missing token");
+    if (!session?.id) {
+      return res.status(401).json(createErrorResponse("UNAUTHORIZED", "Not authenticated"));
+    }
+    if (!token) {
+      return res
+        .status(400)
+        .json(createErrorResponse("VALIDATION_ERROR", "Missing token", { field: "token" }));
+    }
 
     try {
-      // Fetch all non-expired tokens
-      const tokens = await context.db.InvitationToken.findMany({
-        where: {
-          expiresAt: { gt: new Date().toISOString() },
-          revoked: { equals: false },
-        },
-      });
+      let match;
 
-      //console.log("Fetched tokens:", tokens.length);
+      if (invitationId) {
+        // If we have the invitationId, fetch that specific token
+        const specificToken = await context.db.InvitationToken.findOne({
+          where: { id: invitationId },
+        });
 
-      // Find matching token
-      const match = tokens.find((t) => {
-        const isMatch = bcrypt.compareSync(token, t.tokenHash);
-        //console.log("Token ID:", t.id);
-        //console.log("Hash:", t.tokenHash);
-        //console.log("Match:", isMatch);
-        return isMatch;
-      });
+        if (
+          specificToken &&
+          new Date(specificToken.expiresAt) > new Date() &&
+          !specificToken.revoked &&
+          bcrypt.compareSync(token, specificToken.tokenHash)
+        ) {
+          match = specificToken;
+        }
+      } else {
+        // Fallback: search all tokens (less efficient)
+        const tokens = await context.db.InvitationToken.findMany({
+          where: {
+            expiresAt: { gt: new Date().toISOString() },
+            revoked: { equals: false },
+          },
+        });
 
-      //console.log("Match found:", !!match);
-      if (!match) return res.status(404).send("Invalid or expired token");
-      if ((match.usedCount ?? 0) >= (match.maxUses ?? 1)) {
-        return res.status(400).send("Token usage exceeded");
+        match = tokens.find((t) => bcrypt.compareSync(token, t.tokenHash));
       }
 
-      const invitationId = match.projectId;
-      if (!invitationId) return res.status(404).send("Invitation not linked to a project");
+      if (!match) {
+        return res.status(404).json(
+          createErrorResponse("NOT_FOUND", "Invalid or expired token", {
+            providedInvitationId: invitationId,
+          })
+        );
+      }
+
+      if ((match.usedCount ?? 0) >= (match.maxUses ?? 1)) {
+        return res.status(400).json(
+          createErrorResponse("VALIDATION_ERROR", "Token usage limit exceeded", {
+            usedCount: match.usedCount,
+            maxUses: match.maxUses,
+          })
+        );
+      }
+
+      const invitationRecordId = match.projectId;
+      if (!invitationRecordId) {
+        return res.status(404).json(
+          createErrorResponse("NOT_FOUND", "Invitation not linked to a project", {
+            tokenId: match.id,
+          })
+        );
+      }
 
       // Fetch the ProjectInvitation
       const invitation = await context.sudo().db.ProjectInvitation.findOne({
-        where: { id: invitationId },
+        where: { id: invitationRecordId },
       });
 
-      //console.log("Resolved invitation:", invitation);
       const projectId = invitation?.projectId;
-      if (!projectId) return res.status(404).send("Project not found");
+      if (!projectId) {
+        return res.status(404).json(
+          createErrorResponse("NOT_FOUND", "Project not found", {
+            invitationId: invitationRecordId,
+          })
+        );
+      }
 
       // Add user to the project
       await context.sudo().db.Project.updateOne({
@@ -222,7 +465,11 @@ export function createInvitationsRouter(commonContext: Context) {
       res.json({ message: "Invitation accepted", projectId });
     } catch (err: any) {
       console.error("Error accepting invitation:", err);
-      res.status(500).send(err?.message || "Failed to accept invitation");
+      res.status(500).json(
+        createErrorResponse("SERVER_ERROR", "Failed to accept invitation", {
+          message: err?.message,
+        })
+      );
     }
   });
 

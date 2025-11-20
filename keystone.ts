@@ -43,7 +43,6 @@ export default withAuth(
         const apiRouter = express.Router();
 
         //Mount custom routers
-        apiRouter.use("/invitations", createInvitationsRouter(commonContext));
         apiRouter.use("/projects", createInvitationsRouter(commonContext));
         apiRouter.use("/milestones", createMilestoneRouter(commonContext));
         apiRouter.use("/activity", createActivityLogRouter(commonContext));

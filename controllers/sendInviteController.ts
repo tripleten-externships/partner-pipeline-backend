@@ -1,5 +1,17 @@
 import nodemailer from "nodemailer";
 
+/**
+ * Sends invitation email with a followable link.
+ *
+ * TODO: PRODUCTION CONFIGURATION REQUIRED
+ * Before deploying to production, configure these environment variables:
+ * - SMTP_HOST: Your SMTP server (e.g., smtp.gmail.com, smtp.sendgrid.net)
+ * - SMTP_PORT: SMTP port (587 for TLS, 465 for SSL)
+ * - SMTP_USER: SMTP authentication username
+ * - SMTP_PASS: SMTP authentication password
+ *
+ * Current defaults are placeholders for development only.
+ */
 export async function inviteEmail(
   to_name: string,
   to_email: string,
