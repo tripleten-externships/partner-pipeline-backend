@@ -13,6 +13,8 @@ import { createMilestoneRouter } from "./routes/milestoneDataRoutes";
 import { createActivityLogRouter } from "./routes/activityLogRoute";
 import { createInvitationsRouter } from "./routes/invitationsRoute";
 import { createCsvImportRouter } from "./routes/csvImportRoute";
+import { createWaitlistRouter } from "./routes/waitlistRoutes";
+import { getWaitList } from "./controllers/waitListController";
 
 import { sendReminder } from "./controllers/reminderController";
 
@@ -48,6 +50,7 @@ export default withAuth(
         apiRouter.use("/milestones", createMilestoneRouter(commonContext));
         apiRouter.use("/activity", createActivityLogRouter(commonContext));
         apiRouter.use("/import", createCsvImportRouter(commonContext));
+        apiRouter.use("/waitlist", createWaitlistRouter(commonContext));
 
         //Mount the /api router once
         app.use("/api", apiRouter);
@@ -65,6 +68,10 @@ export default withAuth(
         app.post("/api/send", async (req, res) => {
           const context = await commonContext.withRequest(req, res);
           await sendReminder(context.req, res, context);
+        });
+        app.get("/api/waitlist", async (req, res) => {
+          const context = await commonContext.withRequest(req, res);
+          await getWaitList(req, res, context);
         });
       },
     },
