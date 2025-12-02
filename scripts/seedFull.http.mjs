@@ -1,23 +1,26 @@
 // Run while backend is running:  node scripts/seedFull.http.mjs
-const ENDPOINT = process.env.GQL || 'http://localhost:8080/api/graphql';
+const ENDPOINT = process.env.GQL || "http://localhost:8080/api/graphql";
 
 //These credentials should match whatever user you created for the localhost:8080 Admin UI
 //If you haven't created one yet, do so now - and then uncomment the fields in the access.ts file
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'localhost8080@email.com';
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'localhost8080pw';
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "jessicamsang@hotmail.com";
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "Password072";
 
-
-async function gql(query, vars = {}, cookie = '') {
+async function gql(query, vars = {}, cookie = "") {
   const res = await fetch(ENDPOINT, {
-    method: 'POST',
-    headers: { 'content-type': 'application/json', ...(cookie ? { cookie } : {}) },
+    method: "POST",
+    headers: { "content-type": "application/json", ...(cookie ? { cookie } : {}) },
     body: JSON.stringify({ query, variables: vars }),
   });
   const txt = await res.text();
   let json;
-  try { json = JSON.parse(txt); } catch { throw new Error(`Bad JSON: ${txt}`); }
-  if (json.errors) throw new Error(json.errors.map(e => e.message).join('; '));
-  return { data: json.data, setCookie: res.headers.get('set-cookie') || '' };
+  try {
+    json = JSON.parse(txt);
+  } catch {
+    throw new Error(`Bad JSON: ${txt}`);
+  }
+  if (json.errors) throw new Error(json.errors.map((e) => e.message).join("; "));
+  return { data: json.data, setCookie: res.headers.get("set-cookie") || "" };
 }
 
 async function login() {
@@ -29,25 +32,25 @@ async function login() {
     }}`;
   const { data, setCookie } = await gql(m, { e: ADMIN_EMAIL, p: ADMIN_PASSWORD });
   const res = data.authenticateUserWithPassword;
-  if (res.__typename.includes('Failure')) throw new Error(res.message);
-  console.log('🔐 Logged in as', res.item.email);
+  if (res.__typename.includes("Failure")) throw new Error(res.message);
+  console.log("🔐 Logged in as", res.item.email);
   return setCookie || `keystonejs-session=${res.sessionToken}`;
 }
 
 async function getOne(q, vars, cookie, path) {
   const { data } = await gql(q, vars, cookie);
-  return path.split('.').reduce((a, k) => (a ? a[k] : undefined), data);
+  return path.split(".").reduce((a, k) => (a ? a[k] : undefined), data);
 }
 
 // ---------- helpers ----------
 async function ensureProject(cookie, p) {
   const q = `query($n:String!){ projects(where:{name:{equals:$n}}, take:1){ id name } }`;
-  const found = await getOne(q, { n: p.name }, cookie, 'projects');
+  const found = await getOne(q, { n: p.name }, cookie, "projects");
   if (found && found.length) return found[0];
   const m = `mutation($d:ProjectCreateInput!){ createProject(data:$d){ id name } }`;
   const { data } = await gql(
     m,
-    { d: { ...p, project: p.project || p.name.replace(/\s+/g, '-').toLowerCase() } },
+    { d: { ...p, project: p.project || p.name.replace(/\s+/g, "-").toLowerCase() } },
     cookie
   );
   return data.createProject;
@@ -55,14 +58,10 @@ async function ensureProject(cookie, p) {
 
 async function ensureUser(cookie, u) {
   const q = `query($e:String!){ users(where:{email:{equals:$e}}, take:1){ id email } }`;
-  const found = await getOne(q, { e: u.email }, cookie, 'users');
+  const found = await getOne(q, { e: u.email }, cookie, "users");
   if (found && found.length) return found[0];
   const m = `mutation($d:UserCreateInput!){ createUser(data:$d){ id email name } }`;
-  const { data } = await gql(
-    m,
-    { d: { ...u, project: u.project || 'default-project' } },
-    cookie
-  );
+  const { data } = await gql(m, { d: { ...u, project: u.project || "default-project" } }, cookie);
   return data.createUser;
 }
 
@@ -72,7 +71,7 @@ async function ensureMilestone(cookie, projectId, name, dataPart) {
       id milestoneName
     }
   }`;
-  const found = await getOne(q, { n: name, pid: projectId }, cookie, 'milestones');
+  const found = await getOne(q, { n: name, pid: projectId }, cookie, "milestones");
   if (found && found.length) return found[0];
 
   const m = `mutation($d:MilestoneCreateInput!){ createMilestone(data:$d){ id milestoneName status } }`;
@@ -96,7 +95,7 @@ async function ensureProjectInvitation(cookie, { email, projectId, userId }) {
       id email
     }
   }`;
-  const found = await getOne(q, { e: email, pid: projectId }, cookie, 'projectInvitations');
+  const found = await getOne(q, { e: email, pid: projectId }, cookie, "projectInvitations");
   if (found && found.length) return found[0];
   const m = `mutation($d:ProjectInvitationCreateInput!){
     createProjectInvitation(data:$d){ id email }
@@ -138,7 +137,7 @@ async function ensureInvitationToken(cookie, { invitationId, tokenHash, role, op
   const q = `query($h:String!){
     invitationTokens(where:{ tokenHash:{ equals:$h } }, take:1){ id }
   }`;
-  const existing = await getOne(q, { h: tokenHash }, cookie, 'invitationTokens');
+  const existing = await getOne(q, { h: tokenHash }, cookie, "invitationTokens");
 
   const expiresAt = new Date(Date.now() + (opts.days ?? 7) * 86400000).toISOString();
   const data = {
@@ -170,60 +169,113 @@ async function ensureInvitationToken(cookie, { invitationId, tokenHash, role, op
 
 // ---------- main ----------
 (async () => {
-  console.log('🌱 Seeding via HTTP…');
+  console.log("🌱 Seeding via HTTP…");
   const cookie = await login();
 
   // Users
-  const kate   = await ensureUser(cookie, { name:'Dr. Kate Mangubat', email:'kate@example.com',   password:'password123', role:'Lead Mentor',   isAdmin:true,  isActive:true,  project:'partner-pipeline-platform' });
-  const andrew = await ensureUser(cookie, { name:'Andrew Thomas',      email:'andrew@example.com', password:'password123', role:'Project Mentor', isAdmin:false, isActive:true,  project:'partner-pipeline-platform' });
-  const vic    = await ensureUser(cookie, { name:'Victor Perez',      email:'victor@example.com',    password:'password123', role:'Student',        isAdmin:false, isActive:true,  project:'partner-pipeline-platform' });
-  const divya  = await ensureUser(cookie, { name:'Divya Patel',        email:'divya@example.com',  password:'password123', role:'Student',        isAdmin:false, isActive:true,  project:'mentor-dashboard-revamp' });
-  console.log('✅ Users ready');
+  const kate = await ensureUser(cookie, {
+    name: "Dr. Kate Mangubat",
+    email: "kate@example.com",
+    password: "password123",
+    role: "Lead Mentor",
+    isAdmin: true,
+    isActive: true,
+    project: "partner-pipeline-platform",
+  });
+  const andrew = await ensureUser(cookie, {
+    name: "Andrew Thomas",
+    email: "andrew@example.com",
+    password: "password123",
+    role: "Project Mentor",
+    isAdmin: false,
+    isActive: true,
+    project: "partner-pipeline-platform",
+  });
+  const vic = await ensureUser(cookie, {
+    name: "Victor Perez",
+    email: "victor@example.com",
+    password: "password123",
+    role: "Student",
+    isAdmin: false,
+    isActive: true,
+    project: "partner-pipeline-platform",
+  });
+  const divya = await ensureUser(cookie, {
+    name: "Divya Patel",
+    email: "divya@example.com",
+    password: "password123",
+    role: "Student",
+    isAdmin: false,
+    isActive: true,
+    project: "mentor-dashboard-revamp",
+  });
+  console.log("✅ Users ready");
 
   // Projects
   const projA = await ensureProject(cookie, {
-    name: 'Partner Pipeline Platform',
-    project: 'partner-pipeline-platform',
+    name: "Partner Pipeline Platform",
+    project: "partner-pipeline-platform",
     isActive: true,
     lastUpdate: new Date().toISOString(),
     members: { connect: [{ id: kate.id }, { id: andrew.id }, { id: vic.id }, { id: divya.id }] },
   });
   const projB = await ensureProject(cookie, {
-    name: 'Mentor Dashboard Revamp',
-    project: 'mentor-dashboard-revamp',
+    name: "Mentor Dashboard Revamp",
+    project: "mentor-dashboard-revamp",
     isActive: true,
     lastUpdate: new Date().toISOString(),
     members: { connect: [{ id: kate.id }, { id: andrew.id }] },
   });
-  console.log('✅ Projects ready');
+  console.log("✅ Projects ready");
 
   // Milestones (using correct enum values)
-  const mA1 = await ensureMilestone(cookie, projA.id, 'Setup Keystone Backend', {
-    status: 'completed',
+  const mA1 = await ensureMilestone(cookie, projA.id, "Setup Keystone Backend", {
+    status: "completed",
     assignee: andrew.name,
     updatedBy: { connect: { id: andrew.id } },
   });
-  const mA2 = await ensureMilestone(cookie, projA.id, 'Integrate Frontend & GraphQL', {
-    status: 'in_progress',
+  const mA2 = await ensureMilestone(cookie, projA.id, "Integrate Frontend & GraphQL", {
+    status: "in_progress",
     assignee: vic.name,
     updatedBy: { connect: { id: vic.id } },
   });
-  const mB1 = await ensureMilestone(cookie, projB.id, 'UI Design Prototype', {
-    status: 'not_started',
+  const mB1 = await ensureMilestone(cookie, projB.id, "UI Design Prototype", {
+    status: "not_started",
     assignee: divya.name,
     updatedBy: { connect: { id: kate.id } },
   });
-  console.log('✅ Milestones ready');
+  console.log("✅ Milestones ready");
 
-  await createActivity(cookie, projA.id, mA1.id, andrew.id, 'not_started', 'completed');
-  await createActivity(cookie, projA.id, mA2.id, vic.id,    'not_started', 'in_progress');
-  console.log('✅ Activity logs added');
+  await createActivity(cookie, projA.id, mA1.id, andrew.id, "not_started", "completed");
+  await createActivity(cookie, projA.id, mA2.id, vic.id, "not_started", "in_progress");
+  console.log("✅ Activity logs added");
 
-  const invA = await ensureProjectInvitation(cookie, { email:'invite+students@example.com', projectId:projA.id, userId:kate.id });
-  const invB = await ensureProjectInvitation(cookie, { email:'invite+mentors@example.com',  projectId:projB.id, userId:andrew.id });
-  await ensureInvitationToken(cookie, { invitationId: invA.id, tokenHash: 'demo-hash-student', role: 'Student',        opts: { days:7,  maxUses:5, notes:'Student invite' } });
-  await ensureInvitationToken(cookie, { invitationId: invB.id, tokenHash: 'demo-hash-mentor',  role: 'Project Mentor', opts: { days:14, maxUses:2, notes:'Mentor invite' } });
+  const invA = await ensureProjectInvitation(cookie, {
+    email: "invite+students@example.com",
+    projectId: projA.id,
+    userId: kate.id,
+  });
+  const invB = await ensureProjectInvitation(cookie, {
+    email: "invite+mentors@example.com",
+    projectId: projB.id,
+    userId: andrew.id,
+  });
+  await ensureInvitationToken(cookie, {
+    invitationId: invA.id,
+    tokenHash: "demo-hash-student",
+    role: "Student",
+    opts: { days: 7, maxUses: 5, notes: "Student invite" },
+  });
+  await ensureInvitationToken(cookie, {
+    invitationId: invB.id,
+    tokenHash: "demo-hash-mentor",
+    role: "Project Mentor",
+    opts: { days: 14, maxUses: 2, notes: "Mentor invite" },
+  });
 
-  console.log('✅ Invitation tokens created');
-  console.log('🌟 All done! Data is live in Admin UI.');
-})().catch(e => { console.error('❌ Seed failed:', e); process.exit(1); });
+  console.log("✅ Invitation tokens created");
+  console.log("🌟 All done! Data is live in Admin UI.");
+})().catch((e) => {
+  console.error("❌ Seed failed:", e);
+  process.exit(1);
+});
