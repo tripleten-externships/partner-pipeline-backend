@@ -2,7 +2,7 @@ import { Router } from "express";
 import crypto from "crypto";
 import * as bcrypt from "bcryptjs";
 import type { Context } from ".keystone/types";
-import { inviteEmail } from "../controllers/sendInviteController";
+import { sendInviteController } from "../controllers/sendInviteController";
 import express from "express";
 import type { Request } from "express";
 
@@ -144,7 +144,14 @@ export function createInvitationsRouter(commonContext: Context) {
       });
 
       if (studentEmail && senderEmail && tokenHash) {
-        await inviteEmail(studentName, studentEmail, senderName, senderEmail, tokenHash);
+         await sendInviteController({
+          context,
+          toEmail: studentEmail,
+          toName: studentName,
+          projectInvitationId: req.params.projectId,
+          fromName: senderName,
+          fromEmail: senderEmail,
+  });
       }
 
       res.json({
