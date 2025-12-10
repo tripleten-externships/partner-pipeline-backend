@@ -1,6 +1,9 @@
 import express from "express";
 import type { Context } from ".keystone/types";
-import { getAverageResponseTime } from "../controllers/invitationAnalyticsController";
+import {
+  getAverageResponseTime,
+  getAcceptanceRate,
+} from "../controllers/invitationAnalyticsController";
 
 export function createInvitationAnalyticsRouter(commonContext: Context) {
   const router = express.Router();
@@ -9,6 +12,11 @@ export function createInvitationAnalyticsRouter(commonContext: Context) {
   router.get("/average-response-time", async (req, res) => {
     const context = await commonContext.withRequest(req, res);
     return getAverageResponseTime(context, req, res);
+  });
+
+  router.get("/acceptance-rate", async (req, res) => {
+    const context = await commonContext.withRequest(req, res);
+    return getAcceptanceRate(context, req, res);
   });
 
   return router;
