@@ -52,8 +52,8 @@ export async function sendInviteController<TypeInfo extends BaseKeystoneTypeInfo
     await sendInvitationEmail({
     toEmail,
     toName,
-    fromName,
-    fromEmail,
+    fromName: senderName,
+    fromEmail: senderEmail,
     invitationUrl,
   });
 
