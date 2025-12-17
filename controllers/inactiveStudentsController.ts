@@ -4,14 +4,10 @@ import type { Context } from ".keystone/types";
 /**
  * Counts inactive students
  */
-export async function getInactiveStudentsCount(
-  context: Context,
-  req: Request,
-  res: Response
-) {
+export async function getInactiveStudentsCount(context: Context, req: Request, res: Response) {
   try {
     const daysUncontacted = parseInt(req.query.daysUncontacted as string) || 30;
-    
+
     const cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() - daysUncontacted);
 
@@ -31,4 +27,3 @@ export async function getInactiveStudentsCount(
     });
   }
 }
-
