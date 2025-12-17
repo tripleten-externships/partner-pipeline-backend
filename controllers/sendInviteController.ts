@@ -14,9 +14,15 @@ export async function sendInviteController<TypeInfo extends BaseKeystoneTypeInfo
   toEmail: string;
   toName: string;
   projectId: string;
-  fromName: string;
-  fromEmail: string;
+  fromName?: string; // make optional so frontend doesn't require it - can set the default here on backend
+  fromEmail?: string; // make optional so frontend doesn't require it - can set the default here on backend
 }){
+    const DEFAULT_FROM_NAME = "Admin Team"; 
+    const DEFAULT_FROM_EMAIL = "no-reply@tripleten-internal.com"; // TODO: replace with actual default "from" email address
+
+    const senderName = fromName || DEFAULT_FROM_NAME;
+    const senderEmail = fromEmail || DEFAULT_FROM_EMAIL;
+
     const rawToken = generateInviteToken();
 
     const tokenHash = hashInviteToken(rawToken);
