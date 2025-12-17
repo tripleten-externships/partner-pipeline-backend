@@ -148,7 +148,7 @@ export function createInvitationsRouter(commonContext: Context) {
           context,
           toEmail: studentEmail,
           toName: studentName,
-          projectInvitationId: req.params.projectId,
+          projectId: req.params.projectId,
           fromName: senderName,
           fromEmail: senderEmail,
   });

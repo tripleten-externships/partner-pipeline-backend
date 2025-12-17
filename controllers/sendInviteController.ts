@@ -6,14 +6,14 @@ export async function sendInviteController<TypeInfo extends BaseKeystoneTypeInfo
   context,
   toEmail,
   toName,
-  projectInvitationId,
+  projectId,
   fromName,
   fromEmail,
 }: {
   context: KeystoneContext<TypeInfo>;
   toEmail: string;
   toName: string;
-  projectInvitationId: string;
+  projectId: string;
   fromName: string;
   fromEmail: string;
 }){
@@ -31,7 +31,7 @@ export async function sendInviteController<TypeInfo extends BaseKeystoneTypeInfo
             tokenHash,
             expiresAt,
             maxUses,
-            project: { connect: { id: projectInvitationId } },
+            project: { connect: { id: projectId } },
             // POTENTIAL FUTURE TODO: EXPAND roleToGrant TO ALSO INCLUDE: ExternalPartner 
             roleToGrant: "Student", // the role the invitee will become if they accept the invitation
             createdBy: { connect: { id: context.session?.data?.id } },
