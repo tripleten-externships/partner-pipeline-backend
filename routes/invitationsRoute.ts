@@ -55,7 +55,7 @@ export function createInvitationsRouter(commonContext: Context) {
   });
 
   // Create or update invitation and send email
-  router.post("/api/projects/:projectId/invitation", async (req, res) => {
+  router.post("/api/projects/:projectId/invitations", async (req, res) => {
     const context = await commonContext.withRequest(req, res);
     const session = (context.session as any)?.data;
 
