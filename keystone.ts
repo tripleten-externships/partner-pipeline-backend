@@ -13,6 +13,7 @@ import { createMilestoneRouter } from "./routes/milestoneDataRoutes";
 import { createActivityLogRouter } from "./routes/activityLogRoute";
 import { createInvitationsRouter } from "./routes/invitationsRoute";
 import { createCsvImportRouter } from "./routes/csvImportRoute";
+import { createInvitationAnalyticsRouter } from "./routes/invitationAnalyticsRoute";
 
 import { sendReminder } from "./controllers/reminderController";
 
@@ -47,6 +48,7 @@ export default withAuth(
         apiRouter.use("/milestones", createMilestoneRouter(commonContext));
         apiRouter.use("/activity", createActivityLogRouter(commonContext));
         apiRouter.use("/import", createCsvImportRouter(commonContext));
+        apiRouter.use("/invitations/analytics", createInvitationAnalyticsRouter(commonContext));
 
         //Mount the /api router once
         app.use("/api", apiRouter);
