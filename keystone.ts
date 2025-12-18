@@ -14,7 +14,7 @@ import { createActivityLogRouter } from "./routes/activityLogRoute";
 import { createInvitationsRouter } from "./routes/invitationsRoute";
 import { createCsvImportRouter } from "./routes/csvImportRoute";
 import { createInvitationAnalyticsRouter } from "./routes/invitationAnalyticsRoute";
-import { createInactiveStudentsRouter } from "./routes/inactiveStudentsRoute";
+import { createWaitlistRouter } from "./routes/waitlistRoute";
 
 import { sendReminder } from "./controllers/reminderController";
 
@@ -50,7 +50,7 @@ export default withAuth(
         apiRouter.use("/activity", createActivityLogRouter(commonContext));
         apiRouter.use("/import", createCsvImportRouter(commonContext));
         apiRouter.use("/invitations/analytics", createInvitationAnalyticsRouter(commonContext));
-        apiRouter.use("/waitlist", createInactiveStudentsRouter(commonContext));
+        apiRouter.use("/waitlist", createWaitlistRouter(commonContext));
 
         //Mount the /api router once
         app.use("/api", apiRouter);
