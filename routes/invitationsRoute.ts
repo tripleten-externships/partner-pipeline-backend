@@ -67,7 +67,7 @@ export function createInvitationsRouter(commonContext: Context) {
     }
 
     // Check authorization - only admins can create invitations
-    if (!permissions.isAdminLike()) {
+    if (!permissions.isAdminLike({ session })) {
       return res.status(403).json(createErrorResponse("FORBIDDEN", "Admin access required"));
     }
 
@@ -175,7 +175,7 @@ export function createInvitationsRouter(commonContext: Context) {
     }
 
     // Check authorization - only admins can create invitations
-    if (!permissions.isAdminLike()) {
+    if (!permissions.isAdminLike({ session })) {
       return res.status(403).json(createErrorResponse("FORBIDDEN", "Admin access required"));
     }
 
