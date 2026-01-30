@@ -854,6 +854,62 @@ input WaitlistEntryCreateInput {
   createdAt: DateTime
 }
 
+type waitListStudent {
+  id: ID!
+  name: String
+  email: String
+  status: String
+  inviteSentAt: DateTime
+  createdAt: DateTime
+}
+
+input waitListStudentWhereUniqueInput {
+  id: ID
+  email: String
+}
+
+input waitListStudentWhereInput {
+  AND: [waitListStudentWhereInput!]
+  OR: [waitListStudentWhereInput!]
+  NOT: [waitListStudentWhereInput!]
+  id: IDFilter
+  name: StringFilter
+  email: StringFilter
+  status: StringNullableFilter
+  inviteSentAt: DateTimeNullableFilter
+  createdAt: DateTimeNullableFilter
+}
+
+input waitListStudentOrderByInput {
+  id: OrderDirection
+  name: OrderDirection
+  email: OrderDirection
+  status: OrderDirection
+  inviteSentAt: OrderDirection
+  createdAt: OrderDirection
+}
+
+input waitListStudentUpdateInput {
+  name: String
+  email: String
+  status: String
+  inviteSentAt: DateTime
+  createdAt: DateTime
+}
+
+input waitListStudentUpdateArgs {
+  where: waitListStudentWhereUniqueInput!
+  data: waitListStudentUpdateInput!
+}
+
+input waitListStudentCreateInput {
+  name: String
+  email: String
+  status: String
+  inviteSentAt: DateTime
+  createdAt: DateTime
+}
+
 """
 The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
 """
@@ -920,6 +976,12 @@ type Mutation {
   updateWaitlistEntries(data: [WaitlistEntryUpdateArgs!]!): [WaitlistEntry]
   deleteWaitlistEntry(where: WaitlistEntryWhereUniqueInput!): WaitlistEntry
   deleteWaitlistEntries(where: [WaitlistEntryWhereUniqueInput!]!): [WaitlistEntry]
+  createwaitListStudent(data: waitListStudentCreateInput!): waitListStudent
+  createWaitListStudents(data: [waitListStudentCreateInput!]!): [waitListStudent]
+  updatewaitListStudent(where: waitListStudentWhereUniqueInput!, data: waitListStudentUpdateInput!): waitListStudent
+  updateWaitListStudents(data: [waitListStudentUpdateArgs!]!): [waitListStudent]
+  deletewaitListStudent(where: waitListStudentWhereUniqueInput!): waitListStudent
+  deleteWaitListStudents(where: [waitListStudentWhereUniqueInput!]!): [waitListStudent]
   endSession: Boolean!
   authenticateUserWithPassword(email: String!, password: String!): UserAuthenticationWithPasswordResult
   createInitialUser(data: CreateInitialUserInput!): UserAuthenticationWithPasswordSuccess!
@@ -973,6 +1035,9 @@ type Query {
   waitlistEntry(where: WaitlistEntryWhereUniqueInput!): WaitlistEntry
   waitlistEntries(where: WaitlistEntryWhereInput! = {}, orderBy: [WaitlistEntryOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: WaitlistEntryWhereUniqueInput): [WaitlistEntry!]
   waitlistEntriesCount(where: WaitlistEntryWhereInput! = {}): Int
+  waitListStudent(where: waitListStudentWhereUniqueInput!): waitListStudent
+  waitListStudents(where: waitListStudentWhereInput! = {}, orderBy: [waitListStudentOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: waitListStudentWhereUniqueInput): [waitListStudent!]
+  waitListStudentsCount(where: waitListStudentWhereInput! = {}): Int
   keystone: KeystoneMeta!
   authenticatedItem: AuthenticatedItem
 }
