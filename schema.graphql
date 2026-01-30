@@ -861,6 +861,7 @@ type waitListStudent {
   status: String
   inviteSentAt: DateTime
   createdAt: DateTime
+  notes: String
 }
 
 input waitListStudentWhereUniqueInput {
@@ -878,6 +879,7 @@ input waitListStudentWhereInput {
   status: StringNullableFilter
   inviteSentAt: DateTimeNullableFilter
   createdAt: DateTimeNullableFilter
+  notes: StringFilter
 }
 
 input waitListStudentOrderByInput {
@@ -887,6 +889,7 @@ input waitListStudentOrderByInput {
   status: OrderDirection
   inviteSentAt: OrderDirection
   createdAt: OrderDirection
+  notes: OrderDirection
 }
 
 input waitListStudentUpdateInput {
@@ -895,6 +898,7 @@ input waitListStudentUpdateInput {
   status: String
   inviteSentAt: DateTime
   createdAt: DateTime
+  notes: String
 }
 
 input waitListStudentUpdateArgs {
@@ -908,6 +912,7 @@ input waitListStudentCreateInput {
   status: String
   inviteSentAt: DateTime
   createdAt: DateTime
+  notes: String
 }
 
 """

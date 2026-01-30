@@ -162,4 +162,5 @@ model waitListStudent {
   status       String?   @default("pending")
   inviteSentAt DateTime?
   createdAt    DateTime? @default(now())
+  notes        String    @default("")
 }
