@@ -1,5 +1,4 @@
 import { Router } from "express";
-import { Context } from ".keystone/types";
 import { updateWaitlistStudent } from "../controllers/waitlistStudentController";
 
 export function createWaitlistRouter(commonContext: any) {
@@ -10,6 +9,5 @@ export function createWaitlistRouter(commonContext: any) {
     const context = await commonContext.withRequest(req, res);
     return updateWaitlistStudent(req, res, context);
   });
-
   return router;
 }
