@@ -1,8 +1,11 @@
 import { Router } from "express";
+import express from "express";
 import { updateWaitlistStudent } from "../controllers/waitlistStudentController";
 
 export function createWaitlistRouter(commonContext: any) {
   const router = Router();
+
+  router.use(express.json());
 
   // PATCH-like endpoint to update waitlist student info
   router.put("/:id", async (req, res) => {
