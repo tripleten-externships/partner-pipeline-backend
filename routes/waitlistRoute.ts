@@ -1,6 +1,6 @@
 import { Router } from "express";
 import express from "express";
-import { updateWaitlistStudent } from "../controllers/waitlistStudentController";
+import { updateWaitlistStudent } from "../controllers/studentController";
 
 export function createWaitlistRouter(commonContext: any) {
   const router = Router();

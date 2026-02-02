@@ -472,7 +472,7 @@ describe("Invitations Route", () => {
       const response = await request(app).post("/accept").send(validAcceptData);
 
       expect(response.status).toBe(404);
-      expect(response.body.error).toContain("Invalid or expired token");
+      expect(response.body.).toContain("Invalid or expired token");
       expect(response.body.code).toBe("NOT_FOUND");
     });
 
