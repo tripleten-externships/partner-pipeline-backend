@@ -35,6 +35,7 @@ export const updateWaitlistStudent = async (
     return;
   }
 
+  // Schema validation and normalization 3-4 (inline)
   // 3. PATCH-like update handling
   const updateData: Record<string, any> = {};
   if (name !== undefined) updateData.name = name;
@@ -43,7 +44,7 @@ export const updateWaitlistStudent = async (
   if (notes !== undefined) updateData.notes = notes;
 
   // Must have at least one field to update
-  if (Object.keys(updateData).length == 0) {
+  if (Object.keys(updateData).length === 0) {
     res.status(400).json(error("VALIDATION_ERROR", "No fields to update"));
     return;
   }
@@ -71,8 +72,6 @@ export const updateWaitlistStudent = async (
     updateData.email = normalizedEmail;
   }
   // status
-  console.log("status raw:", status, "type:", typeof status);
-
   if (status !== undefined) {
     if (typeof status !== "string") {
       res.status(400).json(error("VALIDATION_ERROR", "Invalid status type"));
