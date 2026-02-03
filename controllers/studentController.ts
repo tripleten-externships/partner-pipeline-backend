@@ -130,9 +130,30 @@ export const updateWaitlistStudent = async (
       query: "id name email status notes",
     });
 
-    res.status(200).json(updatedStudent);
+    // 8. If status is being updated + update activity log
+    if (updateData.status && updateData.status !== student.status) {
+      const oldStatus = student.status;
+      const newStatus = updateData.status;
+      try {
+        await context.query.ActivityLog.createOne({
+          data: {
+            updatedBy: { connect: { id: session.data.id } },
+            oldStatus,
+            newStatus,
+          },
+        });
+      } catch (logErr) {
+        console.error("Failed to create ActivityLog entry:", logErr);
+        // Proceed without blocking the main update
+      }
+    }
+
+    // 9. Return updated student
+    res.status(200).json({ data: updatedStudent });
+    return;
   } catch (err) {
     console.error("Error updating student:", err);
-    res.status(500).json(error("INTERNAL_SERVER_ERROR", "Internal server error"));
+    res.status(500).json(error("INTERNAL_SERVER_ERROR", "An error occurred"));
+    return;
   }
 };
