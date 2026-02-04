@@ -807,6 +807,7 @@ type WaitlistEntry {
   id: ID!
   name: String
   email: String
+  notes: String
   status: String
   createdAt: DateTime
 }
@@ -823,6 +824,7 @@ input WaitlistEntryWhereInput {
   id: IDFilter
   name: StringFilter
   email: StringFilter
+  notes: StringFilter
   status: StringNullableFilter
   createdAt: DateTimeNullableFilter
 }
@@ -831,6 +833,7 @@ input WaitlistEntryOrderByInput {
   id: OrderDirection
   name: OrderDirection
   email: OrderDirection
+  notes: OrderDirection
   status: OrderDirection
   createdAt: OrderDirection
 }
@@ -838,6 +841,7 @@ input WaitlistEntryOrderByInput {
 input WaitlistEntryUpdateInput {
   name: String
   email: String
+  notes: String
   status: String
   createdAt: DateTime
 }
@@ -850,6 +854,7 @@ input WaitlistEntryUpdateArgs {
 input WaitlistEntryCreateInput {
   name: String
   email: String
+  notes: String
   status: String
   createdAt: DateTime
 }

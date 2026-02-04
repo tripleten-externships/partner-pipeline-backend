@@ -151,6 +151,7 @@ model WaitlistEntry {
   id        String    @id @default(uuid())
   name      String    @default("")
   email     String    @unique @default("")
+  notes     String    @default("")
   status    String?   @default("pending")
   createdAt DateTime? @default(now())
 }
