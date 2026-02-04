@@ -14,7 +14,7 @@ import { createActivityLogRouter } from "./routes/activityLogRoute";
 import { createInvitationsRouter } from "./routes/invitationsRoute";
 import { createCsvImportRouter } from "./routes/csvImportRoute";
 import { createInvitationAnalyticsRouter } from "./routes/invitationAnalyticsRoute";
-import { createWaitlistEntryRouter } from "./routes/waitlistEntryRoute"
+import { createWaitlistEntryRouter } from "./routes/waitlistEntryRoute";
 import { sendReminder } from "./controllers/reminderController";
 
 import express from "express";
