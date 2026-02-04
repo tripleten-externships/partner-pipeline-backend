@@ -43,5 +43,9 @@ export const waitListStudent = list({
       defaultValue: { kind: "now" },
       ui: { itemView: { fieldMode: "read" } },
     }),
+    notes: text({
+      ui: { displayMode: "textarea" },
+      validation: { isRequired: false },
+    }),
   },
 });
