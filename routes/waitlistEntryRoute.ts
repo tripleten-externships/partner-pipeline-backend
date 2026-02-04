@@ -8,9 +8,9 @@ export function createWaitlistEntryRouter(commonContext: Context<BaseKeystoneTyp
   const router = Router();
   router.use(express.json());
 
+  // effective final api/waitlist-entry/:id/notes
   router.patch("/:id/notes", async (req, res) => {
     const context = await commonContext.withRequest(req, res);
-    console.log(context);
     if (!context) return res.status(500).send("Failed to get context");
 
     await updateWaitlistNotes(req, res, context);
