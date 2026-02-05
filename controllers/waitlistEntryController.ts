@@ -6,11 +6,16 @@ export const updateWaitlistNotes = async (req: Request, res: Response, context: 
     const { id } = req.params;
     const { notes } = req.body;
 
+    if (!id || typeof id !== "string") {
+      res.status(400).json({ error: "Invalid ID" });
+      return;
+    }
+
     if (!notes) {
       return res.status(400).json({ message: "Notes are required" });
     }
 
-    // update one waitlistEntry based on the id
+    // update waitlistEntry based on the id
     const updatedEntry = await context.db.WaitlistEntry.updateOne({
       where: { id },
       data: { notes },
