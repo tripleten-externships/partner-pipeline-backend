@@ -15,6 +15,8 @@ import { createInvitationsRouter } from "./routes/invitationsRoute";
 import { createCsvImportRouter } from "./routes/csvImportRoute";
 import { createInvitationAnalyticsRouter } from "./routes/invitationAnalyticsRoute";
 import { createWaitlistEntryRouter } from "./routes/waitlistEntryRoute";
+import { createWaitlistRouter } from "./routes/waitlistRoute";
+
 import { sendReminder } from "./controllers/reminderController";
 
 import express from "express";
@@ -50,6 +52,7 @@ export default withAuth(
         apiRouter.use("/import", createCsvImportRouter(commonContext));
         apiRouter.use("/invitations/analytics", createInvitationAnalyticsRouter(commonContext));
         apiRouter.use("/waitlist-entry", createWaitlistEntryRouter(commonContext));
+        apiRouter.use("/waitlist", createWaitlistRouter(commonContext));
 
         //Mount the /api router once
         app.use("/api", apiRouter);
