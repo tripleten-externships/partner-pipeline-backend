@@ -16,7 +16,9 @@ export const WaitlistEntry = list({
       validation: { isRequired: true },
       isIndexed: "unique",
     }),
-
+    notes: text({
+      ui: { displayMode: "textarea" },
+    }),
     status: select({
       options: [
         { label: "Pending", value: "pending" },
