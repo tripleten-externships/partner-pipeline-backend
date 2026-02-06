@@ -1,6 +1,6 @@
 import { Router } from "express";
 import express from "express";
-import { updateWaitlistStudent } from "../controllers/studentController";
+import { updateWaitlistStudent, deleteWaitlistStudent } from "../controllers/studentController";
 
 export function createWaitlistRouter(commonContext: any) {
   const router = Router();
@@ -12,5 +12,13 @@ export function createWaitlistRouter(commonContext: any) {
     const context = await commonContext.withRequest(req, res);
     return updateWaitlistStudent(req, res, context);
   });
+
+  router.delete("/:id", async (req, res) => {
+    // Keystone creates a context object for each request that includes database
+    // API's, session/auth info, etc...
+    const context = await commonContext.withRequest(req, res);
+    return deleteWaitlistStudent(req, res, context);
+  });
+
   return router;
 }

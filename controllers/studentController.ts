@@ -157,3 +157,15 @@ export const updateWaitlistStudent = async (
     return;
   }
 };
+
+export const deleteWaitlistStudent = async (
+  req: Request,
+  res: Response,
+  context: Context
+): Promise<void> => {
+  console.log("[CONTROLLER]: DELETE api/waitlist/:id endpoint triggered");
+
+  // TODO: implement delete logic.
+
+  return res.status(501).json(error("NOT_IMPLEMENTED", "This endpoint is not yet implemented."));
+};
