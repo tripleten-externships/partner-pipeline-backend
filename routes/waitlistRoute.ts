@@ -14,8 +14,8 @@ export function createWaitlistRouter(commonContext: any) {
   });
 
   router.delete("/:id", async (req, res) => {
-    // Keystone creates a context object for each request that includes database
-    // API's, session/auth info, etc...
+    // Keystone creates a request scoped context object for each request that
+    // includes database API's (context.db, context.query), session/auth info, etc...
     const context = await commonContext.withRequest(req, res);
     return deleteWaitlistStudent(req, res, context);
   });
