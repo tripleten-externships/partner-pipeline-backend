@@ -39,6 +39,7 @@ export const ActivityLog = list({
         { label: "invited", value: "invited" },
         { label: "accepted", value: "accepted" },
         { label: "rejected", value: "rejected" },
+        { label: "deleted", value: "deleted" },
       ],
     }),
     timestamp: timestamp({ defaultValue: { kind: "now" } }),

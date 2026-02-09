@@ -196,9 +196,25 @@ export const deleteWaitlistStudent = async (
       return;
     }
 
-    await context.db.waitListStudent.deleteOne({
+    const deleted = await context.db.waitListStudent.deleteOne({
       where: { id },
     });
+
+    if (deleted) {
+      const oldStatus = student.status;
+      const newStatus = "deleted";
+      try {
+        await context.query.ActivityLog.createOne({
+          data: {
+            updatedBy: { connect: { id: session.data.id } },
+            oldStatus,
+            newStatus,
+          },
+        });
+      } catch (logErr) {
+        console.error("Failed to create ActivityLog entry:", logErr);
+      }
+    }
 
     // Return clear 204 No Content on success.
     res.sendStatus(204);
