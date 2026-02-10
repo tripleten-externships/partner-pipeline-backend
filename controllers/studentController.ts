@@ -157,3 +157,71 @@ export const updateWaitlistStudent = async (
     return;
   }
 };
+
+export const deleteWaitlistStudent = async (
+  req: Request,
+  res: Response,
+  context: Context
+): Promise<void> => {
+  const { id } = req.params;
+
+  if (!id || typeof id !== "string") {
+    res.status(400).json(error("BAD_REQUEST", "Invalid Id"));
+    return;
+  }
+
+  // The client sends a keystone session cookie in the req headers. Keystone
+  // decodes it to get auth data upon each request.
+  const session = context.session;
+
+  // Not logged in..
+  if (!session) {
+    res.status(401).json(error("UNAUTHORIZED", "Not signed in"));
+    return;
+  }
+
+  // Logged in but not allowed..
+  if (session?.data?.isAdmin !== true) {
+    res.status(403).json(error("FORBIDDEN", "Admin access required"));
+    return;
+  }
+
+  try {
+    const student = await context.db.waitListStudent.findOne({
+      where: { id },
+    });
+
+    if (!student) {
+      res.status(404).json(error("NOT_FOUND", "Student not found"));
+      return;
+    }
+
+    const deleted = await context.db.waitListStudent.deleteOne({
+      where: { id },
+    });
+
+    if (deleted) {
+      const oldStatus = student.status;
+      const newStatus = "deleted";
+      try {
+        await context.query.ActivityLog.createOne({
+          data: {
+            updatedBy: { connect: { id: session.data.id } },
+            oldStatus,
+            newStatus,
+          },
+        });
+      } catch (logErr) {
+        console.error("Failed to create ActivityLog entry:", logErr);
+      }
+    }
+
+    // Return clear 204 No Content on success.
+    res.sendStatus(204);
+    return;
+  } catch (err) {
+    console.error("Error deleting student: ", err);
+    res.status(500).json(error("INTERNAL_SERVER_ERROR", "An error occurred"));
+    return;
+  }
+};
