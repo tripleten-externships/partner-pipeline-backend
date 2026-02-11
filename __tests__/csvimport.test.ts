@@ -12,7 +12,7 @@ const mockUpdateOne = jest.fn();
 const mockContext = {
   sudo: jest.fn(() => ({
     query: {
-      WaitlistEntry: {
+      waitListStudent: {
         findMany: mockFindMany,
         createOne: mockCreateOne,
         updateOne: mockUpdateOne,
@@ -38,16 +38,16 @@ describe("CSV Import Route", () => {
     jest.clearAllMocks();
   });
 
-  describe("GET /api/_csv/health", () => {
+  describe("GET /_csv/health", () => {
     it("should return health check", async () => {
-      const response = await request(app).get("/api/_csv/health");
+      const response = await request(app).get("/_csv/health");
 
       expect(response.status).toBe(200);
       expect(response.text).toBe("ok-csv-import");
     });
   });
 
-  describe("POST /api/waitlist/import", () => {
+  describe("POST /waitlist/import", () => {
     describe("Success Cases", () => {
       it("should import valid CSV with all fields", async () => {
         const csvContent =
@@ -61,7 +61,7 @@ describe("CSV Import Route", () => {
         mockCreateOne.mockResolvedValueOnce({ id: "1" }).mockResolvedValueOnce({ id: "2" });
 
         const response = await request(app)
-          .post("/api/waitlist/import")
+          .post("/waitlist/import")
           .attach("file", Buffer.from(csvContent), {
             filename: "test.csv",
             contentType: "text/csv",
@@ -86,7 +86,7 @@ describe("CSV Import Route", () => {
         mockCreateOne.mockResolvedValueOnce({ id: "1" });
 
         const response = await request(app)
-          .post("/api/waitlist/import")
+          .post("/waitlist/import")
           .attach("file", Buffer.from(csvContent), {
             filename: "test.csv",
             contentType: "text/csv",
@@ -113,7 +113,7 @@ describe("CSV Import Route", () => {
         mockUpdateOne.mockResolvedValueOnce({ id: "existing-1" });
 
         const response = await request(app)
-          .post("/api/waitlist/import")
+          .post("/waitlist/import")
           .attach("file", Buffer.from(csvContent), {
             filename: "test.csv",
             contentType: "text/csv",
@@ -135,7 +135,7 @@ describe("CSV Import Route", () => {
 
     describe("File Upload Error Handling", () => {
       it("should handle missing file", async () => {
-        const response = await request(app).post("/api/waitlist/import");
+        const response = await request(app).post("/waitlist/import");
 
         expect(response.status).toBe(400);
         expect(response.body).toEqual({
@@ -147,7 +147,7 @@ describe("CSV Import Route", () => {
     describe("CSV Format Error Handling", () => {
       it("should reject empty CSV files", async () => {
         const response = await request(app)
-          .post("/api/waitlist/import")
+          .post("/waitlist/import")
           .attach("file", Buffer.from(""), {
             filename: "empty.csv",
             contentType: "text/csv",
@@ -163,7 +163,7 @@ describe("CSV Import Route", () => {
         const csvContent = "fullname,email_address\nJohn Doe,john@test.com";
 
         const response = await request(app)
-          .post("/api/waitlist/import")
+          .post("/waitlist/import")
           .attach("file", Buffer.from(csvContent), {
             filename: "test.csv",
             contentType: "text/csv",
@@ -184,7 +184,7 @@ describe("CSV Import Route", () => {
         mockCreateOne.mockResolvedValueOnce({ id: "1" });
 
         const response = await request(app)
-          .post("/api/waitlist/import")
+          .post("/waitlist/import")
           .attach("file", Buffer.from(csvContent), {
             filename: "test.csv",
             contentType: "text/csv",
@@ -205,7 +205,7 @@ describe("CSV Import Route", () => {
         mockCreateOne.mockResolvedValueOnce({ id: "1" });
 
         const response = await request(app)
-          .post("/api/waitlist/import")
+          .post("/waitlist/import")
           .attach("file", Buffer.from(csvContent), {
             filename: "test.csv",
             contentType: "text/csv",
@@ -224,7 +224,7 @@ describe("CSV Import Route", () => {
         mockCreateOne.mockResolvedValueOnce({ id: "1" });
 
         const response = await request(app)
-          .post("/api/waitlist/import")
+          .post("/waitlist/import")
           .attach("file", Buffer.from(csvContent), {
             filename: "test.csv",
             contentType: "text/csv",
@@ -246,7 +246,7 @@ describe("CSV Import Route", () => {
         mockCreateOne.mockRejectedValueOnce(new Error("Database connection failed"));
 
         const response = await request(app)
-          .post("/api/waitlist/import")
+          .post("/waitlist/import")
           .attach("file", Buffer.from(csvContent), {
             filename: "test.csv",
             contentType: "text/csv",
