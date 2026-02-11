@@ -33,9 +33,9 @@ const upload = multer({
 export function createCsvImportRouter(commonContext: KeystoneContext) {
   const router = express.Router();
 
-  router.get("/api/_csv/health", (_req, res) => res.send("ok-csv-import"));
+  router.get("/_csv/health", (_req, res) => res.send("ok-csv-import"));
 
-  router.post("/api/waitlist/import", (req, res) => {
+  router.post("/waitlist/import", (req, res) => {
     upload.single("file")(req, res, async (err) => {
       // Handle multer errors
       if (err instanceof multer.MulterError) {
@@ -148,14 +148,14 @@ export function createCsvImportRouter(commonContext: KeystoneContext) {
             }
 
             // Check if exists
-            const existingStudents = await context.query.WaitlistEntry.findMany({
+            const existingStudents = await context.query.waitListStudent.findMany({
               where: { email: { equals: email.toLowerCase().trim() } },
               take: 1,
             });
 
             if (existingStudents.length > 0) {
               // Update
-              await context.query.WaitlistEntry.updateOne({
+              await context.query.waitListStudent.updateOne({
                 where: { id: existingStudents[0].id },
                 data: {
                   name: name.trim(),
@@ -166,7 +166,7 @@ export function createCsvImportRouter(commonContext: KeystoneContext) {
               results.updated++;
             } else {
               // Create
-              await context.query.WaitlistEntry.createOne({
+              await context.query.waitListStudent.createOne({
                 data: {
                   name: name.trim(),
                   email: email.toLowerCase().trim(),
