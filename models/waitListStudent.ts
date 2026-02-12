@@ -1,5 +1,5 @@
 import { list } from "@keystone-6/core";
-import { text, select, timestamp } from "@keystone-6/core/fields";
+import { text, select, timestamp, relationship, checkbox } from "@keystone-6/core/fields";
 
 // Waitlist model to manage a waitlist of students or users
 export const waitListStudent = list({
@@ -47,5 +47,21 @@ export const waitListStudent = list({
       ui: { displayMode: "textarea" },
       validation: { isRequired: false },
     }),
+    program: select({
+      options: [
+        { label: "AI & Machine Learning", value: "ai_machine_learning" },
+        { label: "AI Automation", value: "ai_automation" },
+        { label: "Business Intelligence Analytics", value: "business_intelligence_analytics" },
+        { label: "Cyber Security", value: "cyber_security" },
+        { label: "Quality Assurance", value: "quality_assurance" },
+        { label: "AI Software Engineering", value: "ai_software_engineering" },
+        { label: "UX/UI Design", value: "ux_ui_design" },
+      ],
+      ui: { displayMode: "select" },
+    }),
+    completedOn: timestamp(),
+    contactedBy: relationship({ ref: "User.waitlistContacts", many: false }),
+    lastContactedOn: timestamp(),
+    hasVoucher: checkbox({ defaultValue: false }),
   },
 });
