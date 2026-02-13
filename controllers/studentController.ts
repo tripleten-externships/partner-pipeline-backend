@@ -3,6 +3,17 @@ import { Context } from ".keystone/types";
 
 const ALLOWED_STATUSES = ["pending", "invited", "accepted", "rejected"];
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const WAITLIST_SELECT =
+  "id name email status notes program completedOn contactedBy { id } lastContactedOn hasVoucher";
+const MAP_UI_TO_DB: Record<string, string> = {
+  "ai/ml": "ai_machine_learning",
+  "ai automation": "ai_automation",
+  "bi analytics": "business_intelligence_analytics",
+  cs: "cyber_security",
+  qa: "quality_assurance",
+  "ai se": "ai_software_engineering",
+  "ux/ui": "ux_ui_design",
+};
 
 function error(code: string, message: string, details?: any) {
   return { error: { message, code, ...(details ? { details } : {}) } };
@@ -16,7 +27,17 @@ export const updateWaitlistStudent = async (
   console.log("updateWaitlistStudent endpoint triggered");
 
   const { id } = req.params;
-  const { name, email, status, notes } = req.body ?? {};
+  const {
+    name,
+    email,
+    status,
+    notes,
+    program,
+    completedOn,
+    contactedBy,
+    lastContactedOn,
+    hasVoucher,
+  } = req.body ?? {};
 
   // 1. Validate ID
   if (!id || typeof id !== "string") {
@@ -35,20 +56,26 @@ export const updateWaitlistStudent = async (
     return;
   }
 
-  // Schema validation and normalization 3-4 (inline)
-  // 3. PATCH-like update handling
-  const updateData: Record<string, any> = {};
-  if (name !== undefined) updateData.name = name;
-  if (email !== undefined) updateData.email = email;
-  if (status !== undefined) updateData.status = status;
-  if (notes !== undefined) updateData.notes = notes;
+  // 3. Ensure at least one field was provided
+  const hasAnyField =
+    name !== undefined ||
+    email !== undefined ||
+    status !== undefined ||
+    notes !== undefined ||
+    program !== undefined ||
+    completedOn !== undefined ||
+    contactedBy !== undefined ||
+    lastContactedOn !== undefined ||
+    hasVoucher !== undefined;
 
-  // Must have at least one field to update
-  if (Object.keys(updateData).length === 0) {
+  if (!hasAnyField) {
     res.status(400).json(error("VALIDATION_ERROR", "No fields to update"));
     return;
   }
 
+  const updateData: Record<string, any> = {};
+
+  // Validation schema
   // 4. Validate fields (if provided)
   // name
   if (name !== undefined) {
@@ -96,12 +123,75 @@ export const updateWaitlistStudent = async (
     }
     updateData.notes = notes;
   }
+  // program
+  if (program !== undefined) {
+    if (typeof program !== "string") {
+      res.status(400).json(error("VALIDATION_ERROR", "Invalid program type"));
+      return;
+    }
+
+    const key = program.trim().toLowerCase();
+    const mapped = MAP_UI_TO_DB[key];
+
+    if (!mapped) {
+      res
+        .status(400)
+        .json(
+          error("VALIDATION_ERROR", "Invalid program value", { allowed: Object.keys(MAP_UI_TO_DB) })
+        );
+      return;
+    }
+    updateData.program = mapped;
+  }
+  // completedOn
+  if (completedOn !== undefined) {
+    if (typeof completedOn !== "string" || Number.isNaN(Date.parse(completedOn))) {
+      res.status(400).json(error("VALIDATION_ERROR", "Invalid completedOn date"));
+      return;
+    }
+    updateData.completedOn = completedOn;
+  }
+  // lastContactedOn
+  if (lastContactedOn !== undefined) {
+    if (typeof lastContactedOn !== "string" || Number.isNaN(Date.parse(lastContactedOn))) {
+      res.status(400).json(error("VALIDATION_ERROR", "Invalid lastContactedOn date"));
+      return;
+    }
+    updateData.lastContactedOn = lastContactedOn;
+  }
+  // contactedBy
+  if (contactedBy !== undefined) {
+    if (typeof contactedBy !== "string" || contactedBy.trim().length === 0) {
+      res.status(400).json(error("VALIDATION_ERROR", "Invalid contactedBy user ID"));
+      return;
+    }
+    updateData.contactedBy = { connect: { id: contactedBy.trim() } };
+
+    // When contactedBy changes, lastContactedOn updates
+    if (lastContactedOn === undefined) {
+      updateData.lastContactedOn = new Date().toISOString();
+    }
+  }
+  // hasVoucher
+  if (hasVoucher !== undefined) {
+    if (typeof hasVoucher !== "boolean") {
+      res.status(400).json(error("VALIDATION_ERROR", "Invalid voucher selection"));
+      return;
+    }
+    updateData.hasVoucher = hasVoucher;
+  }
+
+  // Must have at least one field to update
+  if (Object.keys(updateData).length === 0) {
+    res.status(400).json(error("VALIDATION_ERROR", "No valid fields to update"));
+    return;
+  }
 
   // 5. Fetch waitlist student by ID
   try {
     const student = await context.query.waitListStudent.findOne({
       where: { id },
-      query: ` id name email status notes `,
+      query: WAITLIST_SELECT,
     });
 
     if (!student) {
@@ -114,7 +204,7 @@ export const updateWaitlistStudent = async (
       const existing = await context.query.waitListStudent.findMany({
         where: { email: { equals: updateData.email } },
         take: 1,
-        query: " id ",
+        query: "id",
       });
 
       if (existing.length > 0 && existing[0].id !== id) {
@@ -127,7 +217,7 @@ export const updateWaitlistStudent = async (
     const updatedStudent = await context.query.waitListStudent.updateOne({
       where: { id },
       data: updateData,
-      query: "id name email status notes",
+      query: WAITLIST_SELECT,
     });
 
     // 8. If status is being updated + update activity log
@@ -174,7 +264,7 @@ export const deleteWaitlistStudent = async (
   // decodes it to get auth data upon each request.
   const session = context.session;
 
-  // Not logged in..
+  // Not logged in
   if (!session) {
     res.status(401).json(error("UNAUTHORIZED", "Not signed in"));
     return;
