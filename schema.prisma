@@ -28,6 +28,7 @@ model User {
   projects                       Project?            @relation("User_projects", fields: [projectsId], references: [id])
   projectsId                     String?             @map("projects")
   invitation                     ProjectInvitation[] @relation("ProjectInvitation_user")
+  waitlistContacts               waitListStudent[]   @relation("waitListStudent_contactedBy")
   from_UserLog_user              UserLog[]           @relation("UserLog_user")
   from_Milestone_updatedBy       Milestone[]         @relation("Milestone_updatedBy")
   from_InvitationToken_createdBy InvitationToken[]   @relation("InvitationToken_createdBy")
@@ -148,11 +149,19 @@ model InvitationTokenLog {
 }
 
 model waitListStudent {
-  id           String    @id @default(uuid())
-  name         String    @default("")
-  email        String    @unique @default("")
-  status       String?   @default("pending")
-  inviteSentAt DateTime?
-  createdAt    DateTime? @default(now())
-  notes        String    @default("")
+  id              String    @id @default(uuid())
+  name            String    @default("")
+  email           String    @unique @default("")
+  status          String?   @default("pending")
+  inviteSentAt    DateTime?
+  createdAt       DateTime? @default(now())
+  notes           String    @default("")
+  program         String?
+  completedOn     DateTime?
+  contactedBy     User?     @relation("waitListStudent_contactedBy", fields: [contactedById], references: [id])
+  contactedById   String?   @map("contactedBy")
+  lastContactedOn DateTime?
+  hasVoucher      Boolean   @default(false)
+
+  @@index([contactedById])
 }

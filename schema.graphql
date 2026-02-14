@@ -19,6 +19,8 @@ type User {
   projects: Project
   invitation(where: ProjectInvitationWhereInput! = {}, orderBy: [ProjectInvitationOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ProjectInvitationWhereUniqueInput): [ProjectInvitation!]
   invitationCount(where: ProjectInvitationWhereInput! = {}): Int
+  waitlistContacts(where: waitListStudentWhereInput! = {}, orderBy: [waitListStudentOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: waitListStudentWhereUniqueInput): [waitListStudent!]
+  waitlistContactsCount(where: waitListStudentWhereInput! = {}): Int
 }
 
 type PasswordState {
@@ -50,6 +52,7 @@ input UserWhereInput {
   activityLogs: ActivityLogManyRelationFilter
   projects: ProjectWhereInput
   invitation: ProjectInvitationManyRelationFilter
+  waitlistContacts: waitListStudentManyRelationFilter
 }
 
 input IDFilter {
@@ -144,6 +147,12 @@ input ProjectInvitationManyRelationFilter {
   none: ProjectInvitationWhereInput
 }
 
+input waitListStudentManyRelationFilter {
+  every: waitListStudentWhereInput
+  some: waitListStudentWhereInput
+  none: waitListStudentWhereInput
+}
+
 input UserOrderByInput {
   id: OrderDirection
   name: OrderDirection
@@ -178,6 +187,7 @@ input UserUpdateInput {
   activityLogs: ActivityLogRelateToManyForUpdateInput
   projects: ProjectRelateToOneForUpdateInput
   invitation: ProjectInvitationRelateToManyForUpdateInput
+  waitlistContacts: waitListStudentRelateToManyForUpdateInput
 }
 
 input ActivityLogRelateToManyForUpdateInput {
@@ -200,6 +210,13 @@ input ProjectInvitationRelateToManyForUpdateInput {
   connect: [ProjectInvitationWhereUniqueInput!]
 }
 
+input waitListStudentRelateToManyForUpdateInput {
+  disconnect: [waitListStudentWhereUniqueInput!]
+  set: [waitListStudentWhereUniqueInput!]
+  create: [waitListStudentCreateInput!]
+  connect: [waitListStudentWhereUniqueInput!]
+}
+
 input UserUpdateArgs {
   where: UserWhereUniqueInput!
   data: UserUpdateInput!
@@ -220,6 +237,7 @@ input UserCreateInput {
   activityLogs: ActivityLogRelateToManyForCreateInput
   projects: ProjectRelateToOneForCreateInput
   invitation: ProjectInvitationRelateToManyForCreateInput
+  waitlistContacts: waitListStudentRelateToManyForCreateInput
 }
 
 input ActivityLogRelateToManyForCreateInput {
@@ -235,6 +253,11 @@ input ProjectRelateToOneForCreateInput {
 input ProjectInvitationRelateToManyForCreateInput {
   create: [ProjectInvitationCreateInput!]
   connect: [ProjectInvitationWhereUniqueInput!]
+}
+
+input waitListStudentRelateToManyForCreateInput {
+  create: [waitListStudentCreateInput!]
+  connect: [waitListStudentWhereUniqueInput!]
 }
 
 type UserLog {
@@ -811,6 +834,11 @@ type waitListStudent {
   inviteSentAt: DateTime
   createdAt: DateTime
   notes: String
+  program: String
+  completedOn: DateTime
+  contactedBy: User
+  lastContactedOn: DateTime
+  hasVoucher: Boolean
 }
 
 input waitListStudentWhereUniqueInput {
@@ -829,6 +857,11 @@ input waitListStudentWhereInput {
   inviteSentAt: DateTimeNullableFilter
   createdAt: DateTimeNullableFilter
   notes: StringFilter
+  program: StringNullableFilter
+  completedOn: DateTimeNullableFilter
+  contactedBy: UserWhereInput
+  lastContactedOn: DateTimeNullableFilter
+  hasVoucher: BooleanFilter
 }
 
 input waitListStudentOrderByInput {
@@ -839,6 +872,10 @@ input waitListStudentOrderByInput {
   inviteSentAt: OrderDirection
   createdAt: OrderDirection
   notes: OrderDirection
+  program: OrderDirection
+  completedOn: OrderDirection
+  lastContactedOn: OrderDirection
+  hasVoucher: OrderDirection
 }
 
 input waitListStudentUpdateInput {
@@ -848,6 +885,11 @@ input waitListStudentUpdateInput {
   inviteSentAt: DateTime
   createdAt: DateTime
   notes: String
+  program: String
+  completedOn: DateTime
+  contactedBy: UserRelateToOneForUpdateInput
+  lastContactedOn: DateTime
+  hasVoucher: Boolean
 }
 
 input waitListStudentUpdateArgs {
@@ -862,6 +904,11 @@ input waitListStudentCreateInput {
   inviteSentAt: DateTime
   createdAt: DateTime
   notes: String
+  program: String
+  completedOn: DateTime
+  contactedBy: UserRelateToOneForCreateInput
+  lastContactedOn: DateTime
+  hasVoucher: Boolean
 }
 
 """

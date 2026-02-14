@@ -72,6 +72,7 @@ export const User: ListConfig<Lists.User.TypeInfo<any>> = list({
     activityLogs: relationship({ ref: "ActivityLog.updatedBy", many: true }),
     projects: relationship({ ref: "Project.members" }),
     invitation: relationship({ ref: "ProjectInvitation.user", many: true }),
+    waitlistContacts: relationship({ ref: "waitListStudent.contactedBy", many: true }),
   },
   hooks: {
     resolveInput: async (args: {
