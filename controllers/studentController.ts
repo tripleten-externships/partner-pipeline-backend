@@ -6,6 +6,7 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const WAITLIST_SELECT =
   "id name email status notes program completedOn contactedBy { id } lastContactedOn hasVoucher";
 const MAP_UI_TO_DB: Record<string, string> = {
+  se: "software_engineering",
   "ai/ml": "ai_machine_learning",
   "ai automation": "ai_automation",
   "bi analytics": "business_intelligence_analytics",
