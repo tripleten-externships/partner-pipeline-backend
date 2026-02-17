@@ -49,6 +49,7 @@ export const waitListStudent = list({
     }),
     program: select({
       options: [
+        { label: "SE", value: "software_engineering" },
         { label: "AI/ML", value: "ai_machine_learning" },
         { label: "AI Automation", value: "ai_automation" },
         { label: "BI Analytics", value: "business_intelligence_analytics" },
