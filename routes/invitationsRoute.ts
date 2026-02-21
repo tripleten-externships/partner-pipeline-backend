@@ -153,8 +153,19 @@ export function createInvitationsRouter(commonContext: Context) {
     }
   });
 
+  // Test route to verify router is working
+  router.get("/ping", (req, res) => {
+    res.json({ ok: true, route: "projects invitations router" });
+  });
+
   // Create or update invitation and send email
   router.post("/:projectId/invitations", async (req, res) => {
+    console.log("✅ HIT POST /:projectId/invitations", {
+      originalUrl: req.originalUrl,
+      params: req.params,
+      body: req.body,
+    });
+
     const context = await commonContext.withRequest(req, res);
     const session = (context.session as any)?.data;
 

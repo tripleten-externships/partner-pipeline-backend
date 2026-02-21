@@ -6,16 +6,23 @@ type Session = {
   };
 };
 
-export const isSignedIn = ({ session }: { session?: Session }) => !!session;
+export const isSignedIn = ({ session }: { session?: Session }) => !!session?.data?.id;
+
+const normalizeRole = (role?: string) => (role ?? "").trim().toLowerCase();
 
 // Granular helpers
 export const permissions = {
-  isStudent: ({ session }: { session?: Session }) => session?.data.role === "Student",
-  isProjectMentor: ({ session }: { session?: Session }) => session?.data.role === "Project Mentor",
-  isLeadMentor: ({ session }: { session?: Session }) => session?.data.role === "Lead Mentor",
+  isStudent: ({ session }: { session?: Session }) =>
+    normalizeRole(session?.data.role) === "student",
+  isProjectMentor: ({ session }: { session?: Session }) =>
+    normalizeRole(session?.data.role) === "project mentor",
+  isLeadMentor: ({ session }: { session?: Session }) =>
+    normalizeRole(session?.data.role) === "lead mentor",
   isExternalPartner: ({ session }: { session?: Session }) =>
-    session?.data.role === "External Partner",
-  isAdminLike: ({ session }: { session?: Session }) =>
-    ["Admin", "Lead Mentor", "Project Mentor"].includes(session?.data.role ?? ""),
+    normalizeRole(session?.data.role) === "external partner",
+  isAdminLike: ({ session }: { session?: Session }) => {
+    const role = normalizeRole(session?.data?.role);
+    return ["admin", "lead mentor", "project mentor"].includes(role);
+  },
   isProjectMember: ({ session }: { session?: Session }) => session?.data.project === "",
 };

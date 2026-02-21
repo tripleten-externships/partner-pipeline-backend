@@ -52,6 +52,12 @@ export default withAuth(
         apiRouter.use("/invitations/analytics", createInvitationAnalyticsRouter(commonContext));
         apiRouter.use("/waitlist", createWaitlistRouter(commonContext));
 
+        // Test route to verify API router is working
+        apiRouter.use((req, _res, next) => {
+          console.log("🔥 /api hit:", req.method, req.originalUrl);
+          next();
+        });
+
         //Mount the /api router once
         app.use("/api", apiRouter);
 
