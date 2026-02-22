@@ -67,7 +67,7 @@ export function createInvitationsRouter(commonContext: Context) {
     }
 
     // Check authorization - only admins can create invitations
-    if (!permissions.isAdminLike({ session })) {
+    if (!permissions.isAdminLike({ session: context.session as any })) {
       return res.status(403).json(createErrorResponse("FORBIDDEN", "Admin access required"));
     }
 
@@ -153,19 +153,8 @@ export function createInvitationsRouter(commonContext: Context) {
     }
   });
 
-  // Test route to verify router is working
-  router.get("/ping", (req, res) => {
-    res.json({ ok: true, route: "projects invitations router" });
-  });
-
   // Create or update invitation and send email
   router.post("/:projectId/invitations", async (req, res) => {
-    console.log("✅ HIT POST /:projectId/invitations", {
-      originalUrl: req.originalUrl,
-      params: req.params,
-      body: req.body,
-    });
-
     const context = await commonContext.withRequest(req, res);
     const session = (context.session as any)?.data;
 
@@ -178,6 +167,8 @@ export function createInvitationsRouter(commonContext: Context) {
       recipientEmail?: string;
       recipientName?: string;
       token?: string;
+      name?: string;
+      email?: string;
     };
 
     // Check authentication
@@ -186,7 +177,7 @@ export function createInvitationsRouter(commonContext: Context) {
     }
 
     // Check authorization - only admins can create invitations
-    if (!permissions.isAdminLike({ session })) {
+    if (!permissions.isAdminLike({ session: context.session as any })) {
       return res.status(403).json(createErrorResponse("FORBIDDEN", "Admin access required"));
     }
 
@@ -198,10 +189,15 @@ export function createInvitationsRouter(commonContext: Context) {
       studentId = "",
       recipientEmail = "",
       recipientName = "",
+      email = "",
+      name = "",
     } = body;
 
+    const finalRecipientEmail = recipientEmail || email;
+    const finalRecipientName = recipientName || name;
+
     // Validate recipientEmail
-    if (recipientEmail && !isValidEmail(recipientEmail)) {
+    if (finalRecipientEmail && !isValidEmail(finalRecipientEmail)) {
       return res.status(400).json(
         createErrorResponse("VALIDATION_ERROR", "Invalid email format", {
           field: "recipientEmail",
