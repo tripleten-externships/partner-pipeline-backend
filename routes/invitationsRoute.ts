@@ -8,12 +8,13 @@ import type { Request } from "express";
 import { permissions } from "../utils/access";
 
 // Validation constants
-const ALLOWED_ROLES = ["Student", "Project Mentor", "Mentor", "Admin"] as const;
+const ALLOWED_ROLES = ["Student", "Project Mentor", "Lead Mentor", "External Partner"] as const;
 const MAX_USES_MIN = 1;
 const MAX_USES_MAX = 100;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MAX_NAME_LENGTH = 255;
 const MAX_NOTES_LENGTH = 1000;
+const DEFAULT_INVITE_EXPIRY = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
 
 // Security constants
 const TOKEN_BYTE_SIZE = 32; // Size in bytes for crypto.randomBytes
@@ -74,13 +75,20 @@ export function createInvitationsRouter(commonContext: Context) {
     const { roleToGrant = "Student", expiresAt, maxUses = 1, notes = "" } = body ?? {};
 
     // Validate expiresAt
-    if (!expiresAt || isNaN(Date.parse(expiresAt))) {
-      return res.status(400).json(
-        createErrorResponse("VALIDATION_ERROR", "expiresAt (ISO) is required and must be valid", {
-          field: "expiresAt",
-          value: expiresAt,
-        })
-      );
+    let expirationDate: Date;
+    if (!expiresAt) {
+      // compute default expiration (7 days from now)
+      expirationDate = new Date(Date.now() + DEFAULT_INVITE_EXPIRY);
+    } else {
+      expirationDate = new Date(expiresAt);
+      if (Number.isNaN(expirationDate.getTime())) {
+        return res.status(400).json(
+          createErrorResponse("VALIDATION_ERROR", "expiresAt must be a valid date", {
+            field: "expiresAt",
+            value: expiresAt,
+          })
+        );
+      }
     }
 
     // Validate roleToGrant
@@ -127,7 +135,7 @@ export function createInvitationsRouter(commonContext: Context) {
           tokenHash,
           project: { connect: { id: req.params.projectId } },
           roleToGrant,
-          expiresAt: new Date(expiresAt).toISOString(),
+          expiresAt: expirationDate.toISOString(),
           maxUses: maxUsesNum,
           createdBy: { connect: { id: session.id } },
           notes,
@@ -201,17 +209,17 @@ export function createInvitationsRouter(commonContext: Context) {
       return res.status(400).json(
         createErrorResponse("VALIDATION_ERROR", "Invalid email format", {
           field: "recipientEmail",
-          value: recipientEmail,
+          value: finalRecipientEmail,
         })
       );
     }
 
     // Validate recipientName length
-    if (recipientName && recipientName.length > MAX_NAME_LENGTH) {
+    if (finalRecipientName && finalRecipientName.length > MAX_NAME_LENGTH) {
       return res.status(400).json(
         createErrorResponse("VALIDATION_ERROR", "Recipient name too long", {
           field: "recipientName",
-          currentLength: recipientName.length,
+          currentLength: finalRecipientName.length,
           maxLength: MAX_NAME_LENGTH,
         })
       );
@@ -229,13 +237,20 @@ export function createInvitationsRouter(commonContext: Context) {
     }
 
     // Validate expiresAt
-    if (!expiresAt || isNaN(Date.parse(expiresAt))) {
-      return res.status(400).json(
-        createErrorResponse("VALIDATION_ERROR", "expiresAt is required and must be valid", {
-          field: "expiresAt",
-          value: expiresAt,
-        })
-      );
+    let expirationDate: Date;
+    if (!expiresAt) {
+      // compute default expiration (7 days from now)
+      expirationDate = new Date(Date.now() + DEFAULT_INVITE_EXPIRY);
+    } else {
+      expirationDate = new Date(expiresAt);
+      if (Number.isNaN(expirationDate.getTime())) {
+        return res.status(400).json(
+          createErrorResponse("VALIDATION_ERROR", "expiresAt must be a valid date", {
+            field: "expiresAt",
+            value: expiresAt,
+          })
+        );
+      }
     }
 
     // Validate maxUses
@@ -270,9 +285,6 @@ export function createInvitationsRouter(commonContext: Context) {
         })
       );
     }
-
-    const expirationDate = new Date(expiresAt);
-    const currentDate = new Date();
 
     // Handle both existing user invitations and email-based invitations
     let student = null;

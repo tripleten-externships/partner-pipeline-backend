@@ -196,14 +196,15 @@ describe("Invitations Route", () => {
       expect(response.text).toContain("Authentication required");
     });
 
-    it("should return 400 when expiresAt is missing", async () => {
+    it("should default expiresAt when it is missing", async () => {
       const invalidData = { ...validInvitationData };
       delete (invalidData as any).expiresAt;
 
       const response = await request(app).post("/project-123/invitations").send(invalidData);
 
-      expect(response.status).toBe(400);
-      expect(response.text).toContain("expiresAt");
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("expiresAt");
+      expect(Number.isNaN(Date.parse(response.body.expiresAt))).toBe(false);
     });
 
     it("should return 400 when expiresAt is invalid", async () => {
@@ -590,14 +591,15 @@ describe("Invitations Route", () => {
       expect(response.text).toContain("Authentication required");
     });
 
-    it("should return 400 when expiresAt is missing", async () => {
+    it("should default expiresAt when it is missing", async () => {
       const invalidData = { ...validTokenData };
       delete (invalidData as any).expiresAt;
 
       const response = await request(app).post("/project-123/invitationTokens").send(invalidData);
 
-      expect(response.status).toBe(400);
-      expect(response.text).toContain("expiresAt");
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("expiresAt");
+      expect(Number.isNaN(Date.parse(response.body.expiresAt))).toBe(false);
     });
   });
 
