@@ -8,7 +8,7 @@ import type { Request } from "express";
 import { permissions } from "../utils/access";
 
 // Validation constants
-const ALLOWED_ROLES = ["Student", "Project Mentor", "Mentor", "Admin"] as const;
+const ALLOWED_ROLES = ["Student", "Project Mentor", "Lead Mentor", "External Partner"] as const;
 const MAX_USES_MIN = 1;
 const MAX_USES_MAX = 100;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -67,6 +67,7 @@ export function createInvitationsRouter(commonContext: Context) {
     }
 
     // Check authorization - only admins can create invitations
+    // Note: Pass full keystone object so isAdminLike can check both role and isAdmin boolean
     if (!permissions.isAdminLike({ session: context.session })) {
       return res.status(403).json(createErrorResponse("FORBIDDEN", "Admin access required"));
     }
@@ -175,7 +176,7 @@ export function createInvitationsRouter(commonContext: Context) {
     }
 
     // Check authorization - only admins can create invitations
-    if (!permissions.isAdminLike({ session })) {
+    if (!permissions.isAdminLike({ session: context.session })) {
       return res.status(403).json(createErrorResponse("FORBIDDEN", "Admin access required"));
     }
 
