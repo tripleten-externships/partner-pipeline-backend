@@ -67,7 +67,6 @@ export function createInvitationsRouter(commonContext: Context) {
     }
 
     // Check authorization - only admins can create invitations
-    // Note: Pass full keystone object so isAdminLike can check both role and isAdmin boolean
     if (!permissions.isAdminLike({ session: context.session })) {
       return res.status(403).json(createErrorResponse("FORBIDDEN", "Admin access required"));
     }
@@ -245,21 +244,14 @@ export function createInvitationsRouter(commonContext: Context) {
       );
     }
 
-    // Normalize roleToGrant to match the expected format
-    // For single word roles like "student", capitalize first letter
-    // For multi-word roles like "project mentor", capitalize each word
-    const normalizedRole = roleToGrant
-      .split(" ")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-      .join(" ");
-
-    // Validate role after normalization
-    if (!isValidRole(normalizedRole)) {
+    // Validate role — frontend sends exact values matching InvitationToken model options
+    if (!isValidRole(roleToGrant)) {
       return res.status(400).json(
         createErrorResponse("VALIDATION_ERROR", "Invalid role", {
           field: "roleToGrant",
+
           value: roleToGrant,
-          normalizedValue: normalizedRole,
+
           allowedValues: ALLOWED_ROLES,
         })
       );
@@ -325,7 +317,7 @@ export function createInvitationsRouter(commonContext: Context) {
         data: {
           tokenHash,
           project: { connect: { id: projectInvitation.id } }, // Connect to ProjectInvitation
-          roleToGrant: normalizedRole,
+          roleToGrant: roleToGrant,
           expiresAt: expirationDate.toISOString(),
           maxUses: maxUsesNum,
           notes,
