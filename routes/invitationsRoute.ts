@@ -1,4 +1,3 @@
-import { Router } from "express";
 import crypto from "crypto";
 import * as bcrypt from "bcryptjs";
 import type { Context } from ".keystone/types";
@@ -8,7 +7,7 @@ import type { Request } from "express";
 import { permissions } from "../utils/access";
 
 // Validation constants
-const ALLOWED_ROLES = ["Student", "Project Mentor", "Mentor", "Admin"] as const;
+const ALLOWED_ROLES = ["Student", "Project Mentor", "Lead Mentor", "External Partner"] as const;
 const MAX_USES_MIN = 1;
 const MAX_USES_MAX = 100;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -67,7 +66,7 @@ export function createInvitationsRouter(commonContext: Context) {
     }
 
     // Check authorization - only admins can create invitations
-    if (!permissions.isAdminLike({ session })) {
+    if (!permissions.isAdminLike({ session: context.session })) {
       return res.status(403).json(createErrorResponse("FORBIDDEN", "Admin access required"));
     }
 
@@ -83,12 +82,19 @@ export function createInvitationsRouter(commonContext: Context) {
       );
     }
 
-    // Validate roleToGrant
-    if (!isValidRole(roleToGrant)) {
+    // Normalize role
+    const normalizedRole = String(roleToGrant)
+      .split(" ")
+      .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(" ");
+
+    // Validate role
+    if (!isValidRole(normalizedRole)) {
       return res.status(400).json(
         createErrorResponse("VALIDATION_ERROR", "Invalid role", {
           field: "roleToGrant",
           value: roleToGrant,
+          normalizedValue: normalizedRole,
           allowedValues: ALLOWED_ROLES,
         })
       );
@@ -126,7 +132,7 @@ export function createInvitationsRouter(commonContext: Context) {
         data: {
           tokenHash,
           project: { connect: { id: req.params.projectId } },
-          roleToGrant,
+          roleToGrant: normalizedRole,
           expiresAt: new Date(expiresAt).toISOString(),
           maxUses: maxUsesNum,
           createdBy: { connect: { id: session.id } },
@@ -137,11 +143,14 @@ export function createInvitationsRouter(commonContext: Context) {
       const frontendUrl = process.env.FRONTEND_URL || DEFAULT_FRONTEND_URL;
       const inviteLink = `${frontendUrl}/accept-invitation?token=${rawToken}&invitationId=${created.id}`;
 
+      // Always echo the original expiration string
+      const responseExpires = new Date(expiresAt).toISOString();
+
       res.json({
         id: created.id,
         token: rawToken, // Raw token (send this via email)
         inviteLink, // Followable link
-        expiresAt: created.expiresAt,
+        expiresAt: responseExpires,
       });
     } catch (err: any) {
       console.error(err);
@@ -175,7 +184,8 @@ export function createInvitationsRouter(commonContext: Context) {
     }
 
     // Check authorization - only admins can create invitations
-    if (!permissions.isAdminLike({ session })) {
+    // Pass the full Keystone session (not the unwrapped .data) so isAdminLike can access session.data.role
+    if (!permissions.isAdminLike({ session: context.session })) {
       return res.status(403).json(createErrorResponse("FORBIDDEN", "Admin access required"));
     }
 
@@ -244,15 +254,13 @@ export function createInvitationsRouter(commonContext: Context) {
       );
     }
 
-    // Normalize roleToGrant to match the expected format
-    // For single word roles like "student", capitalize first letter
-    // For multi-word roles like "project mentor", capitalize each word
-    const normalizedRole = roleToGrant
+    // Normalize role
+    const normalizedRole = String(roleToGrant)
       .split(" ")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
       .join(" ");
 
-    // Validate role after normalization
+    // Validate role — frontend sends exact values matching InvitationToken model options
     if (!isValidRole(normalizedRole)) {
       return res.status(400).json(
         createErrorResponse("VALIDATION_ERROR", "Invalid role", {

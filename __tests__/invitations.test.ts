@@ -125,7 +125,7 @@ describe("Invitations Route", () => {
 
   describe("POST /:projectId/invitations", () => {
     const validInvitationData = {
-      roleToGrant: "student",
+      roleToGrant: "Student",
       expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
       maxUses: 1,
       notes: "Test invitation",
@@ -161,28 +161,43 @@ describe("Invitations Route", () => {
       expect(response.body.inviteLink).toMatch(/accept-invitation\?token=.*&invitationId=/);
     });
 
-    it("should normalize role to proper case", async () => {
+    it("should accept role with different casing by normalizing it", async () => {
+      mockFindMany.mockResolvedValueOnce([]); // No existing ProjectInvitation
+      mockCreateOne.mockResolvedValueOnce({
+        ...mockProjectInvitation,
+        id: "new-invitation-123",
+      });
+      mockCreateOne.mockResolvedValueOnce({
+        ...mockInvitationToken,
+        id: "new-token-123",
+      });
+      const response = await request(app)
+        .post("/project-123/invitations")
+        .send({
+          ...validInvitationData,
+          roleToGrant: "sTuDeNt", // Mixed case should normalize to "Student"
+        });
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("inviteLink");
+      expect(response.body.message).toContain("New invitation token created");
+    });
+
+    it("should reject invalid role", async () => {
       // First findMany checks for existing ProjectInvitation (none found)
       mockFindMany.mockResolvedValueOnce([]);
-      mockCreateOne.mockResolvedValueOnce(mockProjectInvitation);
-      mockCreateOne.mockResolvedValueOnce(mockInvitationToken);
 
       const response = await request(app)
         .post("/project-123/invitations")
         .send({
           ...validInvitationData,
-          roleToGrant: "student", // lowercase
+          roleToGrant: "UnknownRole", // invalid role
         });
 
-      expect(response.status).toBe(200);
-      // Verify the token was created with capitalized role
-      expect(mockCreateOne).toHaveBeenCalledWith(
-        expect.objectContaining({
-          data: expect.objectContaining({
-            roleToGrant: "Student", // Should be capitalized
-          }),
-        })
-      );
+      expect(response.status).toBe(400);
+      expect(response.text).toContain("Invalid role");
+      // Verify the token was not created due to invalid role
+      expect(mockCreateOne).not.toHaveBeenCalled();
     });
 
     it("should return 401 when user is not authenticated", async () => {
